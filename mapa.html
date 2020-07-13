@@ -48,7 +48,7 @@
 
       var popup = new mapboxgl.Popup({ offset: [0, -15] })
         .setLngLat(feature.geometry.coordinates)
-        .setHTML('<p>Barragem: </b>' + feature.properties.Barragem_nome +
+        .setHTML('<p><b>Barragem: </b>' + feature.properties.Barragem_nome +
           '<p><b>Mina: </b>' + feature.properties.Mina +
           '<p><b>Município: </b>' + feature.properties.Municipio +
           '<p><b>Altura Atual(m): </b>' + feature.properties.Altura_Atual +
