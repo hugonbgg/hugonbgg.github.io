@@ -50,8 +50,16 @@
         mapboxgl: mapboxgl
       })
     );
-
+    
+    //Muda o icone
+    map.on('mouseenter', 'local-das-barragens', () => {
+      map.getCanvas().style.cursor = 'pointer'
+    })
+    map.on('mouseleave', 'local-das-barragens', () => {
+      map.getCanvas().style.cursor = ''
+    })
     //Popups
+
     map.on('click', function (e) {
       var features = map.queryRenderedFeatures(e.point, {
         layers: ['local-das-barragens'] // replace this with the name of the layer
