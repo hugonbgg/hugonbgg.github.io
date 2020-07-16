@@ -55,7 +55,7 @@
                 'type': 'fill',
                 'source': {
                     'type': 'geojson',
-                    'data': '/terras_indigenas.geojson'
+                    'data': '/dados/terras_indigenas.geojson'
                 },
                 'layout': {},
                 'paint': {
@@ -70,6 +70,27 @@
                 // 'overlays' anywhere in the layer stack.
             });
         });
+
+        //Adiciona o popup
+        // When a click event occurs on a feature in the states layer, open a popup at the
+        // location of the click, with description HTML from its properties.
+        map.on('click', 'terras-indigenas', function (e) {
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML(e.features[0].properties.terrai_nom + '<p>' + e.features[0].properties.etnia_nome)
+                .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the states layer.
+        map.on('mouseenter', 'terras-indigenas', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'terras-indigenas', function () {
+            map.getCanvas().style.cursor = '';
+        });
+
         //Exibe a caixa de busca:
         map.addControl(
             new MapboxGeocoder({
