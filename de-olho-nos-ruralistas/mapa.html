@@ -55,7 +55,7 @@
                 'type': 'fill',
                 'source': {
                     'type': 'geojson',
-                    'data': '/dados/terras_indigenas.geojson'
+                    'data': 'https://raw.githubusercontent.com/hugonbgg/hugonbgg.github.io/master/de-olho-nos-ruralistas/dados/terras_indigenas.geojson?token=ACVPPYLUPTHRR2WESKPBNL27DH3JW'
                 },
                 'layout': {},
                 'paint': {
@@ -77,7 +77,7 @@
         map.on('click', 'terras-indigenas', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-                .setHTML(e.features[0].properties.terrai_nom + '<p>' + e.features[0].properties.etnia_nome)
+                .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nom + '<p><b>Etnia: </b>' + e.features[0].properties.etnia_nome)
                 .addTo(map);
         });
 
