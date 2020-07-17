@@ -60,8 +60,8 @@
                 },
                 'layout': {},
                 'paint': {
-                    'fill-color': '#f08',
-                    'fill-opacity': 0.4
+                    'fill-color': '#942525',
+                    'fill-opacity': 0.7
                 }
                 // This is the important part of this example: the addLayer
                 // method takes 2 arguments: the layer as an object, and a string
@@ -70,9 +70,25 @@
                 // right before that layer in the stack, making it possible to put
                 // 'overlays' anywhere in the layer stack.
             });
+            //Carrega o layer das terras indigenas:
+            map.addLayer({
+                'id': 'CAR-TIs',
+                'type': 'fill',
+                'source': {
+                    'type': 'geojson',
+                    'data': 'dados/CAR_TI_simplify_filter.geojson'
+                },
+                'layout': {},
+                'paint': {
+                    'fill-color': '#FFC100',
+                    'fill-opacity': 0.7,
+                    'fill-outline-color': '#ffffff'
+                }
+
+            });
         });
 
-        //Adiciona o popup
+        //Adiciona o popup das TI
         // When a click event occurs on a feature in the states layer, open a popup at the
         // location of the click, with description HTML from its properties.
         map.on('click', 'terras-indigenas', function (e) {
@@ -89,6 +105,26 @@
 
         // Change it back to a pointer when it leaves.
         map.on('mouseleave', 'terras-indigenas', function () {
+            map.getCanvas().style.cursor = '';
+        });
+        //Adiciona o popup do CAR
+
+        // When a click event occurs on a feature in the states layer, open a popup at the
+        // location of the click, with description HTML from its properties.
+        map.on('click', 'CAR-TIs', function (e) {
+            new mapboxgl.Popup()
+                .setLngLat(e.lngLat)
+                .setHTML('<b> Código do imóvel: </b>' + e.features[0].properties.COD_IMOVEL + '<p><b>Tipo: </b>' + e.features[0].properties.TIPO_IMOVE)
+                .addTo(map);
+        });
+
+        // Change the cursor to a pointer when the mouse is over the states layer.
+        map.on('mouseenter', 'CAR-TIs', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        // Change it back to a pointer when it leaves.
+        map.on('mouseleave', 'CAR-TIs', function () {
             map.getCanvas().style.cursor = '';
         });
 
