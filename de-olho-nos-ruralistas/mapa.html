@@ -94,6 +94,7 @@
         map.on('click', 'terras-indigenas', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
+				.setMaxWidth('300px')
                 .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nom + '<p><b>Etnia: </b>' + e.features[0].properties.etnia_nome)
                 .addTo(map);
         });
