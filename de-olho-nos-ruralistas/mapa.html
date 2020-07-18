@@ -94,8 +94,7 @@
         map.on('click', 'terras-indigenas', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-				.setMaxWidth('none')
-                .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nom + '<p><b>Etnia: </b>' + e.features[0].properties.etnia_nome)
+				.setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nom + '<p><b>Etnia: </b>' + e.features[0].properties.etnia_nome)
                 .addTo(map);
         });
 
@@ -116,7 +115,7 @@
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
 				.setMaxWidth('none')
-                .setHTML('<b> Código do imóvel: </b>' + e.features[0].properties.COD_IMOVEL + '<p><b>Tipo: </b>' + e.features[0].properties.TIPO_IMOVE)
+                .setHTML('<b> Código do imóvel: </b><br>' + e.features[0].properties.COD_IMOVEL + '<p><b>Tipo: </b>' + e.features[0].properties.TIPO_IMOVE)
                 .addTo(map);
         });
 
