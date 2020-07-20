@@ -114,9 +114,10 @@
         map.on('click', 'CAR-TIs', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-				.setMaxWidth('none')
-                .setHTML('<b> Código do imóvel: </b><br>' + e.features[0].properties.COD_IMOVEL + '<p><b>Tipo: </b>' + e.features[0].properties.TIPO_IMOVE)
-                .addTo(map);
+                .setMaxWidth('none')
+                .setHTML('<b> Código do imóvel: </b><br>' + e.features[0].properties.COD_IMOVEL + '<br><b>Tipo: </b>' + e.features[0].properties.TIPO_IMOVE
+                + '<br><b> Área em hectares </b>' + e.features[0].properties.area_ha + '<br><b> Área dentro da TI em %: </b>' + e.features[0].properties.pct_intersec)
+                    .addTo(map);
         });
 
         // Change the cursor to a pointer when the mouse is over the states layer.
