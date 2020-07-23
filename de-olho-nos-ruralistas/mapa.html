@@ -21,6 +21,30 @@
             bottom: 0;
             width: 100%;
         }
+
+        .legend {
+            background-color: #fff;
+            border-radius: 3px;
+            bottom: 30px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            padding: 10px;
+            position: absolute;
+            right: 10px;
+            z-index: 1;
+        }
+
+        .legend h4 {
+            margin: 0 0 10px;
+        }
+
+        .legend div span {
+            border-radius: 50%;
+            display: inline-block;
+            height: 10px;
+            margin-right: 5px;
+            width: 10px;
+        }
     </style>
 </head>
 
@@ -44,7 +68,7 @@
             container: 'map', // container id
             style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
             center: [-55.5, -13.5], // starting position [lng, lat]
-            zoom: 4 // starting zoom
+            zoom: 3.5 // starting zoom
         });
 
 
@@ -60,8 +84,18 @@
                 },
                 'layout': {},
                 'paint': {
-                    'fill-color': '#942525',
-                    'fill-opacity': 0.7,
+                    'fill-color': {
+                        property: 'car_sobre_pct',
+                        stops: [
+                            [0, '#B5651D'],
+                            [25, '#964B00'],
+                            [50, '#834200'],
+                            [75, '#673400']
+
+                        ]
+                    },
+                    //'fill-color': '#942525',
+                    'fill-opacity': 1,
                     'fill-outline-color': '#ffffff'
                 }
                 // This is the important part of this example: the addLayer
@@ -71,7 +105,7 @@
                 // right before that layer in the stack, making it possible to put
                 // 'overlays' anywhere in the layer stack.
             });
-            //Carrega o layer das terras indigenas:
+            //Carrega o layer dos CARs:
             map.addLayer({
                 'id': 'CAR-TIs',
                 'type': 'fill',
@@ -82,7 +116,7 @@
                 'layout': {},
                 'paint': {
                     'fill-color': '#FFC100',
-                    'fill-opacity': 1,
+                    'fill-opacity': 0.5,
                     'fill-outline-color': '#ffffff'
                 }
 
@@ -93,17 +127,17 @@
         // When a click event occurs on a feature in the states layer, open a popup at the
         // location of the click, with description HTML from its properties.
 
-        
+
 
         map.on('click', 'terras-indigenas', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-                .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nome + 
-                '<p><b>Etnias: </b>' + e.features[0].properties.etnia_nome + 
-                '<p><b>Situação: </b>' + e.features[0].properties.fase_ti + ' (' + e.features[0].properties.ano_homolog + ')' +
-                '<p><b>Área em hectares: </b>' + e.features[0].properties.area_ti + 
-                '<p><b>Número de CARs sobrepostos: </b>' + e.features[0].properties.contagem_car + 
-                '<p><b>Sobreposição de CAR (em %): </b>' + e.features[0].properties.car_sobre_pct)
+                .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nome +
+                    '<p><b>Etnias: </b>' + e.features[0].properties.etnia_nome +
+                    '<p><b>Situação: </b>' + e.features[0].properties.fase_ti + ' (' + e.features[0].properties.ano_homolog + ')' +
+                    '<p><b>Área em hectares: </b>' + e.features[0].properties.area_ti +
+                    '<p><b>Número de CARs sobrepostos: </b>' + e.features[0].properties.contagem_car +
+                    '<p><b>Sobreposição de CAR (em %): </b>' + e.features[0].properties.car_sobre_pct)
 
                 .addTo(map);
         });
@@ -116,7 +150,7 @@
 
         // Change it back to a pointer when it leaves.
         map.on('mouseleave', 'terras-indigenas', function () {
-            map.getCanvas().style.cursor = ''; 
+            map.getCanvas().style.cursor = '';
         });
         //Adiciona o popup do CAR
 
@@ -130,12 +164,12 @@
                 .setLngLat(e.lngLat)
                 .setMaxWidth('nome')
                 .setHTML(
-                '<b> Código do imóvel: </b><br>' + e.features[0].properties.cod_imovel + 
-                '<br><b>Tipo: </b>' + e.features[0].properties.tipo + 
-                '<br><b> Área em hectares: </b>' + e.features[0].properties.area_ha + 
-                '<br><b> Área sobreposta à TI: </b>' + e.features[0].properties.area_inter +
-                '<br><b> Nome da TI: </b>' + e.features[0].properties.terrai_nome +
-                '<br><b> Nome do proprietário: </b>' + e.features[0].properties.dominio)
+                    '<b> Código do imóvel: </b><br>' + e.features[0].properties.cod_imovel +
+                    '<br><b>Tipo: </b>' + e.features[0].properties.tipo +
+                    '<br><b> Área em hectares: </b>' + e.features[0].properties.area_ha +
+                    '<br><b> Área sobreposta à TI: </b>' + e.features[0].properties.area_inter +
+                    '<br><b> Nome da TI: </b>' + e.features[0].properties.terrai_nome +
+                    '<br><b> Nome do proprietário: </b>' + e.features[0].properties.dominio)
                 .addTo(map);
         });
 

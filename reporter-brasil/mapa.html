@@ -41,8 +41,19 @@
       //style: 'mapbox://styles/hugonbg/ckcccawwn145a1ipdhzsxkcca', //hosted style id
       style: 'mapbox://styles/hugonbg/ckcccawwn145a1ipdhzsxkcca/draft', //rascunho
       center: [-43.650, -20], // starting position
-      zoom: 8.85 // starting zoom
+      zoom: 8.85, // starting zoom
+      attributionControl: false
     });
+
+    map.addControl(
+      new mapboxgl.AttributionControl({
+        customAttribution:
+          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
+      })
+    );
+
+
+
 
     map.addControl(
       new MapboxGeocoder({
@@ -50,7 +61,7 @@
         mapboxgl: mapboxgl
       })
     );
-    
+
     //Muda o icone
     map.on('mouseenter', 'local-das-barragens', () => {
       map.getCanvas().style.cursor = 'pointer'
@@ -82,7 +93,8 @@
           '<p><b>Categoria de Risco: </b>' + feature.properties.Categoria_de_Risco +
           '<p><b>Dano Potencial Associado: </b>' + feature.properties.Dano_Potencial_Associado +
           '<p><b>Classe: </b>' + feature.properties.Classe +
-          '<p><b>Nível de Emergência: </b>' + feature.properties.Nivel_de_Emergencia)
+          '<p><b>Nível de Emergência: </b>' + feature.properties.Nivel_de_Emergencia +
+          '<p>Fonte: Agência Nacional de Mineração (ANM) - 2020')
         .addTo(map);
     });
 
