@@ -30,23 +30,21 @@
             container: 'map',
             style: 'mapbox://styles/mapbox/streets-v11',
             center: [-45, -20],
-            zoom: 4
+            zoom: 5
         });
 
 
         map.on('load', function () {
 
-
-
             //Carrega o layer dos paises:
-            map.addSource('countries-data', {
+            map.addSource('UFs-data', {
                 type: 'geojson',
-                data: 'dados/ne_50m_admin_0_countries.geojson'
+                data: 'dados/old/UFs.geojson'
             });
 
             map.addLayer({
-                id: 'countries',
-                source: 'countries-data',
+                id: 'UFs',
+                source: 'UFs-data',
                 type: 'fill',
                 'layout': {},
                 'paint': {
@@ -57,14 +55,14 @@
             });
 
             //Carrega o layer das áreas urbanas:
-            map.addSource('UFs-data', {
+            map.addSource('urbana-data', {
                 type: 'geojson',
-                data: 'dados/UFs.geojson'
+                data: 'dados/old/areas_urbanas_br.geojson'
             });
 
             map.addLayer({
-                id: 'UFs',
-                source: 'UFs-data',
+                id: 'areas-urbanas',
+                source: 'urbana-data',
                 type: 'fill',
                 'layout': {},
                 'paint': {
@@ -73,81 +71,55 @@
                     'fill-outline-color': '#000000'
                 }
             });
-            //Popups
 
-            map.on('click', 'points', function (e) {
-                console.log('clicked on layer', e);
-                e.clickOnLayer = true;
-            });
+            //popup desenvolvimento
+
+            //Popup UFs
+
 
             map.on('click', function (e) {
-                if (e.clickOnLayer) {
-                    return;
+
+                var features = map.queryRenderedFeatures(e.point, { layers: ['areas-urbanas', 'UFs'] });
+                if (features.length == 1) {
+                    var feature = features[0];
+                    var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                        .setLngLat(e.lngLat)
+                        .setHTML(
+                            '<p><b>Unidades da Federação:</b></p>' +
+                            '<b>Nome UF: </b>' + feature.properties.NM_UF +
+                            '<br><b>Sigla UF: </b>' + feature.properties.SIGLA_UF +
+                            '<br><b>Região: </b>' + feature.properties.NM_REGIAO
+                        )
+                        .setMaxWidth('none')
+                        .addTo(map);
+
                 }
-                console.log('map clicked', e);
+
+                //Popup áreas urbanas
+
+                f = map.queryRenderedFeatures(e.point, { layers: ['areas-urbanas'] });
+                if (f.length) {
+                    var feature = f[0];
+                    popup = new mapboxgl.Popup({ offset: [0, -15] })
+                        .setLngLat(e.lngLat)
+                        .setHTML(
+                            '<p><b>Areas urbanas:</b></p>' +
+                            '<b>Área: </b>' + feature.properties.area_sqkm +
+                            '<br><b>Nome UF: </b>' + feature.properties.NM_UF +
+                            '<br><b>Sigla UF: </b>' + feature.properties.SIGLA_UF +
+                            '<br><b>Região: </b>' + feature.properties.NM_REGIAO +
+                            '<br><b>Classe: </b>' + feature.properties.featureclass
+                        )
+                        .setMaxWidth('none')
+                        .addTo(map);
+
+                }
+
             });
 
 
-
-
-
-
-
-
-            //popup países:
-            /*
-              
-            map.on('click', function (e) {
-                var features = map.queryRenderedFeatures(e.point, {
-                    layers: ['countries'] // replace this with the name of the layer
-                });
-
-                if (!features.length) {
-                    return;
-                }
-
-                var feature = features[0];
-
-                var popup = new mapboxgl.Popup({ offset: [0, -15] })
-                    .setLngLat(e.lngLat)
-                    .setHTML(
-                        '<b>Nome: </b>' + feature.properties.name +
-                        '<br><b>Nome formal: </b>' + feature.properties.formal_en +
-                        '<br><b>Economia: </b>' + feature.properties.economy +
-                        '<br><b>Perfil econômico: </b>' + feature.properties.income_grp +
-                        '<br><b>Continente: </b>' + feature.properties.continent +
-                        '<br><b>Região: </b>' + feature.properties.region_wb)
-                    .setMaxWidth('none')
-                    .addTo(map);
-            });
-
-            //popup UFs:
-            
-            map.on('click', function (e) {
-                var features = map.queryRenderedFeatures(e.point, {
-                    layers: ['UFs'] // replace this with the name of the layer
-                });
-
-                if (!features.length) {
-                    return;
-                }
-
-                var feature = features[0];
-
-                var popup = new mapboxgl.Popup({ offset: [0, -15] })
-                    .setLngLat(e.lngLat)
-                    .setHTML(
-                        '<b>Nome: </b>' + feature.properties.NM_UF +
-                        '<br><b>Código: </b>' + feature.properties.CD_UF +
-                        '<br><b>Sigla: </b>' + feature.properties.SIGLA_UF +
-                        '<br><b>Região: </b>' + feature.properties.NM_REGIAO)
-                    .setMaxWidth('none')
-                    .addTo(map);
-            }); */
 
         });
-
-
     </script>
 
 </body>
