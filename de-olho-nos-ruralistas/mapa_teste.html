@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+    <title>Document</title>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw';
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [-45, -20],
+            zoom: 4
+        });
+
+
+        map.on('load', function () {
+
+
+
+            //Carrega o layer dos paises:
+            map.addSource('countries-data', {
+                type: 'geojson',
+                data: 'dados/ne_50m_admin_0_countries.geojson'
+            });
+
+            map.addLayer({
+                id: 'countries',
+                source: 'countries-data',
+                type: 'fill',
+                'layout': {},
+                'paint': {
+                    'fill-color': 'blue',
+                    'fill-opacity': 0.3,
+                    'fill-outline-color': '#000000'
+                }
+            });
+
+            //Carrega o layer das áreas urbanas:
+            map.addSource('UFs-data', {
+                type: 'geojson',
+                data: 'dados/UFs.geojson'
+            });
+
+            map.addLayer({
+                id: 'UFs',
+                source: 'UFs-data',
+                type: 'fill',
+                'layout': {},
+                'paint': {
+                    'fill-color': 'yellow',
+                    'fill-opacity': 0.5,
+                    'fill-outline-color': '#000000'
+                }
+            });
+            //Popups
+
+            map.on('click', 'points', function (e) {
+                console.log('clicked on layer', e);
+                e.clickOnLayer = true;
+            });
+
+            map.on('click', function (e) {
+                if (e.clickOnLayer) {
+                    return;
+                }
+                console.log('map clicked', e);
+            });
+
+
+
+
+
+
+
+
+            //popup países:
+            /*
+              
+            map.on('click', function (e) {
+                var features = map.queryRenderedFeatures(e.point, {
+                    layers: ['countries'] // replace this with the name of the layer
+                });
+
+                if (!features.length) {
+                    return;
+                }
+
+                var feature = features[0];
+
+                var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                    .setLngLat(e.lngLat)
+                    .setHTML(
+                        '<b>Nome: </b>' + feature.properties.name +
+                        '<br><b>Nome formal: </b>' + feature.properties.formal_en +
+                        '<br><b>Economia: </b>' + feature.properties.economy +
+                        '<br><b>Perfil econômico: </b>' + feature.properties.income_grp +
+                        '<br><b>Continente: </b>' + feature.properties.continent +
+                        '<br><b>Região: </b>' + feature.properties.region_wb)
+                    .setMaxWidth('none')
+                    .addTo(map);
+            });
+
+            //popup UFs:
+            
+            map.on('click', function (e) {
+                var features = map.queryRenderedFeatures(e.point, {
+                    layers: ['UFs'] // replace this with the name of the layer
+                });
+
+                if (!features.length) {
+                    return;
+                }
+
+                var feature = features[0];
+
+                var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                    .setLngLat(e.lngLat)
+                    .setHTML(
+                        '<b>Nome: </b>' + feature.properties.NM_UF +
+                        '<br><b>Código: </b>' + feature.properties.CD_UF +
+                        '<br><b>Sigla: </b>' + feature.properties.SIGLA_UF +
+                        '<br><b>Região: </b>' + feature.properties.NM_REGIAO)
+                    .setMaxWidth('none')
+                    .addTo(map);
+            }); */
+
+        });
+
+
+    </script>
+
+</body>
+
+</html>

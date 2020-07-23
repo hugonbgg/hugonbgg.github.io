@@ -56,7 +56,7 @@
                 'type': 'fill',
                 'source': {
                     'type': 'geojson',
-                    'data': 'dados/terras_indigenas_overlay.geojson'
+                    'data': 'dados/TIs_infos_completas_simplify.geojson'
                 },
                 'layout': {},
                 'paint': {
@@ -77,7 +77,7 @@
                 'type': 'fill',
                 'source': {
                     'type': 'geojson',
-                    'data': 'dados/CAR_TI_simplify_filter.geojson'
+                    'data': 'dados/car_sobreposicao_ti_donos_simplify.geojson'
                 },
                 'layout': {},
                 'paint': {
@@ -93,10 +93,17 @@
         // When a click event occurs on a feature in the states layer, open a popup at the
         // location of the click, with description HTML from its properties.
 
+        
+
         map.on('click', 'terras-indigenas', function (e) {
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-                .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nome + '<p><b>Etnias: </b>' + e.features[0].properties.etnia_nome + '<p><b>Status legal: </b>' + e.features[0].properties.fase_ti + '<p><b>Área total (em hectares): </b>' + e.features[0].properties.terra_ha + '<p><b>Número de CARs sobrepostos: </b>' + e.features[0].properties.car_contagem + '<p><b>Sobreposicação de CAR (em %): </b>' + e.features[0].properties.car_sobre_pct)
+                .setHTML('<b> Terra indígena: </b>' + e.features[0].properties.terrai_nome + 
+                '<p><b>Etnias: </b>' + e.features[0].properties.etnia_nome + 
+                '<p><b>Situação: </b>' + e.features[0].properties.fase_ti + ' (' + e.features[0].properties.ano_homolog + ')' +
+                '<p><b>Área em hectares: </b>' + e.features[0].properties.area_ti + 
+                '<p><b>Número de CARs sobrepostos: </b>' + e.features[0].properties.contagem_car + 
+                '<p><b>Sobreposição de CAR (em %): </b>' + e.features[0].properties.car_sobre_pct)
 
                 .addTo(map);
         });
@@ -109,18 +116,26 @@
 
         // Change it back to a pointer when it leaves.
         map.on('mouseleave', 'terras-indigenas', function () {
-            map.getCanvas().style.cursor = '';
+            map.getCanvas().style.cursor = ''; 
         });
         //Adiciona o popup do CAR
 
         // When a click event occurs on a feature in the states layer, open a popup at the
         // location of the click, with description HTML from its properties.
 
+
         map.on('click', 'CAR-TIs', function (e) {
+
             new mapboxgl.Popup()
                 .setLngLat(e.lngLat)
-                .setHTML('<b> Código do imóvel: </b><br>' + e.features[0].properties.COD_IMOVEL + '<br><b>Tipo: </b>' + e.features[0].properties.TIPO_IMOVE
-                    + '<br><b> Área em hectares </b>' + e.features[0].properties.area_ha + '<br><b> Área dentro da TI em %: </b>' + e.features[0].properties.pct_intersec)
+                .setMaxWidth('nome')
+                .setHTML(
+                '<b> Código do imóvel: </b><br>' + e.features[0].properties.cod_imovel + 
+                '<br><b>Tipo: </b>' + e.features[0].properties.tipo + 
+                '<br><b> Área em hectares: </b>' + e.features[0].properties.area_ha + 
+                '<br><b> Área sobreposta à TI: </b>' + e.features[0].properties.area_inter +
+                '<br><b> Nome da TI: </b>' + e.features[0].properties.terrai_nome +
+                '<br><b> Nome do proprietário: </b>' + e.features[0].properties.dominio)
                 .addTo(map);
         });
 
