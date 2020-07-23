@@ -47,12 +47,11 @@
 
     map.addControl(
       new mapboxgl.AttributionControl({
+        compact: false,
         customAttribution:
-          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
+          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Gusmão</a>'
       })
     );
-
-
 
 
     map.addControl(
@@ -85,16 +84,16 @@
       var popup = new mapboxgl.Popup({ offset: [0, -15] })
         .setLngLat(feature.geometry.coordinates)
         .setHTML('<p><b>Barragem: </b>' + feature.properties.Barragem_nome +
-          '<p><b>Mina: </b>' + feature.properties.Mina +
-          '<p><b>Município: </b>' + feature.properties.Municipio +
-          '<p><b>Altura Atual(m): </b>' + feature.properties.Altura_Atual +
-          '<p><b>Volume Atual(m³): </b>' + feature.properties.Volume_Atual +
-          '<p><b>Método Construtivo: </b>' + feature.properties.Metodo_Construtivo +
-          '<p><b>Categoria de Risco: </b>' + feature.properties.Categoria_de_Risco +
-          '<p><b>Dano Potencial Associado: </b>' + feature.properties.Dano_Potencial_Associado +
-          '<p><b>Classe: </b>' + feature.properties.Classe +
-          '<p><b>Nível de Emergência: </b>' + feature.properties.Nivel_de_Emergencia +
-          '<p>Fonte: Agência Nacional de Mineração (ANM) - 2020')
+          '<br><b>Mina: </b>' + feature.properties.Mina +
+          '<br><b>Município: </b>' + feature.properties.Municipio +
+          '<br><b>Altura Atual(m): </b>' + feature.properties.Altura_Atual +
+          '<br><b>Volume Atual(m³): </b>' + feature.properties.Volume_Atual +
+          '<br><b>Método Construtivo: </b>' + feature.properties.Metodo_Construtivo +
+          '<br><b>Categoria de Risco: </b>' + feature.properties.Categoria_de_Risco +
+          '<br><b>Dano Potencial Associado: </b>' + feature.properties.Dano_Potencial_Associado +
+          '<br><b>Classe: </b>' + feature.properties.Classe +
+          '<br><b>Nível de Emergência: </b>' + feature.properties.Nivel_de_Emergencia +
+          '<p style="font-size:85%">Fonte: Agência Nacional de Mineração (ANM) - 2020')
         .addTo(map);
     });
 
