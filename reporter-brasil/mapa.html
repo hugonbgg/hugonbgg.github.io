@@ -49,7 +49,7 @@
       new mapboxgl.AttributionControl({
         compact: false,
         customAttribution:
-          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Gusmão</a>'
+          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
       })
     );
 
@@ -83,6 +83,7 @@
 
       var popup = new mapboxgl.Popup({ offset: [0, -15] })
         .setLngLat(feature.geometry.coordinates)
+        .setMaxWidth('none')
         .setHTML('<p><b>Barragem: </b>' + feature.properties.Barragem_nome +
           '<br><b>Mina: </b>' + feature.properties.Mina +
           '<br><b>Município: </b>' + feature.properties.Municipio +
@@ -93,7 +94,7 @@
           '<br><b>Dano Potencial Associado: </b>' + feature.properties.Dano_Potencial_Associado +
           '<br><b>Classe: </b>' + feature.properties.Classe +
           '<br><b>Nível de Emergência: </b>' + feature.properties.Nivel_de_Emergencia +
-          '<p style="font-size:85%">Fonte: Agência Nacional de Mineração (ANM) - 2020')
+          '<br style="font-size:85%">Fonte: ANM - 2020')
         .addTo(map);
     });
 
