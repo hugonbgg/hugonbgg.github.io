@@ -109,7 +109,7 @@
                 if (features.length == 1) {
                     var feature = features[0];
 
-                    var popup = new mapboxgl.Popup()
+                    var popup = new mapboxgl.Popup({ offset: [0, -15] })
                         .setLngLat(e.lngLat)
                         .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
                             '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
@@ -129,7 +129,7 @@
 
                 if (features.length) {
                     var feature = features[0];
-                    poupup = new mapboxgl.Popup()
+                    poupup = new mapboxgl.Popup({ offset: [0, -15] })
                         .setLngLat(e.lngLat)
                         .setMaxWidth('none')
                         .setHTML(
