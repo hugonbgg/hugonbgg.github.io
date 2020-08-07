@@ -133,13 +133,16 @@
                     var prop = feature.properties;
                     var item = document.createElement('a');
                     item.href = prop.wikipedia;
+                    item.addEventListener('click', function (e) {
+                        e.preventDefault()
+                    })
                     item.target = '_blank';
                     item.textContent = prop.terrai_nome + ' (' + prop.uf_sigla + ')';
                     item.addEventListener('mouseover', function () {
                         // Highlight corresponding feature on the map
                         var X = feature.properties.X;
                         var Y = feature.properties.Y;
-                        coordinates = [X,Y]
+                        coordinates = [X, Y]
                         //console.log(coordinates)
 
                         popup
