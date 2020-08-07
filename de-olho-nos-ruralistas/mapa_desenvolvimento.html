@@ -109,18 +109,16 @@
                 if (features.length == 1) {
                     var feature = features[0];
 
-                    var number = 3500;
 
-                    console.log(number.toLocaleString()); // Displays "3,500" if in U.S. English locale
 
                     var popup = new mapboxgl.Popup({ offset: [0, -15] })
                         .setLngLat(e.lngLat)
                         .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
                             '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
                             '<p><b>Situação: </b>' + feature.properties.fase_ti + ' (' + feature.properties.ano_homolog + ')' +
-                            '<p><b>Área em hectares: </b>' + feature.properties.area_ti.toLocaleString() +
+                            '<p><b>Área em hectares: </b>' + feature.properties.area_ti.toLocaleString('pt-BR') +
                             '<p><b>Número de CARs sobrepostos: </b>' + feature.properties.contagem_car +
-                            '<p><b>Sobreposição de CAR (em %): </b>' + feature.properties.car_sobre_pct.toLocaleString())
+                            '<p><b>Sobreposição de CAR (em %): </b>' + feature.properties.car_sobre_pct.toLocaleString('pt-BR'))
 
                         .addTo(map);
                 }
@@ -139,8 +137,8 @@
                         .setHTML(
                             '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
                             '<br><b>Tipo: </b>' + feature.properties.tipo +
-                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString() +
-                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString() +
+                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
+                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
                             '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
                             '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
                         .addTo(map);
