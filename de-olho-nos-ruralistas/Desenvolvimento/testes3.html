@@ -137,8 +137,13 @@
                     item.textContent = prop.terrai_nome + ' (' + prop.uf_sigla + ')';
                     item.addEventListener('mouseover', function () {
                         // Highlight corresponding feature on the map
+                        var X = feature.properties.X;
+                        var Y = feature.properties.Y;
+                        coordinates = [X,Y]
+                        //console.log(coordinates)
+
                         popup
-                            .setLngLat(feature.geometry.coordinates)
+                            .setLngLat(coordinates)
                             .setText(
                                 feature.properties.terrai_nome +
                                 ' (' +
