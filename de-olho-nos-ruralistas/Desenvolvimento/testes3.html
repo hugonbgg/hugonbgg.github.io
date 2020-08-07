@@ -127,12 +127,9 @@
             if (features.length) {
                 features.forEach(function (feature) {
 
-
-
-
                     var prop = feature.properties;
                     var item = document.createElement('a');
-                    item.href = prop.wikipedia;
+                    item.href = "#";
                     item.addEventListener('click', function (e) {
                         e.preventDefault()
                     })
