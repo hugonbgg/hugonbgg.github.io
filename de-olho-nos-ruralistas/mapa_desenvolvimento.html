@@ -118,8 +118,10 @@
 
                     TIs.features.forEach(function (feature) {
                         var fase_ti = feature.properties['fase_ti'];
-                        layerID = fase_ti;
-                        terrasindigenas = layerID;
+                        var layerID = fase_ti
+                        terrasindigenas = layerID
+                        //layerID = fase_ti;
+                        //terrasindigenas = layerID;
 
                         if (!map.getLayer(layerID)) {
                             map.addLayer({
@@ -191,10 +193,11 @@
 
 
                     //Adiciona o popup das TI 
+                    console.log(terrasindigenas)
 
                     map.on('click', function (e) {
                         var features = map.queryRenderedFeatures(e.point, {
-                            layers: ['CAR-TIs', layerID]
+                            layers: ['CAR-TIs', terrasindigenas]
                         });
 
                         if (features.length == 1) {
@@ -240,12 +243,12 @@
                     // Change the cursor to a pointer when the mouse is over the states layer.
 
 
-                    map.on('mouseenter', layerID, function () {
+                    map.on('mouseenter', terrasindigenas, function () {
                         map.getCanvas().style.cursor = 'pointer';
                     });
 
                     // Change it back to a pointer when it leaves.
-                    map.on('mouseleave', layerID, function () {
+                    map.on('mouseleave', terrasindigenas, function () {
                         map.getCanvas().style.cursor = '';
                     });
 
