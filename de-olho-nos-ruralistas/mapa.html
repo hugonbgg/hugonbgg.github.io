@@ -6,6 +6,7 @@
     <meta charset="utf-8" />
     <title>CARs em terras indígenas</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
 
@@ -49,131 +50,170 @@
 
         //Carrega o layer das terras indigenas:
         map.on('load', function () {
-
-            map.addLayer({
-                'id': 'terras-indigenas',
-                'type': 'fill',
-                'source': {
-                    'type': 'geojson',
-                    'data': 'dados/TIs_infos_completas_simplify.geojson'
-                },
-                'layout': {},
-                'paint': {
-                    'fill-color': {
-                        property: 'car_sobre_pct',
-                        stops: [
-                            [0, '#B5651D'],
-                            [25, '#964B00'],
-                            [50, '#834200'],
-                            [75, '#673400']
-
-                        ]
-                    },
-                    //'fill-color': '#942525',
-                    'fill-opacity': 1,
-                    'fill-outline-color': '#ffffff'
-                }
-                // This is the important part of this example: the addLayer
-                // method takes 2 arguments: the layer as an object, and a string
-                // representing another layer's name. if the other layer
-                // exists in the stylesheet already, the new layer will be positioned
-                // right before that layer in the stack, making it possible to put
-                // 'overlays' anywhere in the layer stack.
-            });
-
-            //Carrega o layer dos CARs:
-            map.addLayer({
-                'id': 'CAR-TIs',
-                'type': 'fill',
-                'source': {
-                    'type': 'geojson',
-                    'data': 'dados/car_sobreposicao_ti_donos_simplify.geojson'
-                },
-                'layout': {},
-                'paint': {
-                    'fill-color': '#FFC100',
-                    'fill-opacity': 0.5,
-                    'fill-outline-color': '#ffffff'
-                }
-
-            });
+            d3.json(
+                'dados/TIs_infos_completas_simplify.geojson',
+                function (err, TIs) {
+                    if (err) throw err;
 
 
-            //Adiciona o popup das TI
+                    map.addLayer({
+                        'id': 'terras-indigenas',
+                        'type': 'fill',
+                        'source': {
+                            'type': 'geojson',
+                            'data': TIs
+                        },
+                        'layout': {},
+                        'paint': {
+                            'fill-color': {
+                                property: 'car_sobre_pct',
+                                stops: [
+                                    [0, '#B5651D'],
+                                    [25, '#964B00'],
+                                    [50, '#834200'],
+                                    [75, '#673400']
 
-            map.on('click', function (e) {
-                var features = map.queryRenderedFeatures(e.point, {
-                    layers: ['CAR-TIs', 'terras-indigenas']
+                                ]
+                            },
+                            //'fill-color': '#942525',
+                            'fill-opacity': 1,
+                            'fill-outline-color': '#ffffff'
+                        }
+                        // This is the important part of this example: the addLayer
+                        // method takes 2 arguments: the layer as an object, and a string
+                        // representing another layer's name. if the other layer
+                        // exists in the stylesheet already, the new layer will be positioned
+                        // right before that layer in the stack, making it possible to put
+                        // 'overlays' anywhere in the layer stack.
+                    });
+
+                    //Carrega o layer dos CARs:
+                    map.addLayer({
+                        'id': 'CAR-TIs',
+                        'type': 'fill',
+                        'source': {
+                            'type': 'geojson',
+                            'data': 'dados/car_sobreposicao_ti_donos_simplify.geojson'
+                        },
+                        'layout': {},
+                        'paint': {
+                            'fill-color': '#FFC100',
+                            'fill-opacity': 0.5,
+                            'fill-outline-color': '#ffffff'
+                        }
+
+                    });
+
+
+                    //Adiciona o popup das TI 
+
+                    map.on('click', function (e) {
+                        var features = map.queryRenderedFeatures(e.point, {
+                            layers: ['CAR-TIs', 'terras-indigenas']
+                        });
+
+                        if (features.length == 1) {
+                            var feature = features[0];
+
+
+
+                            var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                                .setLngLat(e.lngLat)
+                                .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
+                                    '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
+                                    '<p><b>Situação: </b>' + feature.properties.fase_ti + ' (' + feature.properties.ano_homolog + ')' +
+                                    '<p><b>Área em hectares: </b>' + feature.properties.area_ti.toLocaleString('pt-BR') +
+                                    '<p><b>Número de CARs sobrepostos: </b>' + feature.properties.contagem_car +
+                                    '<p><b>Sobreposição de CAR (em %): </b>' + feature.properties.car_sobre_pct.toLocaleString('pt-BR'))
+
+                                .addTo(map);
+                        }
+
+                        //Adiciona o popup do CAR
+
+                        features = map.queryRenderedFeatures(e.point, {
+                            layers: ['CAR-TIs']
+                        });
+
+                        if (features.length) {
+                            var feature = features[0];
+                            poupup = new mapboxgl.Popup({ offset: [0, -15] })
+                                .setLngLat(e.lngLat)
+                                .setMaxWidth('none')
+                                .setHTML(
+                                    '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
+                                    '<br><b>Tipo: </b>' + feature.properties.tipo +
+                                    '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
+                                    '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
+                                    '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
+                                    '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
+                                .addTo(map);
+                        }
+                    });
+
+                    //Alterando os cursores 
+                    // Change the cursor to a pointer when the mouse is over the states layer.
+
+
+
+                    map.on('mouseenter', 'terras-indigenas', function () {
+                        map.getCanvas().style.cursor = 'pointer';
+                    });
+
+                    // Change it back to a pointer when it leaves.
+                    map.on('mouseleave', 'terras-indigenas', function () {
+                        map.getCanvas().style.cursor = '';
+                    });
+
+                    map.on('mouseenter', 'CAR-TIs', function () {
+                        map.getCanvas().style.cursor = 'pointer';
+                    });
+
+                    // Change it back to a pointer when it leaves.
+                    map.on('mouseleave', 'CAR-TIs', function () {
+                        map.getCanvas().style.cursor = '';
+                    });
+
+                    //Define o geocoder para as TIS
+
+                    function forwardGeocoder(query) {
+                        var matchingFeatures = [];
+                        for (var i = 0; i < TIs.features.length; i++) {
+                            var feature = TIs.features[i];
+                            // handle queries with different capitalization than the source data by calling toLowerCase()
+                            if (
+                                feature.properties.terrai_nome
+                                    .toLowerCase()
+                                    .search(query.toLowerCase()) !== -1
+                            ) {
+                                // add a tree emoji as a prefix for custom data results
+                                // using carmen geojson format: https://github.com/mapbox/carmen/blob/master/carmen-geojson.md
+                                var X = feature.properties.X;
+                                var Y = feature.properties.Y;
+                                coordinates = [X, Y]
+                                feature['place_name'] = '🌲 ' + feature.properties.terrai_nome;
+                                feature['center'] = coordinates;
+                                //feature['place_type'] = ['Terras indígenas'];
+                                matchingFeatures.push(feature);
+                            }
+                        }
+                        return matchingFeatures;
+                    }
+
+
+                    //Exibe a caixa de busca:
+                    map.addControl(
+                        new MapboxGeocoder({
+                            accessToken: mapboxgl.accessToken,
+                            mapboxgl: mapboxgl,
+                            countries: 'br',
+                            zoom: 10,
+                            placeholder: 'Município ou território...',
+                            types: 'place',
+                            localGeocoder: forwardGeocoder
+                        })
+                    );
                 });
-
-                if (features.length == 1) {
-                    var feature = features[0];
-
-                    var popup = new mapboxgl.Popup({ offset: [0, -15] })
-                        .setLngLat(e.lngLat)
-                        .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
-                            '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
-                            '<p><b>Situação: </b>' + feature.properties.fase_ti + ' (' + feature.properties.ano_homolog + ')' +
-                            '<p><b>Área em hectares: </b>' + feature.properties.area_ti +
-                            '<p><b>Número de CARs sobrepostos: </b>' + feature.properties.contagem_car +
-                            '<p><b>Sobreposição de CAR (em %): </b>' + feature.properties.car_sobre_pct)
-
-                        .addTo(map);
-                }
-
-                //Adiciona o popup do CAR
-
-                features = map.queryRenderedFeatures(e.point, {
-                    layers: ['CAR-TIs']
-                });
-
-                if (features.length) {
-                    var feature = features[0];
-                    poupup = new mapboxgl.Popup({ offset: [0, -15] })
-                        .setLngLat(e.lngLat)
-                        .setMaxWidth('none')
-                        .setHTML(
-                            '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
-                            '<br><b>Tipo: </b>' + feature.properties.tipo +
-                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha +
-                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter +
-                            '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
-                            '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
-                        .addTo(map);
-                }
-            });
-
-            //Alterando os cursores 
-            // Change the cursor to a pointer when the mouse is over the states layer.
-
-
-
-            map.on('mouseenter', 'terras-indigenas', function () {
-                map.getCanvas().style.cursor = 'pointer';
-            });
-
-            // Change it back to a pointer when it leaves.
-            map.on('mouseleave', 'terras-indigenas', function () {
-                map.getCanvas().style.cursor = '';
-            });
-
-            map.on('mouseenter', 'CAR-TIs', function () {
-                map.getCanvas().style.cursor = 'pointer';
-            });
-
-            // Change it back to a pointer when it leaves.
-            map.on('mouseleave', 'CAR-TIs', function () {
-                map.getCanvas().style.cursor = '';
-            });
-
-
-            //Exibe a caixa de busca:
-            map.addControl(
-                new MapboxGeocoder({
-                    accessToken: mapboxgl.accessToken,
-                    mapboxgl: mapboxgl
-                })
-            );
         });
     </script>
 

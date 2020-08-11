@@ -26,6 +26,58 @@
 </head>
 
 <body>
+
+    <style>
+        /* Estilo da caixa de seleção das terras indígenas */
+        .filter-group {
+            font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+            font-weight: 600;
+            position: absolute;
+            top: 55px;
+            right: 10px;
+            z-index: 1;
+            border-radius: 3px;
+            width: 130px;
+            color: #fff;
+        }
+
+        .filter-group input[type='checkbox']:first-child+label {
+            border-radius: 3px 3px 0 0;
+        }
+
+        .filter-group label:last-child {
+            border-radius: 0 0 3px 3px;
+            border: none;
+        }
+
+        .filter-group input[type='checkbox'] {
+            display: none;
+        }
+
+        .filter-group input[type='checkbox']+label {
+            background-color: #3386c0;
+            display: block;
+            cursor: pointer;
+            padding: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+        }
+
+        .filter-group input[type='checkbox']+label {
+            background-color: #3386c0;
+            text-transform: capitalize;
+        }
+
+        .filter-group input[type='checkbox']+label:hover,
+        .filter-group input[type='checkbox']:checked+label {
+            background-color: #4ea0da;
+        }
+
+        .filter-group input[type='checkbox']:checked+label:before {
+            content: '✔';
+            margin-right: 5px;
+        }
+    </style>
+
     <!--Carrega os scripts para o geocoding-->
     <script
         src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
@@ -37,8 +89,13 @@
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
 
     <div id="map"></div>
+    <nav id="filter-group" class="filter-group"></nav>
+
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZ2ciLCJhIjoiY2tjbWZ0MjQxMDB2YTJxcXI4YWhraDI3MyJ9.KZfsG_G4zfZwlbm7zxNRSA';
+
+        //Variavel para a toggle list das TIs
+        var filterGroup = document.getElementById('filter-group');
 
         //Adiciona o mapa base:
         var map = new mapboxgl.Map({
@@ -50,41 +107,70 @@
 
         //Carrega o layer das terras indigenas:
         map.on('load', function () {
+
+
+
+            //Carrega via d3.js para ser lido pelo mapbox e pela busca personalizada das TIs
             d3.json(
                 'dados/TIs_infos_completas_simplify.geojson',
                 function (err, TIs) {
                     if (err) throw err;
 
+                    TIs.features.forEach(function (feature) {
+                        var fase_ti = feature.properties['fase_ti'];
+                        layerID = fase_ti;
+                        terrasindigenas = layerID;
 
-                    map.addLayer({
-                        'id': 'terras-indigenas',
-                        'type': 'fill',
-                        'source': {
-                            'type': 'geojson',
-                            'data': TIs
-                        },
-                        'layout': {},
-                        'paint': {
-                            'fill-color': {
-                                property: 'car_sobre_pct',
-                                stops: [
-                                    [0, '#B5651D'],
-                                    [25, '#964B00'],
-                                    [50, '#834200'],
-                                    [75, '#673400']
+                        if (!map.getLayer(layerID)) {
+                            map.addLayer({
+                                'id': layerID,
+                                'type': 'fill',
+                                'source': {
+                                    'type': 'geojson',
+                                    'data': TIs
+                                },
+                                'layout': {},
+                                'paint': {
+                                    'fill-color': {
+                                        property: 'car_sobre_pct',
+                                        stops: [
+                                            [0, '#B5651D'],
+                                            [25, '#964B00'],
+                                            [50, '#834200'],
+                                            [75, '#673400']
 
-                                ]
-                            },
-                            //'fill-color': '#942525',
-                            'fill-opacity': 1,
-                            'fill-outline-color': '#ffffff'
+                                        ]
+
+                                    },
+                                    //'fill-color': '#942525',
+                                    'fill-opacity': 1,
+                                    'fill-outline-color': '#ffffff'
+                                },
+                                'filter': ['==', 'fase_ti', fase_ti]
+                            });
+
+
+                            // Add checkbox and label elements for the layer.
+                            var input = document.createElement('input');
+                            input.type = 'checkbox';
+                            input.id = layerID;
+                            input.checked = true;
+                            filterGroup.appendChild(input);
+
+                            var label = document.createElement('label');
+                            label.setAttribute('for', layerID);
+                            label.textContent = fase_ti;
+                            filterGroup.appendChild(label);
+
+                            // When the checkbox changes, update the visibility of the layer.
+                            input.addEventListener('change', function (e) {
+                                map.setLayoutProperty(
+                                    layerID,
+                                    'visibility',
+                                    e.target.checked ? 'visible' : 'none'
+                                );
+                            });
                         }
-                        // This is the important part of this example: the addLayer
-                        // method takes 2 arguments: the layer as an object, and a string
-                        // representing another layer's name. if the other layer
-                        // exists in the stylesheet already, the new layer will be positioned
-                        // right before that layer in the stack, making it possible to put
-                        // 'overlays' anywhere in the layer stack.
                     });
 
                     //Carrega o layer dos CARs:
@@ -101,7 +187,6 @@
                             'fill-opacity': 0.5,
                             'fill-outline-color': '#ffffff'
                         }
-
                     });
 
 
@@ -109,7 +194,7 @@
 
                     map.on('click', function (e) {
                         var features = map.queryRenderedFeatures(e.point, {
-                            layers: ['CAR-TIs', 'terras-indigenas']
+                            layers: ['CAR-TIs', layerID]
                         });
 
                         if (features.length == 1) {
@@ -155,13 +240,12 @@
                     // Change the cursor to a pointer when the mouse is over the states layer.
 
 
-
-                    map.on('mouseenter', 'terras-indigenas', function () {
+                    map.on('mouseenter', layerID, function () {
                         map.getCanvas().style.cursor = 'pointer';
                     });
 
                     // Change it back to a pointer when it leaves.
-                    map.on('mouseleave', 'terras-indigenas', function () {
+                    map.on('mouseleave', layerID, function () {
                         map.getCanvas().style.cursor = '';
                     });
 
@@ -173,6 +257,7 @@
                     map.on('mouseleave', 'CAR-TIs', function () {
                         map.getCanvas().style.cursor = '';
                     });
+
 
                     //Define o geocoder para as TIS
 
@@ -201,18 +286,20 @@
                     }
 
 
-                    //Exibe a caixa de busca:
+
+                    //Exibe a caixa de busca personalizada:
                     map.addControl(
                         new MapboxGeocoder({
                             accessToken: mapboxgl.accessToken,
                             mapboxgl: mapboxgl,
                             countries: 'br',
                             zoom: 10,
-                            placeholder: 'Município...',
+                            placeholder: 'Município ou território...',
                             types: 'place',
                             localGeocoder: forwardGeocoder
                         })
                     );
+
                 });
         });
     </script>
