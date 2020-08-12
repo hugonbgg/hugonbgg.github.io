@@ -107,9 +107,6 @@
 
         //Carrega o layer das terras indigenas:
         map.on('load', function () {
-
-
-
             //Carrega via d3.js para ser lido pelo mapbox e pela busca personalizada das TIs
             d3.json(
                 'dados/TIs_infos_completas_simplify.geojson',
@@ -118,7 +115,7 @@
 
                     TIs.features.forEach(function (feature) {
                         var fase_ti = feature.properties['fase_ti'];
-                        var layerID = fase_ti;
+                        var layerID = 'poi-' + fase_ti;
 
                         
                         if (!map.getLayer(layerID)) {
