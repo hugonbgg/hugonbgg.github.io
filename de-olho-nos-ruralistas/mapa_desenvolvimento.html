@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Filter symbols by toggling a list</title>
+    <meta name="robots" content="noindex">
+    <title>CARs em terras indígenas</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
@@ -93,7 +94,8 @@
         var filterGroup = document.getElementById('filter-group');
         var map = new mapboxgl.Map({
             container: 'map',
-            style: 'mapbox://styles/mapbox/light-v10',
+            //style: 'mapbox://styles/mapbox/light-v10',
+            style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
             center: [-55.5, -13.5],
             zoom: 3.7,
             attributionControl: false
@@ -115,7 +117,7 @@
                 'type': 'fill',
                 'source': {
                     'type': 'geojson',
-                    'data': 'car_sobreposicao_ti_donos_simplify.geojson'
+                    'data': 'dados/car_sobreposicao_ti_donos_simplify.geojson'
                 },
                 'layout': {},
                 'paint': {
@@ -153,7 +155,7 @@
 
             //Carrega o layer das TIs
             d3.json(
-                'TIs_infos_completas_simplify.geojson',
+                'dados/TIs_infos_completas_simplify.geojson',
                 function (err, TIs) {
                     if (err) throw err;
                     // Add a GeoJSON source containing place coordinates and information.
