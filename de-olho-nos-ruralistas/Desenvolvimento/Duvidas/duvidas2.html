@@ -29,7 +29,7 @@
             font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
             font-weight: 600;
             position: absolute;
-            top: 10px;
+            top: 60px;
             right: 10px;
             z-index: 1;
             border-radius: 3px;
@@ -73,6 +73,16 @@
             margin-right: 5px;
         }
     </style>
+
+    <!--Carrega os scripts para o geocoding-->
+    <script
+        src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+    <link rel="stylesheet"
+        href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+        type="text/css" />
+    <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
     <div id="map"></div>
     <nav id="filter-group" class="filter-group"></nav>
 
@@ -85,37 +95,101 @@
             container: 'map',
             style: 'mapbox://styles/mapbox/light-v10',
             center: [-55.5, -13.5],
-            zoom: 4
+            zoom: 3.7,
+            attributionControl: false
         });
 
+        map.addControl(
+            new mapboxgl.AttributionControl({
+
+                customAttribution:
+                    '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
+            })
+        );
+
         map.on('load', function () {
+
+            //Carrega o layer dos CARs:
+            map.addLayer({
+                'id': 'CAR-TIs',
+                'type': 'fill',
+                'source': {
+                    'type': 'geojson',
+                    'data': 'car_sobreposicao_ti_donos_simplify.geojson'
+                },
+                'layout': {},
+                'paint': {
+                    'fill-color': '#FFC100',
+                    'fill-opacity': 0.5,
+                    'fill-outline-color': '#ffffff'
+                }
+            });
+            map.on('click', 'CAR-TIs', function (e) {
+               var feature = e.features[0];
+                //console.log(CAR-TIs)
+                new mapboxgl.Popup()
+                    .setLngLat(e.lngLat)
+                    .setMaxWidth('none')
+                    .setHTML(
+                                            '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
+                                            '<br><b>Tipo: </b>' + feature.properties.tipo +
+                                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
+                                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
+                                            '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
+                                            '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
+                    .addTo(map);
+
+            });
+
+            // Change the cursor to a pointer when the mouse is over the places layer.
+            map.on('mouseenter', 'CAR-TIs', function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', 'CAR-TIs', function () {
+                map.getCanvas().style.cursor = '';
+            });
+
+            //Carrega o layer das TIs
             d3.json(
-                'UFs.geojson',
-                function (err, UFs) {
+                'TIs_infos_completas_simplify.geojson',
+                function (err, TIs) {
                     if (err) throw err;
                     // Add a GeoJSON source containing place coordinates and information.
-                    map.addSource('UFs', {
+                    map.addSource('TIs', {
                         'type': 'geojson',
-                        'data': UFs
+                        'data': TIs
                     });
 
-                    UFs.features.forEach(function (feature) {
-                        var symbol = feature.properties['NM_REGIAO'];
-                        var layerID = 'poi-' + symbol;
+                    TIs.features.forEach(function (feature) {
+                        var symbol = feature.properties['fase_ti'];
+                        var layerID = symbol;
 
                         // Add a layer for this symbol type if it hasn't been added already.
                         if (!map.getLayer(layerID)) {
                             map.addLayer({
                                 'id': layerID,
                                 'type': 'fill',
-                                'source': 'UFs',
+                                'source': 'TIs',
                                 'layout': {},
                                 'paint': {
-                                    'fill-color': 'brown',
-                                    'fill-opacity': 0.3
+                                    'fill-color': {
+                                        property: 'car_sobre_pct',
+                                        stops: [
+                                            [0, '#a85927'],
+                                            [25, '#975023'],
+                                            [50, '#86471f'],
+                                            [75, '#753e1b']
+
+                                        ]
+
+                                    },
+                                    'fill-opacity': 1,
+                                    'fill-outline-color': '#603101'
                                 },
-                                'filter': ['==', 'NM_REGIAO', symbol]
-                            });
+                                'filter': ['==', 'fase_ti', symbol]
+                            }, 'CAR-TIs');
 
                             // Add checkbox and label elements for the layer.
                             var input = document.createElement('input');
@@ -137,28 +211,79 @@
                                     e.target.checked ? 'visible' : 'none'
                                 );
                             });
+
+                            // When a click event occurs on a feature in the states layer, open a popup at the
+                            // location of the click, with description HTML from its properties.
+                            map.on('click', layerID, function (e) {
+                                let features = map.queryRenderedFeatures(e.point, { layers: ['CAR-TIs', layerID ] });
+                                if (features.length == 1) {
+                                    var feature = e.features[0];
+                                    //console.log(layerID)
+                                    new mapboxgl.Popup()
+                                        .setLngLat(e.lngLat)
+                                        .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
+                                            '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
+                                            '<p><b>Situação: </b>' + feature.properties.fase_ti + ' (' + feature.properties.ano_homolog + ')' +
+                                            '<p><b>Área em hectares: </b>' + feature.properties.area_ti.toLocaleString('pt-BR') +
+                                            '<p><b>Número de CARs sobrepostos: </b>' + feature.properties.contagem_car +
+                                            '<p><b>Sobreposição de CAR (em %): </b>' + feature.properties.car_sobre_pct.toLocaleString('pt-BR')
+                                        )
+                                        .addTo(map);
+                                }
+                            });
+
+                            // Change the cursor to a pointer when the mouse is over the places layer.
+                            map.on('mouseenter', layerID, function () {
+                                map.getCanvas().style.cursor = 'pointer';
+                            });
+
+                            // Change it back to a pointer when it leaves.
+                            map.on('mouseleave', layerID, function () {
+                                map.getCanvas().style.cursor = '';
+                            });
                         }
-                        // When a click event occurs on a feature in the states layer, open a popup at the
-                        // location of the click, with description HTML from its properties.
-                        map.on('click', layerID, function (e) {
-                            new mapboxgl.Popup()
-                                .setLngLat(e.lngLat)
-                                .setHTML(e.features[0].properties.NM_UF)
-                                .addTo(map);
-                        });
-
-                        // Change the cursor to a pointer when the mouse is over the places layer.
-                        map.on('mouseenter', layerID, function () {
-                            map.getCanvas().style.cursor = 'pointer';
-                        });
-
-                        // Change it back to a pointer when it leaves.
-                        map.on('mouseleave', layerID, function () {
-                            map.getCanvas().style.cursor = '';
-                        });
-
                     });
+
+                    //Define o geocoder para as TIS
+
+                    function forwardGeocoder(query) {
+                        var matchingFeatures = [];
+                        for (var i = 0; i < TIs.features.length; i++) {
+                            var feature = TIs.features[i];
+                            // handle queries with different capitalization than the source data by calling toLowerCase()
+                            if (
+                                feature.properties.terrai_nome
+                                    .toLowerCase()
+                                    .search(query.toLowerCase()) !== -1
+                            ) {
+                                // add a tree emoji as a prefix for custom data results
+                                // using carmen geojson format: https://github.com/mapbox/carmen/blob/master/carmen-geojson.md
+                                var X = feature.properties.X;
+                                var Y = feature.properties.Y;
+                                coordinates = [X, Y]
+                                feature['place_name'] = '🌲 ' + feature.properties.terrai_nome;
+                                feature['center'] = coordinates;
+                                //feature['place_type'] = ['Terras indígenas'];
+                                matchingFeatures.push(feature);
+                            }
+                        }
+                        return matchingFeatures;
+                    }
+
+                    //Exibe a caixa de busca personalizada:
+                    map.addControl(
+                        new MapboxGeocoder({
+                            accessToken: mapboxgl.accessToken,
+                            mapboxgl: mapboxgl,
+                            countries: 'br',
+                            zoom: 10,
+                            placeholder: 'Município ou território...',
+                            types: 'place',
+                            localGeocoder: forwardGeocoder
+                        })
+                    );
                 });
+
         });
     </script>
 

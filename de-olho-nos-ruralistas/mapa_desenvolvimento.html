@@ -2,14 +2,12 @@
 <html>
 
 <head>
-    <meta name="robots" content="noindex">
     <meta charset="utf-8" />
-    <title>CARs em terras indígenas</title>
+    <title>Filter symbols by toggling a list</title>
     <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
     <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
     <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
-
     <style>
         body {
             margin: 0;
@@ -26,18 +24,16 @@
 </head>
 
 <body>
-
     <style>
-        /* Estilo da caixa de seleção das terras indígenas */
         .filter-group {
             font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
             font-weight: 600;
             position: absolute;
-            top: 55px;
+            top: 60px;
             right: 10px;
             z-index: 1;
             border-radius: 3px;
-            width: 130px;
+            width: 120px;
             color: #fff;
         }
 
@@ -87,65 +83,113 @@
     <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
-
     <div id="map"></div>
     <nav id="filter-group" class="filter-group"></nav>
 
     <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZ2ciLCJhIjoiY2tjbWZ0MjQxMDB2YTJxcXI4YWhraDI3MyJ9.KZfsG_G4zfZwlbm7zxNRSA';
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw';
 
-        //Variavel para a toggle list das TIs
+
         var filterGroup = document.getElementById('filter-group');
-
-        //Adiciona o mapa base:
         var map = new mapboxgl.Map({
-            container: 'map', // container id
-            style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
-            center: [-55.5, -13.5], // starting position [lng, lat]
-            zoom: 3.5 // starting zoom
+            container: 'map',
+            style: 'mapbox://styles/mapbox/light-v10',
+            center: [-55.5, -13.5],
+            zoom: 3.7,
+            attributionControl: false
         });
 
-        //Carrega o layer das terras indigenas:
+        map.addControl(
+            new mapboxgl.AttributionControl({
+
+                customAttribution:
+                    '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
+            })
+        );
+
         map.on('load', function () {
-            //Carrega via d3.js para ser lido pelo mapbox e pela busca personalizada das TIs
+
+            //Carrega o layer dos CARs:
+            map.addLayer({
+                'id': 'CAR-TIs',
+                'type': 'fill',
+                'source': {
+                    'type': 'geojson',
+                    'data': 'car_sobreposicao_ti_donos_simplify.geojson'
+                },
+                'layout': {},
+                'paint': {
+                    'fill-color': '#FFC100',
+                    'fill-opacity': 0.5,
+                    'fill-outline-color': '#ffffff'
+                }
+            });
+            map.on('click', 'CAR-TIs', function (e) {
+               var feature = e.features[0];
+                //console.log(CAR-TIs)
+                new mapboxgl.Popup()
+                    .setLngLat(e.lngLat)
+                    .setMaxWidth('none')
+                    .setHTML(
+                                            '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
+                                            '<br><b>Tipo: </b>' + feature.properties.tipo +
+                                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
+                                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
+                                            '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
+                                            '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
+                    .addTo(map);
+
+            });
+
+            // Change the cursor to a pointer when the mouse is over the places layer.
+            map.on('mouseenter', 'CAR-TIs', function () {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', 'CAR-TIs', function () {
+                map.getCanvas().style.cursor = '';
+            });
+
+            //Carrega o layer das TIs
             d3.json(
-                'dados/TIs_infos_completas_simplify.geojson',
+                'TIs_infos_completas_simplify.geojson',
                 function (err, TIs) {
                     if (err) throw err;
+                    // Add a GeoJSON source containing place coordinates and information.
+                    map.addSource('TIs', {
+                        'type': 'geojson',
+                        'data': TIs
+                    });
 
                     TIs.features.forEach(function (feature) {
-                        var fase_ti = feature.properties['fase_ti'];
-                        var layerID = 'poi-' + fase_ti;
+                        var symbol = feature.properties['fase_ti'];
+                        var layerID = symbol;
 
-                        
+                        // Add a layer for this symbol type if it hasn't been added already.
                         if (!map.getLayer(layerID)) {
                             map.addLayer({
                                 'id': layerID,
                                 'type': 'fill',
-                                'source': {
-                                    'type': 'geojson',
-                                    'data': TIs
-                                },
+                                'source': 'TIs',
                                 'layout': {},
                                 'paint': {
                                     'fill-color': {
                                         property: 'car_sobre_pct',
                                         stops: [
-                                            [0, '#B5651D'],
-                                            [25, '#964B00'],
-                                            [50, '#834200'],
-                                            [75, '#673400']
+                                            [0, '#a85927'],
+                                            [25, '#975023'],
+                                            [50, '#86471f'],
+                                            [75, '#753e1b']
 
                                         ]
 
                                     },
-                                    //'fill-color': '#942525',
                                     'fill-opacity': 1,
-                                    'fill-outline-color': '#ffffff'
+                                    'fill-outline-color': '#603101'
                                 },
-                                'filter': ['==', 'fase_ti', fase_ti]
-                            });
-
+                                'filter': ['==', 'fase_ti', symbol]
+                            }, 'CAR-TIs');
 
                             // Add checkbox and label elements for the layer.
                             var input = document.createElement('input');
@@ -156,7 +200,7 @@
 
                             var label = document.createElement('label');
                             label.setAttribute('for', layerID);
-                            label.textContent = fase_ti;
+                            label.textContent = symbol;
                             filterGroup.appendChild(label);
 
                             // When the checkbox changes, update the visibility of the layer.
@@ -165,43 +209,17 @@
                                     layerID,
                                     'visibility',
                                     e.target.checked ? 'visible' : 'none'
-
                                 );
                             });
-                        
-                        }
-                    
 
-                            //Carrega o layer dos CARs:
-                            map.addLayer({
-                                'id': 'CAR-TIs',
-                                'type': 'fill',
-                                'source': {
-                                    'type': 'geojson',
-                                    'data': 'dados/car_sobreposicao_ti_donos_simplify.geojson'
-                                },
-                                'layout': {},
-                                'paint': {
-                                    'fill-color': '#FFC100',
-                                    'fill-opacity': 0.5,
-                                    'fill-outline-color': '#ffffff'
-                                }
-                            });
-
-
-                            //Adiciona o popup das TI 
-
-                            map.on('click', function (e) {
-                                var features = map.queryRenderedFeatures(e.point, {
-                                    layers: ['CAR-TIs', layerID]
-                                });
-
+                            // When a click event occurs on a feature in the states layer, open a popup at the
+                            // location of the click, with description HTML from its properties.
+                            map.on('click', layerID, function (e) {
+                                let features = map.queryRenderedFeatures(e.point, { layers: ['CAR-TIs', layerID ] });
                                 if (features.length == 1) {
-                                    var feature = features[0];
-
-
-
-                                    var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                                    var feature = e.features[0];
+                                    //console.log(layerID)
+                                    new mapboxgl.Popup()
                                         .setLngLat(e.lngLat)
                                         .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
                                             '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
@@ -210,36 +228,11 @@
                                             '<p><b>Número de CARs sobrepostos: </b>' + feature.properties.contagem_car +
                                             '<p><b>Sobreposição de CAR (em %): </b>' + feature.properties.car_sobre_pct.toLocaleString('pt-BR')
                                         )
-
-                                        .addTo(map);
-                                }
-
-                                //Adiciona o popup do CAR
-
-                                features = map.queryRenderedFeatures(e.point, {
-                                    layers: ['CAR-TIs']
-                                });
-
-                                if (features.length) {
-                                    var feature = features[0];
-                                    poupup = new mapboxgl.Popup({ offset: [0, -15] })
-                                        .setLngLat(e.lngLat)
-                                        .setMaxWidth('none')
-                                        .setHTML(
-                                            '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
-                                            '<br><b>Tipo: </b>' + feature.properties.tipo +
-                                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
-                                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
-                                            '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
-                                            '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
                                         .addTo(map);
                                 }
                             });
 
-                            //Alterando os cursores 
-                            // Change the cursor to a pointer when the mouse is over the states layer.
-
-
+                            // Change the cursor to a pointer when the mouse is over the places layer.
                             map.on('mouseenter', layerID, function () {
                                 map.getCanvas().style.cursor = 'pointer';
                             });
@@ -248,17 +241,9 @@
                             map.on('mouseleave', layerID, function () {
                                 map.getCanvas().style.cursor = '';
                             });
+                        }
+                    });
 
-                            map.on('mouseenter', 'CAR-TIs', function () {
-                                map.getCanvas().style.cursor = 'pointer';
-                            });
-
-                            // Change it back to a pointer when it leaves.
-                            map.on('mouseleave', 'CAR-TIs', function () {
-                                map.getCanvas().style.cursor = '';
-                            });
-
-                        });
                     //Define o geocoder para as TIS
 
                     function forwardGeocoder(query) {
@@ -285,8 +270,6 @@
                         return matchingFeatures;
                     }
 
-
-
                     //Exibe a caixa de busca personalizada:
                     map.addControl(
                         new MapboxGeocoder({
@@ -299,8 +282,8 @@
                             localGeocoder: forwardGeocoder
                         })
                     );
-
                 });
+
         });
     </script>
 
