@@ -118,9 +118,9 @@
 
                     TIs.features.forEach(function (feature) {
                         var fase_ti = feature.properties['fase_ti'];
-                        layerID = 'status-' + fase_ti;
+                        var layerID = fase_ti;
 
-
+                        
                         if (!map.getLayer(layerID)) {
                             map.addLayer({
                                 'id': layerID,
@@ -173,7 +173,7 @@
                             });
                         
                         }
-                    });
+                    
 
                             //Carrega o layer dos CARs:
                             map.addLayer({
@@ -261,7 +261,7 @@
                                 map.getCanvas().style.cursor = '';
                             });
 
-                    
+                        });
                     //Define o geocoder para as TIS
 
                     function forwardGeocoder(query) {
