@@ -52,7 +52,7 @@
         }
 
         .filter-group input[type='checkbox']+label {
-            background-color: #3386c0;
+            background-color: #007000;
             display: block;
             cursor: pointer;
             padding: 10px;
@@ -60,13 +60,13 @@
         }
 
         .filter-group input[type='checkbox']+label {
-            background-color: #3386c0;
+            background-color: #007000;
             text-transform: capitalize;
         }
 
         .filter-group input[type='checkbox']+label:hover,
         .filter-group input[type='checkbox']:checked+label {
-            background-color: #4ea0da;
+            background-color: #006000;
         }
 
         .filter-group input[type='checkbox']:checked+label:before {
@@ -95,7 +95,8 @@
         var map = new mapboxgl.Map({
             container: 'map',
             //style: 'mapbox://styles/mapbox/light-v10',
-            style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+            //style: 'mapbox://styles/mapbox/streets-v11', // stylesheet location
+            style: 'mapbox://styles/mapbox/satellite-v9', // stylesheet location
             center: [-55.5, -13.5],
             zoom: 3.7,
             attributionControl: false
@@ -122,7 +123,7 @@
                 'layout': {},
                 'paint': {
                     'fill-color': '#FFC100',
-                    'fill-opacity': 0.5,
+                    'fill-opacity': 0.4,
                     'fill-outline-color': '#ffffff'
                 }
             });
@@ -179,15 +180,16 @@
                                     'fill-color': {
                                         property: 'car_sobre_pct',
                                         stops: [
-                                            [0, '#a85927'],
-                                            [25, '#975023'],
-                                            [50, '#86471f'],
-                                            [75, '#753e1b']
+                                            [0, '#B5651D'],
+                                            [10, '#A4550A'],
+                                            [25, '#964B00'],
+                                            [55, '#834200'],
+                                            [75, '#673400']
 
                                         ]
 
                                     },
-                                    'fill-opacity': 1,
+                                    'fill-opacity': 0.7,
                                     'fill-outline-color': '#603101'
                                 },
                                 'filter': ['==', 'fase_ti', symbol]
