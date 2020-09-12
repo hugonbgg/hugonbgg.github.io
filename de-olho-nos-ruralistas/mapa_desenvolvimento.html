@@ -31,7 +31,7 @@
             font-weight: 600;
             position: absolute;
             top: 60px;
-            right: 10px;
+            right: 50px;
             z-index: 1;
             border-radius: 3px;
             width: 120px;
@@ -128,18 +128,18 @@
                 }
             });
             map.on('click', 'CAR-TIs', function (e) {
-               var feature = e.features[0];
+                var feature = e.features[0];
                 //console.log(CAR-TIs)
                 new mapboxgl.Popup()
                     .setLngLat(e.lngLat)
                     .setMaxWidth('none')
                     .setHTML(
-                                            '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
-                                            '<br><b>Tipo: </b>' + feature.properties.tipo +
-                                            '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
-                                            '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
-                                            '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
-                                            '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
+                        '<b> Código do imóvel: </b><br>' + feature.properties.cod_imovel +
+                        '<br><b>Tipo: </b>' + feature.properties.tipo +
+                        '<br><b> Área em hectares: </b>' + feature.properties.area_ha.toLocaleString('pt-BR') +
+                        '<br><b> Área sobreposta à TI: </b>' + feature.properties.area_inter.toLocaleString('pt-BR') +
+                        '<br><b> Nome da TI: </b>' + feature.properties.terrai_nome +
+                        '<br><b> Nome do proprietário: </b>' + feature.properties.dominio)
                     .addTo(map);
 
             });
@@ -219,7 +219,7 @@
                             // When a click event occurs on a feature in the states layer, open a popup at the
                             // location of the click, with description HTML from its properties.
                             map.on('click', layerID, function (e) {
-                                let features = map.queryRenderedFeatures(e.point, { layers: ['CAR-TIs', layerID ] });
+                                let features = map.queryRenderedFeatures(e.point, { layers: ['CAR-TIs', layerID] });
                                 if (features.length == 1) {
                                     var feature = e.features[0];
                                     //console.log(layerID)
@@ -285,7 +285,10 @@
                             types: 'place',
                             localGeocoder: forwardGeocoder
                         })
+
                     );
+                    // Add zoom and rotation controls to the map.
+                    map.addControl(new mapboxgl.NavigationControl());
                 });
 
         });
