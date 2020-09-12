@@ -225,8 +225,9 @@
                                     //console.log(layerID)
                                     new mapboxgl.Popup()
                                         .setLngLat(e.lngLat)
+                                        .setMaxWidth('none')//Ajusta a largura do popup
                                         .setHTML('<b> Indigenous Land: </b>' + feature.properties.terrai_nome +
-                                            '<p><b>Ethnicities: </b>' + feature.properties.etnia_nome +
+                                            '<p><b>Ethnic groups: </b>' + feature.properties.etnia_nome +
                                             '<p><b>Status: </b>' + feature.properties.fase_ti + ' (' + feature.properties.ano_homolog + ')' +
                                             '<p><b>Area in hectares: </b>' + feature.properties.area_ti.toLocaleString('en-US') +
                                             '<p><b>Number of overlapping CARs: </b>' + feature.properties.contagem_car +

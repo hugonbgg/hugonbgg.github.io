@@ -225,6 +225,7 @@
                                     //console.log(layerID)
                                     new mapboxgl.Popup()
                                         .setLngLat(e.lngLat)
+                                        .setMaxWidth('none') //Ajusta a largura do popup
                                         .setHTML('<b> Terra indígena: </b>' + feature.properties.terrai_nome +
                                             '<p><b>Etnias: </b>' + feature.properties.etnia_nome +
                                             '<p><b>Situação: </b>' + feature.properties.fase_ti + ' (' + feature.properties.ano_homolog + ')' +
