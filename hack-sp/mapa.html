@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Imóveis notificados por não cumprirem a função social da propriedade</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+  <link rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+    type="text/css" />
+  <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+  <div id="map"></div>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw';
+    var map = new mapboxgl.Map({
+      container: 'map', // container id
+      style: 'mapbox://styles/hugonbg/ckix8l02r5jdm19pa9faytl8d', //hosted style id
+      //style: 'mapbox://styles/hugonbg/ckcccawwn145a1ipdhzsxkcca/draft', //rascunho
+      center: [-46.591, -23.581], // starting position
+      zoom: 10.76, // starting zoom
+      attributionControl: false
+    });
+
+    map.addControl(
+      new mapboxgl.AttributionControl({
+        
+        customAttribution:
+          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
+      })
+    );
+
+
+    map.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+      })
+    );
+
+    //Muda o icone
+    map.on('mouseenter', 'imoveis-notificados-com-dados-fi', () => {
+      map.getCanvas().style.cursor = 'pointer'
+    })
+    map.on('mouseleave', 'imoveis-notificados-com-dados-fi', () => {
+      map.getCanvas().style.cursor = ''
+    })
+    //Popups
+
+    map.on('click', function (e) {
+      var features = map.queryRenderedFeatures(e.point, {
+        layers: ['imoveis-notificados-com-dados-fi'] // replace this with the name of the layer
+      });
+
+      if (!features.length) {
+        return;
+      }
+
+      var feature = features[0];
+
+      var popup = new mapboxgl.Popup({ offset: [0, -15] })
+        .setLngLat(feature.geometry.coordinates)
+        .setMaxWidth('none')
+        .setHTML('<p><b>SQL: </b>' + feature.properties.in_sql +
+          '<br><b>Endereço: </b>' + feature.properties.CEPEUC_LOGRADOURO +
+          '<br><b>Área do Terreno(m²): </b>' + feature.properties.CEPEUC_AREA_DO_TERRENO +
+          '<br><b>Área Construída(m²): </b>' + feature.properties.CEPEUC_AREA_CONTRUÍDA +
+          '<br><b>Tipologia: </b>' + feature.properties.CEPEUC_TIPOLOGIA +
+          '<br><b>Instrumento: </b>' + feature.properties.CEPEUC_IDENTIFICAÇÃO_DO_INSTRUMENTO +
+          '<br><b>Data da Notificação: </b>' + feature.properties.CEPEUC_DATA_DA_NOTIFICAÇAO +
+          '<br><b>IPTU Progressivo: </b>' + feature.properties.in_iptu_pr +
+          '<br><b>Data da 1º aliquota progressiva: </b>' + feature.properties.CEPEUC_DATA_1_APLICACAO_DA_ALIQUOTA_PROGRESSIVA +
+          '<br><b>IPTU progressivo 2016: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2016 +
+          '<br><b>IPTU progressivo 2017: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2017 +
+          '<br><b>IPTU progressivo 2018: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2018 +
+          '<br><b>IPTU progressivo 2019: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2019 +
+           '<br style="font-size:85%"><b>Fonte:</b><br>Geosampa e SMDU - Atualizados em 11/2019')
+        .addTo(map);
+    });
+
+  </script>
+
+</body>
+
+</html>
