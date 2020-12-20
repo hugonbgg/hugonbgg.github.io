@@ -39,7 +39,7 @@
     var map = new mapboxgl.Map({
       container: 'map', // container id
       style: 'mapbox://styles/hugonbg/ckix8l02r5jdm19pa9faytl8d', //hosted style id
-      //style: 'mapbox://styles/hugonbg/ckcccawwn145a1ipdhzsxkcca/draft', //rascunho
+      //style: 'mapbox://styles/hugonbg/ckix8l02r5jdm19pa9faytl8d/draft', //rascunho
       center: [-46.591, -23.581], // starting position
       zoom: 10.76, // starting zoom
       attributionControl: false
@@ -60,7 +60,7 @@
         mapboxgl: mapboxgl
       })
     );
-
+    map.on('load', function() {
     //Muda o icone
     map.on('mouseenter', 'imoveis-notificados-com-dados-fi', () => {
       map.getCanvas().style.cursor = 'pointer'
@@ -91,6 +91,9 @@
           '<br><b>Tipologia: </b>' + feature.properties.CEPEUC_TIPOLOGIA +
           '<br><b>Instrumento: </b>' + feature.properties.CEPEUC_IDENTIFICAÇÃO_DO_INSTRUMENTO +
           '<br><b>Data da Notificação: </b>' + feature.properties.CEPEUC_DATA_DA_NOTIFICAÇAO +
+          '<br><b>Status do Processo: </b>' + feature.properties.CEPEUC_SITUAÇAO_DO_IMOVEL +
+          '<br><b>Averbação: </b>' + feature.properties.CEPEUC_SOLICITACAO_DA_AVERBACAO +
+          '<br><b>Data Inicial da Aplicação: </b>' + feature.properties.CEPEUC_DATA_INICIAL_DA_APLICAÇÃO +
           '<br><b>IPTU Progressivo: </b>' + feature.properties.in_iptu_pr +
           '<br><b>Data da 1º aliquota progressiva: </b>' + feature.properties.CEPEUC_DATA_1_APLICACAO_DA_ALIQUOTA_PROGRESSIVA +
           '<br><b>IPTU progressivo 2016: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2016 +
@@ -100,7 +103,7 @@
            '<br style="font-size:85%"><b>Fonte:</b><br>Geosampa e SMDU - Atualizados em 11/2019')
         .addTo(map);
     });
-
+  });
   </script>
 
 </body>
