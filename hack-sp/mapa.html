@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8" />
-  <title>Imóveis notificados por não cumprirem a função social da propriedade</title>
+  <title>Imóveis notificados por não cumprirem a função social da propriedade na cidade de São Paulo</title>
   <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
   <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
@@ -19,6 +19,11 @@
       bottom: 0;
       width: 100%;
     }
+
+    table tr {text-align: center;}
+    table td {text-align: center;}
+    table caption{text-align: left;}
+
   </style>
 </head>
 
@@ -47,7 +52,7 @@
 
     map.addControl(
       new mapboxgl.AttributionControl({
-        
+
         customAttribution:
           '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
       })
@@ -60,50 +65,73 @@
         mapboxgl: mapboxgl
       })
     );
-    map.on('load', function() {
-    //Muda o icone
-    map.on('mouseenter', 'imoveis-notificados-com-dados-fi', () => {
-      map.getCanvas().style.cursor = 'pointer'
-    })
-    map.on('mouseleave', 'imoveis-notificados-com-dados-fi', () => {
-      map.getCanvas().style.cursor = ''
-    })
-    //Popups
+    map.on('load', function () {
+      //Muda o icone
+      map.on('mouseenter', 'imoveis-notificados-com-dados-fi', () => {
+        map.getCanvas().style.cursor = 'pointer'
+      })
+      map.on('mouseleave', 'imoveis-notificados-com-dados-fi', () => {
+        map.getCanvas().style.cursor = ''
+      })
+      //Popups
 
-    map.on('click', function (e) {
-      var features = map.queryRenderedFeatures(e.point, {
-        layers: ['imoveis-notificados-com-dados-fi'] // replace this with the name of the layer
+      map.on('click', function (e) {
+        var features = map.queryRenderedFeatures(e.point, {
+          layers: ['imoveis-notificados-com-dados-fi'] // replace this with the name of the layer
+        });
+
+        if (!features.length) {
+          return;
+        }
+
+        var feature = features[0];
+
+        var popup = new mapboxgl.Popup({offset:[0, -15]})
+          .setLngLat(feature.geometry.coordinates)
+          .setMaxWidth('none')
+          .setHTML('<p><b>SQL: </b>' + feature.properties.in_sql +
+            '<br><b>Endereço: </b>' + feature.properties.CEPEUC_LOGRADOURO +
+            /*'<br><b>Área do Terreno(m²): </b>' + feature.properties.CEPEUC_AREA_DO_TERRENO +
+            '<br><b>Área Construída(m²): </b>' + feature.properties.CEPEUC_AREA_CONTRUÍDA + */
+            '<br><b>Tipologia: </b>' + feature.properties.CEPEUC_TIPOLOGIA +
+            '<br><b>Instrumento: </b>' + feature.properties.CEPEUC_IDENTIFICAÇÃO_DO_INSTRUMENTO +
+            '<br><b>Data da Notificação: </b>' + feature.properties.CEPEUC_DATA_DA_NOTIFICAÇAO +
+            '<br><b>Status do Processo: </b>' + feature.properties.CEPEUC_SITUAÇAO_DO_IMOVEL +
+            '<br><b>Averbação: </b>' + feature.properties.CEPEUC_SOLICITACAO_DA_AVERBACAO +
+            '<br><b>Data Inicial da Aplicação: </b>' + feature.properties.CEPEUC_DATA_INICIAL_DA_APLICAÇÃO +
+            '<br><b>IPTU Progressivo: </b>' + feature.properties.in_iptu_pr +
+            '<br><b>Data da 1º aliquota progressiva: </b>' + feature.properties.CEPEUC_DATA_1_APLICACAO_DA_ALIQUOTA_PROGRESSIVA +
+            '<table><caption><b>IPTU progressivo:</b></caption>' +
+            '<thead><tr>' +
+            '<th>2016</th>' +
+            '<th>2017</th>' +
+            '<th>2018</th>' +
+            '<th>2019</th>' +
+            '</tr></thead><tbody><tr>' +
+            '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2016 + '</td>' +
+            '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2017 + '</td>' +
+            '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2018 + '</td>' +
+            '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2019 + '</td>' +
+            '</tr></tbody></table>' +
+            '<table><caption><b>Áreas do imóvel em m²:</b></caption>' +
+            '<thead><tr><th>IPTU</th><th>Terreno</th><th>Construída</th><th>Ocupada</th></tr></thead><tbody>' +
+            '<tr><td>2016</td><td>' + feature.properties.iptu_Area_do_terreno_2016 + '</td><td>' + feature.properties.iptu_Area_construída_2016 + '</td><td>' + feature.properties.iptu_Area_ocupada_2016 + '</td></tr>' +
+            '<tr><td>2017</td><td>' + feature.properties.iptu_Area_do_terreno_2017 + '</td><td>' + feature.properties.iptu_Area_construída_2017 + '</td><td>' + feature.properties.iptu_Area_ocupada_2017 + '</td></tr>' +
+            '<tr><td>2018</td><td>' + feature.properties.iptu_Area_do_terreno_2018 + '</td><td>' + feature.properties.iptu_Area_construída_2018 + '</td><td>' + feature.properties.iptu_Area_ocupada_2018 + '</td></tr>' +
+            '<tr><td>2019</td><td>' + feature.properties.iptu_Area_do_terreno_2019 + '</td><td>' + feature.properties.iptu_Area_construída_2019 + '</td><td>' + feature.properties.iptu_Area_ocupada_2019 + '</td></tr>' +
+            '<tr><td>2020</td><td>' + feature.properties.iptu_Area_do_terreno_2020 + '</td><td>' + feature.properties.iptu_Area_construída_2020 + '</td><td>' + feature.properties.iptu_Area_ocupada_2020 + '</td></tr>' +
+            '</tbody></table>'
+
+            /*'<br><b>Área do Terreno/Construída/Ocupada*(m²): </b><br>' +
+            '<b>2016: </b>' + feature.properties.iptu_Area_do_terreno_2016 + ' / ' + feature.properties.iptu_Area_construída_2016 + ' / ' + feature.properties.iptu_Area_ocupada_2016 + '<br>' +
+            '<b>2017: </b>' + feature.properties.iptu_Area_do_terreno_2017 + ' / ' + feature.properties.iptu_Area_construída_2017 + ' / ' + feature.properties.iptu_Area_ocupada_2017 + '<br>' +
+            '<b>2018: </b>' + feature.properties.iptu_Area_do_terreno_2018 + ' / ' + feature.properties.iptu_Area_construída_2018 + ' / ' + feature.properties.iptu_Area_ocupada_2018 + '<br>' +
+            '<b>2019: </b>' + feature.properties.iptu_Area_do_terreno_2019 + ' / ' + feature.properties.iptu_Area_construída_2019 + ' / ' + feature.properties.iptu_Area_ocupada_2019 + '<br>' +
+            '<b>2020: </b>' + feature.properties.iptu_Area_do_terreno_2020 + ' / ' + feature.properties.iptu_Area_construída_2020 + ' / ' + feature.properties.iptu_Area_ocupada_2020 +*/
+            + '<br style="font-size:85%"><b>Fontes:</b>Geosampa, SMF(IPTU) e SMDU(Atualizado 11/2019)')
+          .addTo(map);
       });
-
-      if (!features.length) {
-        return;
-      }
-
-      var feature = features[0];
-
-      var popup = new mapboxgl.Popup({ offset: [0, -15] })
-        .setLngLat(feature.geometry.coordinates)
-        .setMaxWidth('none')
-        .setHTML('<p><b>SQL: </b>' + feature.properties.in_sql +
-          '<br><b>Endereço: </b>' + feature.properties.CEPEUC_LOGRADOURO +
-          '<br><b>Área do Terreno(m²): </b>' + feature.properties.CEPEUC_AREA_DO_TERRENO +
-          '<br><b>Área Construída(m²): </b>' + feature.properties.CEPEUC_AREA_CONTRUÍDA +
-          '<br><b>Tipologia: </b>' + feature.properties.CEPEUC_TIPOLOGIA +
-          '<br><b>Instrumento: </b>' + feature.properties.CEPEUC_IDENTIFICAÇÃO_DO_INSTRUMENTO +
-          '<br><b>Data da Notificação: </b>' + feature.properties.CEPEUC_DATA_DA_NOTIFICAÇAO +
-          '<br><b>Status do Processo: </b>' + feature.properties.CEPEUC_SITUAÇAO_DO_IMOVEL +
-          '<br><b>Averbação: </b>' + feature.properties.CEPEUC_SOLICITACAO_DA_AVERBACAO +
-          '<br><b>Data Inicial da Aplicação: </b>' + feature.properties.CEPEUC_DATA_INICIAL_DA_APLICAÇÃO +
-          '<br><b>IPTU Progressivo: </b>' + feature.properties.in_iptu_pr +
-          '<br><b>Data da 1º aliquota progressiva: </b>' + feature.properties.CEPEUC_DATA_1_APLICACAO_DA_ALIQUOTA_PROGRESSIVA +
-          '<br><b>IPTU progressivo 2016: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2016 +
-          '<br><b>IPTU progressivo 2017: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2017 +
-          '<br><b>IPTU progressivo 2018: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2018 +
-          '<br><b>IPTU progressivo 2019: </b>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2019 +
-           '<br style="font-size:85%"><b>Fonte:</b><br>Geosampa e SMDU - Atualizados em 11/2019')
-        .addTo(map);
     });
-  });
   </script>
 
 </body>

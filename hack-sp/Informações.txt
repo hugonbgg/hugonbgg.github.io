@@ -1,0 +1,5 @@
+Equipe 07
+Plataforma:
+https://hugonbgg.github.io/hack-sp/mapa.html
+
+Funciona localmente também abrindo navegador o arquivo mapa.html
