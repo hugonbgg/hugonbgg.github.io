@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Imóveis notificados por não cumprirem a função social da propriedade na cidade de São Paulo</title>
+  <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+  <script src="//d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v1.11.1/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    table tr {
+      text-align: center;
+    }
+
+    table td {
+      text-align: center;
+    }
+
+    table caption {
+      text-align: left;
+    }
+
+    /* Estilo da caixa de seleção*/
+    .filter-group {
+      font: 12px/20px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+      font-weight: 600;
+      position: absolute;
+      top: 60px;
+      right: 10px;
+      z-index: 1;
+      border-radius: 3px;
+      width: 120px;
+      color: #fff;
+    }
+
+    .filter-group input[type='checkbox']:first-child+label {
+      border-radius: 3px 3px 0 0;
+    }
+
+    .filter-group label:last-child {
+      border-radius: 0 0 3px 3px;
+      border: none;
+    }
+
+    .filter-group input[type='checkbox'] {
+      display: none;
+    }
+
+    .filter-group input[type='checkbox']+label {
+      background-color: #3386c0;
+      display: block;
+      cursor: pointer;
+      padding: 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .filter-group input[type='checkbox']+label {
+      background-color: #3386c0;
+      text-transform: capitalize;
+    }
+
+    .filter-group input[type='checkbox']+label:hover,
+    .filter-group input[type='checkbox']:checked+label {
+      background-color: #4ea0da;
+    }
+
+    .filter-group input[type='checkbox']:checked+label:before {
+      content: '✔';
+      margin-right: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+  <link rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+    type="text/css" />
+  <!-- Promise polyfill script required to use Mapbox GL Geocoder in IE 11 -->
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.auto.min.js"></script>
+
+  <div id="map"></div>
+  <nav id="filter-group" class="filter-group"></nav>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw';
+
+    var filterGroup = document.getElementById('filter-group');
+    var map = new mapboxgl.Map({
+      container: 'map', // container id
+      style: 'mapbox://styles/mapbox/streets-v11',
+      //style: 'mapbox://styles/hugonbg/ckix8l02r5jdm19pa9faytl8d', //hosted style id
+      //style: 'mapbox://styles/hugonbg/ckix8l02r5jdm19pa9faytl8d/draft', //rascunho
+      center: [-46.591, -23.581], // starting position
+      zoom: 10.76, // starting zoom
+      attributionControl: false
+    });
+
+    map.addControl(
+      new mapboxgl.AttributionControl({
+        customAttribution:
+          '<a href="https://www.linkedin.com/in/hugonbg/">Mapa: Hugo Nicolau Barbosa de Gusmão</a>'
+      })
+    );
+
+    map.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl
+      })
+    );
+
+    // Carrega o layer dos imoveis
+
+    d3.json(
+      '/dados/imoveis_notificados_com_dados_iptu_final.geojson',
+      function (err, imoveis_dados) {
+        if (err) throw err;
+        // Add a GeoJSON source containing place coordinates and information.
+        map.addSource('imoveis', {
+          'type': 'geojson',
+          'data': imoveis_dados
+        });
+
+        imoveis_dados.features.forEach(function (feature) {
+          var symbol = feature.properties['CEPEUC_TIPOLOGIA'];
+          var layerID = symbol;
+
+          // Add a layer for this symbol type if it hasn't been added already.
+          if (!map.getLayer(layerID)) {
+            map.addLayer({
+              'id': layerID,
+              'type': 'circle',
+              'source': 'imoveis',
+              'layout': {},
+              'paint': {
+                'circle-color': 'orange',
+                'circle-radius': 4,
+                'circle-stroke-width': 1,
+                'circle-stroke-color': '#fff'
+              },
+              'filter': ['==', 'CEPEUC_TIPOLOGIA', symbol]
+            });
+
+            // Add checkbox and label elements for the layer.
+            var input = document.createElement('input');
+            input.type = 'checkbox';
+            input.id = layerID;
+            input.checked = true;
+            filterGroup.appendChild(input);
+
+            var label = document.createElement('label');
+            label.setAttribute('for', layerID);
+            label.textContent = symbol;
+            filterGroup.appendChild(label);
+
+            // When the checkbox changes, update the visibility of the layer.
+            input.addEventListener('change', function (e) {
+              map.setLayoutProperty(
+                layerID,
+                'visibility',
+                e.target.checked ? 'visible' : 'none'
+              );
+            });
+
+            //--------------------------------------
+            //Popups
+
+            map.on('click', function (e) {
+              var features = map.queryRenderedFeatures(e.point, {
+                layers: [layerID] // replace this with the name of the layer
+              });
+
+              if (!features.length) {
+                return;
+              }
+
+              var feature = features[0];
+
+              var popup = new mapboxgl.Popup({ offset: [0, -15] })
+                .setLngLat(feature.geometry.coordinates)
+                .setMaxWidth('none')
+                .setHTML('<p><b>SQL: </b>' + feature.properties.in_sql +
+                  '<br><b>Endereço: </b>' + feature.properties.CEPEUC_LOGRADOURO +
+                  '<br><b>Tipologia: </b>' + feature.properties.CEPEUC_TIPOLOGIA +
+                  '<br><b>Instrumento: </b>' + feature.properties.CEPEUC_IDENTIFICAÇÃO_DO_INSTRUMENTO +
+                  '<br><b>Data da Notificação: </b>' + feature.properties.CEPEUC_DATA_DA_NOTIFICAÇAO +
+                  '<br><b>Status do Processo: </b>' + feature.properties.CEPEUC_SITUAÇAO_DO_IMOVEL +
+                  '<br><b>Averbação: </b>' + feature.properties.CEPEUC_SOLICITACAO_DA_AVERBACAO +
+                  '<br><b>Data Inicial da Aplicação: </b>' + feature.properties.CEPEUC_DATA_INICIAL_DA_APLICAÇÃO +
+                  '<br><b>IPTU Progressivo: </b>' + feature.properties.in_iptu_pr +
+                  '<br><b>Data da 1º aliquota progressiva: </b>' + feature.properties.CEPEUC_DATA_1_APLICACAO_DA_ALIQUOTA_PROGRESSIVA +
+                  '<table><caption><b>IPTU progressivo:</b></caption>' +
+                  '<thead><tr>' +
+                  '<th>2016</th>' +
+                  '<th>2017</th>' +
+                  '<th>2018</th>' +
+                  '<th>2019</th>' +
+                  '</tr></thead><tbody><tr>' +
+                  '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2016 + '</td>' +
+                  '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2017 + '</td>' +
+                  '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2018 + '</td>' +
+                  '<td>' + feature.properties.CEPEUC_IPTU_PROGRESSIVO_ENVIADOS_SF2019 + '</td>' +
+                  '</tr></tbody></table>' +
+                  '<table><caption><b>Áreas do imóvel em m²:</b></caption>' +
+                  '<thead><tr><th>IPTU</th><th>Terreno</th><th>Construída</th><th>Ocupada</th></tr></thead><tbody>' +
+                  '<tr><td>2016</td><td>' + feature.properties.iptu_Area_do_terreno_2016 + '</td><td>' + feature.properties.iptu_Area_construída_2016 + '</td><td>' + feature.properties.iptu_Area_ocupada_2016 + '</td></tr>' +
+                  '<tr><td>2017</td><td>' + feature.properties.iptu_Area_do_terreno_2017 + '</td><td>' + feature.properties.iptu_Area_construída_2017 + '</td><td>' + feature.properties.iptu_Area_ocupada_2017 + '</td></tr>' +
+                  '<tr><td>2018</td><td>' + feature.properties.iptu_Area_do_terreno_2018 + '</td><td>' + feature.properties.iptu_Area_construída_2018 + '</td><td>' + feature.properties.iptu_Area_ocupada_2018 + '</td></tr>' +
+                  '<tr><td>2019</td><td>' + feature.properties.iptu_Area_do_terreno_2019 + '</td><td>' + feature.properties.iptu_Area_construída_2019 + '</td><td>' + feature.properties.iptu_Area_ocupada_2019 + '</td></tr>' +
+                  '<tr><td>2020</td><td>' + feature.properties.iptu_Area_do_terreno_2020 + '</td><td>' + feature.properties.iptu_Area_construída_2020 + '</td><td>' + feature.properties.iptu_Area_ocupada_2020 + '</td></tr>' +
+                  '</tbody></table>'
+
+                  + '<br style="font-size:85%"><b>Fontes:</b>Geosampa, SMF(IPTU) e SMDU(Atualizado 11/2019)')
+                .addTo(map);
+            });
+
+
+            // Change the cursor to a pointer when the mouse is over the places layer.
+            map.on('mouseenter', layerID, function () {
+              map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change it back to a pointer when it leaves.
+            map.on('mouseleave', layerID, function () {
+              map.getCanvas().style.cursor = '';
+            });
+          }
+        });
+      });
+
+  </script>
+
+</body>
+
+</html>
