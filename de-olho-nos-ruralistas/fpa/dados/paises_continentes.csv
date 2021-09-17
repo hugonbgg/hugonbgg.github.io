@@ -1,0 +1,40 @@
+﻿id,parent,name,value,pct_do_total,pct_do_continente
+S.Af.,africa,South Africa,5,37,0,0%,100,0%
+China,asia,China,507,8,1,9%,17,7%
+H.K.,asia,Hong Kong,8,44,0,0%,0,3%
+India,asia,India,2,29,0,0%,0,1%
+Japan,asia,Japan,2225,18,8,2%,77,8%
+Qatar,asia,Qatar,4,57,0,0%,0,2%
+Sing.,asia,Singapore,60,89,0,2%,2,1%
+S.K.,asia,South Korea,42,64,0,2%,1,5%
+Taiwan,asia,Taiwan,5,19,0,0%,0,2%
+U.A.E.,asia,United Arab Emirates,2,63,0,0%,0,1%
+Aust.,europe,Austria,11,77,0,0%,0,2%
+Belg.,europe,Belgium,3,09,0,0%,0,1%
+Den.,europe,Denmark,34,47,0,1%,0,6%
+Fin.,europe,Finland,99,71,0,4%,1,8%
+Fr.,europe,France,1272,97,4,7%,22,9%
+Ger.,europe,Germany,213,86,0,8%,3,8%
+Italy,europe,Italy,56,43,0,2%,1,0%
+Lux.,europe,Luxembourg,7,54,0,0%,0,1%
+Neth.,europe,Netherlands,1245,11,4,6%,22,4%
+Nor.,europe,Norway,482,57,1,8%,8,7%
+Sp.,europe,Spain,900,84,3,3%,16,2%
+Swe.,europe,Sweden,145,61,0,5%,2,6%
+Switz.,europe,Switzerland,201,67,0,7%,3,6%
+U.K.,europe,United Kingdom,893,43,3,3%,16,0%
+Berm.,north_america,Bermuda,75,49,0,3%,0,8%
+Can.,north_america,Canada,1414,89,5,2%,15,8%
+Cym. Is.,north_america,Cayman Islands,11,74,0,0%,0,1%
+U.S.,north_america,United States,7445,77,27,5%,83,2%
+Auz.,oceania,Australia,96,21,0,4%,99,9%
+N.Z.,oceania,New Zealand,0,11,0,0%,0,1%
+Brazil,south_america,Brazil,9347,93,34,5%,97,6%
+Chile,south_america,Chile,232,53,0,9%,2,4%
+africa,world,Africa,5,37,0,0%,100,0%
+asia,world,Asia,2861,09,10,6%,100,0%
+europe,world,Europe,5569,8,20,6%,100,0%
+north_america,world,North America,8947,9,33,1%,100,0%
+oceania,world,Oceania,96,32,0,4%,100,0%
+south_america,world,South America,9582,01,35,4%,100,0%
+world,,Total Geral,27062,49,100,0%,

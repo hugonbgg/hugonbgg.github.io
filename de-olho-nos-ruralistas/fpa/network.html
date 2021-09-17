@@ -1,0 +1,144 @@
+<html>
+
+<head>
+    <title>Seis financiadores que ameaçam a Amazônia</title>
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+    <style type="text/css">
+        #mynetwork {
+            width: 100%;
+            height: 100%;
+            border: 1px solid lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="mynetwork"></div>
+
+    <script type="text/javascript">
+        // create an array with nodes
+        var nodes = new vis.DataSet([
+            { id: 1, label: 'Top 6', group: 'top 6' },
+            { id: 2, label: '¨Bank of \nAmerica', group: 'financiadores' },
+            { id: 3, label: 'BlackRock', group: 'financiadores' },
+            { id: 4, label: 'CitiGroup', group: 'financiadores' },
+            { id: 5, label: 'Dimensional', group: 'financiadores' },
+            { id: 6, label: 'JP Morgan \nChase', group: 'financiadores' },
+            { id: 7, label: 'Vanguard', group: 'financiadores' },
+
+            { id: 8, label: 'ADM', group: 'empresas' },
+            { id: 9, label: 'Bunge', group: 'empresas' },
+            { id: 10, label: 'Cargill', group: 'empresas' },
+            { id: 11, label: 'JBS', group: 'empresas' },
+            { id: 12, label: 'Klabin', group: 'empresas' },
+            { id: 13, label: 'Marfrig', group: 'empresas' },
+            { id: 14, label: 'Miverva', group: 'empresas' },
+            { id: 15, label: 'Agrex do \nBrasil', group: 'empresas' },
+            { id: 16, label: 'SLC Agrícola', group: 'empresas' }
+        ]);
+
+        // create an array with edges
+        var edges = new vis.DataSet([
+            //Top 6 to Bancos
+            { from: 1, to: 2 },
+            { from: 1, to: 3 },
+            { from: 1, to: 4 },
+            { from: 1, to: 5 },
+            { from: 1, to: 6 },
+            { from: 1, to: 7 },
+            //Bancos to Empresas:
+            //Bank of America
+            { from: 2, to: 8 },
+            { from: 2, to: 9 },
+            { from: 2, to: 10 },
+            { from: 2, to: 12 },
+            //BlackRock
+            { from: 3, to: 8 },
+            { from: 3, to: 9 },
+            { from: 3, to: 10 },
+            { from: 3, to: 11 },
+            { from: 3, to: 12 },
+            { from: 3, to: 13 },
+            { from: 3, to: 14 },
+            { from: 3, to: 15 },
+            { from: 3, to: 16 },
+            //CityGroup
+            { from: 4, to: 8 },
+            { from: 4, to: 9 },
+            { from: 4, to: 10 },
+            { from: 4, to: 11 },
+            { from: 4, to: 12 },
+            { from: 4, to: 13 },
+            { from: 4, to: 15 },
+            //Dimensional
+            { from: 5, to: 8 },
+            { from: 5, to: 9 },
+            { from: 5, to: 10 },
+            { from: 5, to: 11 },
+            { from: 5, to: 13 },
+            { from: 5, to: 14 },
+            { from: 5, to: 15 },
+            { from: 5, to: 16 },
+            //JP Morgan
+            { from: 6, to: 8 },
+            { from: 6, to: 9 },
+            { from: 6, to: 10 },
+            { from: 6, to: 11 },
+            { from: 6, to: 12 },
+            { from: 6, to: 13 },
+            { from: 6, to: 14 },
+            { from: 6, to: 15 },
+            //Vanguard
+            { from: 7, to: 8 },
+            { from: 7, to: 9 },
+            { from: 7, to: 10 },
+            { from: 7, to: 11 },
+            { from: 7, to: 13 },
+            { from: 7, to: 14 },
+            { from: 7, to: 15 }
+        ]);
+
+        // create a network
+        var container = document.getElementById('mynetwork');
+
+        // provide the data in the vis format
+        var data = {
+            nodes: nodes,
+            edges: edges
+        };
+        var options = {
+            nodes: {
+                shape: "dot", size: 10,
+                font: { size: 15, },
+                borderWidth: 2,
+                shadow: true,
+            },
+
+            layout: {
+                improvedLayout: true,
+                hierarchical: {
+                    direction: 'UD',
+                    sortMethod: 'directed',
+                    levelSeparation: 250,
+                    
+
+                }
+            },
+            edges: {
+                smooth: {
+                    type: 'straightCross',
+                    roundness: 0.5
+                },
+                color: {inherit: true}
+            },
+            physics: {enabled: false},
+
+        }
+
+        // initialize your network!
+        var network = new vis.Network(container, data, options);
+    </script>
+</body>
+
+</html>

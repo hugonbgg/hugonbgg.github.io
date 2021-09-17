@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-sankey.min.js"></script>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Os setores que financiam</title>
+    <style type="text/css">
+        html,
+        body,
+        #container {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="container"></div>
+    <script>
+        anychart.onDocumentReady(function () {
+            // create data
+            var data = [
+                {
+                    from: "Beef",
+                    to: "Cargill",
+                    weight: 67.26
+                },
+                {
+                    from: "Beef",
+                    to: "JBS",
+                    weight: 3806.49
+                },
+                {
+                    from: "Beef",
+                    to: "Marfrig",
+                    weight: 1252.77
+                },
+                {
+                    from: "Beef",
+                    to: "Minerva",
+                    weight: 714.61
+                },
+
+                {
+                    from: "Pulp & Paper",
+                    to: "CMPC",
+                    weight: 843.56
+                },
+                {
+                    from: "Pulp & Paper",
+                    to: "Klabin",
+                    weight: 2214.3
+                },
+                {
+                    from: "Pulp & Paper",
+                    to: "Stora Enso",
+                    weight: 219.31
+                },
+                {
+                    from: "Pulp & Paper",
+                    to: "Suzano",
+                    weight: 14033.33
+                },
+                {
+                    from: "Soy",
+                    to: "Archer Daniels Midland",
+                    weight: 852.2
+                },
+                {
+                    from: "Soy",
+                    to: "Brookfield Asset Management",
+                    weight: 138.5
+                },
+                {
+                    from: "Soy",
+                    to: "Bunge",
+                    weight: 351.86
+                },
+                {
+                    from: "Soy",
+                    to: "Cargill",
+                    weight: 193.76
+                },
+                {
+                    from: "Soy",
+                    to: "COFCO",
+                    weight: 940.64
+                },
+                {
+                    from: "Soy",
+                    to: "Minerva",
+                    weight: 346.36
+                },
+                {
+                    from: "Soy",
+                    to: "Mitsubishi",
+                    weight: 56.01
+                },
+                {
+                    from: "Soy",
+                    to: "Mitsui & Co",
+                    weight: 36.02
+                },
+                {
+                    from: "Soy",
+                    to: "Olam International",
+                    weight: 96.65
+                },
+                {
+                    from: "Soy",
+                    to: "SLC Agricola",
+                    weight: 218.81
+                },
+                {
+                    from: "Timber",
+                    to: "Klabin",
+                    weight: 468.55
+                },
+                {
+                    from: "Timber",
+                    to: "Stora Enso",
+                    weight: 24.21
+                }
+            ]
+                ;
+
+            // create a chart and set the data
+            var chart = anychart.sankey(data);
+
+            //chart title
+            chart.title("Os financiadores por setor:");
+            //customizing the vertical padding of the nodes
+
+            // set the width of nodes
+            chart.nodeWidth("40%");
+
+            // set the padding between nodes
+            chart.nodePadding(5);
+
+            // set the container id
+            chart.container("container");
+
+            // initiate drawing the chart
+            chart.draw();
+        })
+    </script>
+</body>
+
+</html>
