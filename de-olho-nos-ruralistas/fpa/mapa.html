@@ -1,0 +1,206 @@
+<html>
+
+<head>
+  <title>JavaScript Flow Map</title>
+  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-core.min.js"></script>
+  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-map.min.js"></script>
+
+  <script src="https://cdn.anychart.com/geodata/latest/custom/world/world.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.3.15/proj4.js"></script>
+
+  <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-data-adapter.min.js"></script>
+
+  <style type="text/css">
+    html,
+    body,
+    #container {
+      width: 100vw;
+      height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container"></div>
+  <script>
+    anychart.onDocumentReady(function () {
+      anychart.data.loadJsonFile('dados/migration-data.json', function (data) {
+
+        // create a connector map chart instance
+        var map = anychart.connector();
+
+        // include the world map geodata
+        map.geoData('anychart.maps.world');
+
+        // darken all regions
+        map
+          .unboundRegions()
+          .enabled(true)
+          .fill('#E1E1E1')
+          .stroke('#D2D2D2');
+
+        // set the map chart title
+        map
+          .title()
+          .enabled(true)
+          .useHtml(true)
+          .padding([0, 0, 40, 0])
+          .text(
+            '<span style="color:#212121;">Título: What is Lorem Ipsum?</span><br/>' +
+            '<span style="font-size: 14px;">Subtítulo:Why do we use it?</span>'
+          );
+
+        // display all labels even if there is an overlap
+        map.
+          overlapMode("allow-overlap");
+
+        // a helper function to create the series
+        // that will form the connector lines
+        var createSeries = function (name, data, color) {
+
+          // create and customize the connector series
+          var connectorSeries = map
+            .connector(data)
+            .name(name)
+            .fill(color)
+            .stroke({
+              color: color,
+              thickness: 2
+            });
+
+          // change the coloring of the connector line in the hovered state
+          connectorSeries
+            .hovered()
+            .stroke('1.5 #212121')
+            .fill('#212121');
+
+          // configure the arrow marker
+          connectorSeries
+            .markers()
+            .position('100%')
+            .fill(color)
+            .stroke({
+              color: color
+            })
+            .size(8);
+
+          // configure the arrow marker in the hovered state
+          connectorSeries
+            .hovered()
+            .markers()
+            .position('100%')
+            .size(10)
+            .fill('#212121')
+            .stroke('2 #455a64');
+
+          // set the labels for the source countries
+          connectorSeries
+            .labels()
+            .enabled(true)
+            .format(function () {
+              return this.getData('from');
+            })
+            .fontColor('#212121');
+
+          // set the thickness of the connector line based on the series
+          if (name === 'Acima de 8.000 mi') {
+            connectorSeries.startSize(5).endSize(2);
+          } else if (name === '2.000 até 6.000 mi') {
+            connectorSeries.startSize(3.5).endSize(1.5);
+          } else if (name === 'Entre 2 e 9 mi') {
+            connectorSeries.startSize(3).endSize(1);
+          } else {
+            connectorSeries.startSize(1).endSize(0);
+          }
+
+          // configure the settings for the legend items
+          connectorSeries
+            .legendItem()
+            .iconType('square')
+            .iconFill(color)
+            .iconStroke(false);
+
+          // configure the tooltip setting for the series
+          connectorSeries
+            .tooltip()
+            .useHtml(true)
+            .format(function () {
+              return (
+                '<h4 style="font-size:14px; font-weight:400; margin: 0.25rem                 0;">From:<b> ' + this.getData('from') + '</b></h4>' +
+                '<h4 style="font-size:14px; font-weight:400; margin: 0.25rem                 0;">Total Migrants::<b> ' + this.getData('total').toLocaleString() + '</b></h4>'
+              );
+            });
+
+        };
+
+        // create a dataset from the data
+        var dataSet = anychart.data.set(data).mapAs();
+
+        // create five series filtering the data
+        // by the absolute values of the migration numbers
+        createSeries(
+          'Entre 2 e 9 mi',
+          dataSet.filter('total', filterFunction(0, 10)),
+          '#fed693'
+        );
+        createSeries(
+          '2.000 até 6.000 mi',
+          dataSet.filter('total', filterFunction(2000, 6000)),
+          '#FF872C'
+        );
+        createSeries(
+          'Acima de 8.000 mi',
+          dataSet.filter('total', filterFunction(8000, 10000)),
+          '#F11D28'
+        );/*
+        createSeries(
+          '40,000 to 50,000',
+          dataSet.filter('total', filterFunction(40000, 50000)),
+          '#1792c0'
+        );
+        createSeries(
+          'More than 50,000',
+          dataSet.filter('total', filterFunction(50000, 1000000)),
+          '#1c5eaa'
+        );*/
+
+        // set up the legend for the sample
+        map
+          .legend()
+          .enabled(true)
+          .position('bottom')
+          .padding([0, 0, 20, 0])
+          .fontSize(10);
+
+        map
+          .legend()
+          .title()
+          .enabled(true)
+          .fontSize(13)
+          .padding([0, 0, 5, 0])
+          .text('Total de investimentos (Em milhões de doláres)');
+
+        // set the container
+        map.container('container');
+
+        // draw the map
+        map.draw();
+
+      });
+    });
+
+    // a helper function to bind the data field to the local var.
+    function filterFunction(val1, val2) {
+      if (val2) {
+        return function (fieldVal) {
+          return val1 <= fieldVal && fieldVal < val2;
+        };
+      }
+      return function (fieldVal) {
+        return val1 <= fieldVal;
+      };
+    }
+  </script>
+</body>
+
+</html>
