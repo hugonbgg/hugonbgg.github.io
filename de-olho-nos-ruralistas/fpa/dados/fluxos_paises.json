@@ -1,0 +1,70 @@
+[{
+    "points": [37.090240,-95.712891,-15.303028, -48.092694],
+    "total": 2000.77,
+    "from": "United States",
+    "curvature": 0.5,
+    "label": {
+        "position": "0%",
+        "anchor": "bottom"
+    }
+},{
+    "points": [36.60843, 103.67403, -15.303028, -48.092694],
+    "total": 2946.48,
+    "from": "East Asia & Pacific",
+    "curvature": 0.5,
+    "label": {
+        "position": "0%",
+        "anchor": "bottom"
+    }
+}, {
+    "points": [54.75265, 65.88645, -15.303028, -48.092694],
+    "total": 5569.80,
+    "from": "Europe & Central Asia",
+    "curvature": 0.5,
+    "label": {
+        "position": "0%",
+        "anchor": "bottom"
+    }
+}, {
+    "points": [26.054569, 24.91160, -15.303028, -48.092694],
+    "total": 8.64,
+    "from": "Middle East & North Africa",
+    "curvature": -0.2,
+    "label": {
+        "position": "0%",
+        "anchor": "bottom",
+        "offsetX": -40
+    }
+}, {
+    "points": [44.21082, -99.39442, -15.303028, -48.092694],
+    "total": 8936.15,
+    "from": "North America",
+    "curvature": 0.6,
+    "label": {
+        "position": "20%",
+        "anchor": "bottom",
+        "offsetX": -100
+    }
+}, {
+    "points": [25.68851, 76.42969, -15.303028, -48.092694],
+    "total": 2.29,
+    "from": "South Asia",
+    "curvature": -0.50,
+    "label": {
+        "position": "0%",
+        "anchor": "topLeft",
+        "offsetX": 5,
+        "offsetY": 10
+    }
+}, {
+    "points": [0.53751, 26.35458, -15.303028, -48.092694],
+    "total": 5.37,
+    "from": "Sub-Saharan Africa",
+    "curvature": -0.3,
+    "label": {
+        "position": "0%",
+        "anchor": "bottom",
+        "offsetX": -25,
+        "offsetY": -10
+    }
+}]

@@ -1,0 +1,229 @@
+[
+ {
+   "points": [37.090240,-95.712891,-15.303028, -48.092694],
+   "total": 7445.77,
+   "from": "United States",
+   "curvature": -0.2,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": -30,
+    "offsetY": -25
+}
+ },
+ {
+   "points": [36.204823,138.252930,-15.303028, -48.092694],
+   "total": 2225.18,
+   "from": "Japan",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 10,
+    "offsetY": -10
+}
+ },
+ {
+   "points": [56.130367,-106.346771,-15.303028, -48.092694],
+   "total": 1414.89,
+   "from": "Canada",
+   "curvature": -0.5,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": -30,
+    "offsetY": -25
+  }
+ },
+ {
+   "points": [46.227638,2.213749,-15.303028, -48.092694],
+   "total": 1272.97,
+   "from": "France",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [52.132633,5.291266,-15.303028, -48.092694],
+   "total": 1245.11,
+   "from": "Netherlands",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [40.463669,-3.749220,-15.303028, -48.092694],
+   "total": 900.84,
+   "from": "Spain",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [55.378052,-3.435973,-15.303028, -48.092694],
+   "total": 893.43,
+   "from": "United Kingdom",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [35.861660,104.195396,-15.303028, -48.092694],
+   "total": 507.8,
+   "from": "China",
+   "curvature": -0.3,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [60.472023,8.468946,-15.303028, -48.092694],
+   "total": 482.57,
+   "from": "Norway",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [-35.675148,-71.542969,-15.303028, -48.092694],
+   "total": 232.53,
+   "from": "Chile",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": -20,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [51.165691,10.451526,-15.303028, -48.092694],
+   "total": 213.86,
+   "from": "Germany",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [46.818188,8.227512,-15.303028, -48.092694],
+   "total": 201.67,
+   "from": "Switzerland",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [60.128162,18.643501,-15.303028, -48.092694],
+   "total": 145.61,
+   "from": "Sweden",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [61.924110,25.748152,-15.303028, -48.092694],
+   "total": 99.71,
+   "from": "Finland",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [-25.274399,133.775131,-15.303028, -48.092694],
+   "total": 96.21,
+   "from": "Australia",
+   "curvature": -0.3,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [32.307800,-64.750504,-15.303028, -48.092694],
+   "total": 75.49,
+   "from": "Bermuda",
+   "curvature": -0.3,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [1.352083,103.819839,-15.303028, -48.092694],
+   "total": 60.89,
+   "from": "Singapore",
+   "curvature": -0.3,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [41.871941,12.567380,-15.303028, -48.092694],
+   "total": 56.43,
+   "from": "Italy",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ },
+ {
+   "points": [35.907757,127.766922,-15.303028, -48.092694],
+   "total": 42.64,
+   "from": "South Korea",
+   "curvature": -0.4,
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": -20,
+    "offsetY": 20
+}
+ },
+ {
+   "points": [56.263920,9.501785,-15.303028, -48.092694],
+   "total": 34.47,
+   "from": "Denmark",
+   "label": {
+    "position": "0%",
+    "anchor": "bottom",
+    "offsetX": 0,
+    "offsetY": 0
+}
+ }
+]
