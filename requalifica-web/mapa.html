@@ -23,7 +23,7 @@
 </head>
 
 <body>
-    <div id="map" style="width: 100vw; height: 100vh"> </div>
+    <div id="map" style="width: auto; height: 100vh"> </div>
     <script>
 
         // Centraliza o mapa na região desejada 
@@ -101,6 +101,7 @@
                     layer.bindPopup('<b>Descrição:</b> ' + '<p align = justify>' + feature.properties.Descrição + '</p>');
                 }
             }).addTo(map);
+            
         });
 
         // display the control (switcher list) on the map, by default in the top right corner
