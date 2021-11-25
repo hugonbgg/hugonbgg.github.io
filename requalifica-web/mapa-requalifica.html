@@ -36,7 +36,7 @@
 
         var streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {});
         var satelite = L.tileLayer('http://mt1.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {});
-        var gray = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw', {
+        var gray = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw', {
 
             tileSize: 512,
             zoomOffset: -1,
@@ -89,20 +89,39 @@
 
         $.getJSON("Lotes_com_IPTU_PEUC_OCUPACOES_TOMBADOS.geojson", function (data) {
             // add GeoJSON layer to the map once the file is loaded
-            L.geoJson(data,{
-                
+            L.geoJson(data, {
+
                 opacity: 0.5,
                 fillOpacity: 0,
-                weight: 1
-            }
-                       ).addTo(map);
-            
+                weight: 1,
+                onEachFeature: function (feature, layer) {
+                    layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+                        '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+                        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
+                        '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+                        '<b>Ano da Construção:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+                        '<b>Ano da Construção:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+                        '<b>Área do Terreno:</b> ' + feature.properties.IPTU_AreaTerreno + '<br>' +
+                        '<b>Área Ocupada:</b> ' + feature.properties.IPTU_AreaOcupada + '<br>' +
+                        '<b>Área Construída:</b> ' + feature.properties.IPTU_AreaConstruida + '<br>' +
+                        '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+                        '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+                        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+                        '<b>PEUC/IPTU Progressivo:</b> ' + feature.properties.IPTUPROGRESSIVO_PEUC + '<br>' +
+                        '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+                        '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' 
+                        
+
+                        );
+                }
+            }).addTo(map);
+
         });
 
         $.getJSON("perimetro_requalifica.geojson", function (data) {
             // add GeoJSON layer to the map once the file is loaded
             L.geoJson(data, {
-                
+
 
                 style: function (feature) {
                     switch (feature.properties.fid) {
