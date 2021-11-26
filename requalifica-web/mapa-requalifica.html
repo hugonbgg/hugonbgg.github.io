@@ -20,23 +20,39 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
+    <style type="text/css">
+
+        body {
+            margin:0;
+            padding:0;
+        }
+        #map {
+            position:absolute;
+            top:0;
+            bottom:0;
+            width:100%;
+        }
+    
+        </style>
 </head>
 
 <body>
-    <div id="map" style="width: auto; height: 100vh"> </div>
+    <div id="map">
+
+    </div>
     <script>
 
         // Centraliza o mapa na região desejada 
         var map = L.map('map', {
             center: [-23.543, -46.633],
-            zoom: 14.0
+            zoom: 15.0
         });
 
         // Adiciona os mapas base
 
         var streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {});
         var satelite = L.tileLayer('http://mt1.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {});
-        var gray = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw', {
+        var gray = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw', {
 
             tileSize: 512,
             zoomOffset: -1,
@@ -93,7 +109,7 @@
 
                 opacity: 0.5,
                 fillOpacity: 0,
-                weight: 1,
+                weight: 0.5,
                 onEachFeature: function (feature, layer) {
                     layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
                         '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
@@ -112,7 +128,7 @@
                         '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
                         '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
 
-                        );
+                    );
                 }
             }).addTo(map);
 

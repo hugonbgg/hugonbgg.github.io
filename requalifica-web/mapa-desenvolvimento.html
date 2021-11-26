@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Requalifica Centro</title>
+  <!-- leaflet CSS-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
+  <!-- Carrega o Jquery-->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+
+
+  <style>
+    .info {
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
+
+    .leaflet-control-layers {
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
+
+    .info h4 {
+      margin: 0 0 5px;
+      color: #777;
+    }
+
+    .legend {
+      text-align: left;
+      line-height: 18px;
+      color: #555;
+    }
+
+    .legend i {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 0.7;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="map">
+
+  </div>
+  <!-- Carrega o arquivo com os vetores -->
+  <script type="text/javascript" src="lotes.js"></script>
+
+  <script type="text/javascript">
+
+    //Define a área do zoom inicial
+    var map = L.map('map').setView([-23.543, -46.633], 15);
+
+    //Define o Mapa Base e Adiciona ao mapa 
+    var base = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+      maxZoom: 18,
+      attribution: 'SPUrbanismo &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+        '© <a href="https://www.mapbox.com/">Mapbox</a>, © <a href="https://www.google.com/">Google</a>',
+      id: 'mapbox/dark-v10',
+      tileSize: 512,
+      zoomOffset: -1
+    })
+    base.addTo(map)
+
+
+    // Adiciona os mapas adicionais para ficar no toogle
+
+    var streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {});
+    var satelite = L.tileLayer('http://mt1.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {});
+
+    var baselayers = {
+      'Google Earth': satelite,
+      'Google Streets': streets,
+      'Mapbox': base
+    };
+
+    //Funcão para definir as cores e o intervalo
+    function getColor(d) {
+      return d > 25 ? '#800026' :
+        d > 20 ? '#BD0026' :
+          d > 15 ? '#E31A1C' :
+            d > 10 ? '#FC4E2A' :
+              d > 5 ? '#FD8D3C' :
+                d > 1 ? '#FEB24C' :
+                  d < 0 ? '#FED976' :
+                    '#FFEDA0';
+    }
+
+    //Função que define o estilo da camada baseado no campo definido, nesse caso o CA
+    function style(feature) {
+      return {
+        weight: 1,
+        opacity: 1,
+        color: getColor(feature.properties.IPTU_CA),
+        //dashArray: '3',
+        fillOpacity: 0.7,
+        fillColor: getColor(feature.properties.IPTU_CA),
+
+      };
+    }
+
+    //Interação: Muda o estilo ao passar o mapa por cima do poligono
+    function highlightFeature(e) {
+      var layer = e.target;
+
+      layer.setStyle({
+        weight: 3,
+        color: '#666',
+        dashArray: '',
+        fillOpacity: 0.7
+      });
+
+      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+      }
+
+    }
+
+    var geojson;
+
+    function resetHighlight(e) {
+      geojson.resetStyle(e.target);
+
+    }
+
+    function zoomToFeature(e) {
+      map.fitBounds(e.target.getBounds());
+    }
+
+    function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        //click: zoomToFeature
+      });
+    }
+
+
+    //Adiciona o arquivo vetorial ao mapa e configura o popup
+    //L.geoJson(statesData).addTo(map);
+
+    geojson = L.geoJson(statesData, {
+      style: style,
+      //onEachFeature: onEachFeature,
+      onEachFeature: function (feature, layer) {
+        layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+          '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+          '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
+          '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+          '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+          '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+          '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+          '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+          '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+          '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+          '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+          '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+          '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+          '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+          '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+          '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+
+        );
+      }
+    }).addTo(map);
+
+
+
+    //Legenda 
+
+    var legend = L.control({ position: 'bottomright' });
+
+    legend.onAdd = function (map) {
+
+      var div = L.DomUtil.create('div', 'info legend'),
+        grades = [0, 1, 5, 10, 15, 20, 25],
+        labels = ['<p>Coeficiente de <br>aproveitamento:</p>'],
+        from, to;
+
+      for (var i = 0; i < grades.length; i++) {
+        from = grades[i];
+        to = grades[i + 1];
+
+        labels.push(
+          '<i style="background:' + getColor(from + 1) + '"></i> ' +
+          from + (to ? '&ndash;' + to : '+'));
+      }
+
+      div.innerHTML = labels.join('<br>');
+      return div;
+    };
+
+    legend.addTo(map);
+
+    //
+    var info = L.control();
+
+    info.onAdd = function (map) {
+      this._div = L.DomUtil.create('div', 'info'), // create a div with a class "info"
+        this._div.innerHTML = '<h4> Neque porro quisquam<br> est qui dolorem ipsum quia dolor<br> sit amet, consectetur, adipisci velit..."</h4>'
+      return this._div;
+    };
+
+    info.addTo(map);
+
+    //
+
+    // display the control (switcher list) on the map, by default in the top right corner
+    var controle = L.control.layers(baselayers, null, { collapsed: false })
+    controle.addTo(map);
+    ;
+  </script>
+</body>
+
+</html>
