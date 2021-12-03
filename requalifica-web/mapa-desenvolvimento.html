@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Requalifica Centro</title>
   <!-- leaflet CSS-->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
@@ -30,12 +30,10 @@
       position: absolute;
       top: 0;
       bottom: 0;
+      height: 100%;
       width: 100%;
     }
-  </style>
 
-
-  <style>
     .info {
       padding: 6px 8px;
       font: 14px/16px Arial, Helvetica, sans-serif;
@@ -80,15 +78,10 @@
   <div id="map">
 
   </div>
-  <!-- Carrega o arquivo com os vetores -->
-  <script type="text/javascript" src="lotes.js"></script>
 
-  <script type="text/javascript">
+  <script>
 
-    //Define a área do zoom inicial
-    var map = L.map('map').setView([-23.543, -46.633], 15);
-
-    //Define o Mapa Base e Adiciona ao mapa 
+    //Define o mapa base e o adiciona ao mapa 
     var base = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
       maxZoom: 18,
       attribution: 'SPUrbanismo &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
@@ -97,19 +90,73 @@
       tileSize: 512,
       zoomOffset: -1
     })
-    base.addTo(map)
 
-
-    // Adiciona os mapas adicionais para ficar no toogle
+    // Adiciona os mapas base adicionais
 
     var streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {});
     var satelite = L.tileLayer('http://mt1.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {});
 
-    var baselayers = {
+    //Cria o elemento mapa e define o zoom e a centralização
+    let map = L.map("map", { center: [-23.543, -46.633], zoom: 15.0, layers: [base] });
+
+    //Cria o elemento para receber as camadas
+    let perimetroLayer = L.layerGroup().addTo(map)
+
+    // This function is run for every feature found in the geojson file. It adds the feature to the empty layer we created above
+    function perimetroData(feature, layer) {
+      perimetroLayer.addLayer(layer);
+      //Adiciona a legenda
+      layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+              '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+              '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
+              '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+              '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+              '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+              '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+              '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+              '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+              '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+              '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+              '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+              '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+              '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+              '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+              '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+    
+            );
+
+      // some other code can go here, like adding a popup with layer.bindPopup("Hello")
+    }
+
+    //Adiciona as camadas
+    //UFs
+    fetch("Lotes_mapa.json")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        L.geoJSON(data, { onEachFeature: perimetroData, style: style })//.addTo(map)
+
+      });
+
+
+
+    //Cria o grupo com as camadas e adiciona o controlador dos layers
+    let baseMaps = {
       'Google Earth': satelite,
       'Google Streets': streets,
       'Mapbox': base
     };
+
+    let Camadas = {
+      "Perímetro": perimetroLayer,
+
+    };
+
+    L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
+    L.control.layers(Camadas, null, { collapsed: false }).addTo(map);
+
+
 
     //Funcão para definir as cores e o intervalo
     function getColor(d) {
@@ -135,72 +182,6 @@
 
       };
     }
-
-    //Interação: Muda o estilo ao passar o mapa por cima do poligono
-    function highlightFeature(e) {
-      var layer = e.target;
-
-      layer.setStyle({
-        weight: 3,
-        color: '#666',
-        dashArray: '',
-        fillOpacity: 0.7
-      });
-
-      if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-        layer.bringToFront();
-      }
-
-    }
-
-    var geojson;
-
-    function resetHighlight(e) {
-      geojson.resetStyle(e.target);
-
-    }
-
-    function zoomToFeature(e) {
-      map.fitBounds(e.target.getBounds());
-    }
-
-    function onEachFeature(feature, layer) {
-      layer.on({
-        mouseover: highlightFeature,
-        mouseout: resetHighlight,
-        //click: zoomToFeature
-      });
-    }
-
-
-    //Adiciona o arquivo vetorial ao mapa e configura o popup
-    //L.geoJson(statesData).addTo(map);
-
-    geojson = L.geoJson(statesData, {
-      style: style,
-      //onEachFeature: onEachFeature,
-      onEachFeature: function (feature, layer) {
-        layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
-          '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
-          '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
-          '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
-          '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
-          '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
-          '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
-          '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
-          '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
-          '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
-          '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
-          '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
-          '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
-          '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
-          '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
-          '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
-
-        );
-      }
-    }).addTo(map);
-
 
 
     //Legenda 
@@ -229,8 +210,8 @@
 
     legend.addTo(map);
 
-    //
-    var info = L.control();
+    // Caixa de Texto
+    var info = L.control({ position: "bottomleft" });
 
     info.onAdd = function (map) {
       this._div = L.DomUtil.create('div', 'info'), // create a div with a class "info"
@@ -240,12 +221,9 @@
 
     info.addTo(map);
 
-    //
 
-    // display the control (switcher list) on the map, by default in the top right corner
-    var controle = L.control.layers(baselayers, null, { collapsed: false })
-    controle.addTo(map);
-    ;
+
+
   </script>
 </body>
 
