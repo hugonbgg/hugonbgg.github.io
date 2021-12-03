@@ -26,22 +26,13 @@
       padding: 0;
     }
 
-    #map {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      height: 100%;
-      width: 100%;
-    }
-
-    .info {
-      padding: 6px 8px;
-      font: 14px/16px Arial, Helvetica, sans-serif;
-      background: white;
-      background: rgba(255, 255, 255, 0.8);
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-      border-radius: 5px;
-    }
+    
+    html,
+        body,
+        #map {
+            height: 100%;
+            width: 100%;
+        }
 
     .leaflet-control-layers {
       padding: 6px 8px;
@@ -50,26 +41,31 @@
       background: rgba(255, 255, 255, 0.8);
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       border-radius: 5px;
-    }
-
-    .info h4 {
-      margin: 0 0 5px;
-      color: #777;
+      text-align:;
     }
 
     .legend {
-      text-align: left;
-      line-height: 18px;
-      color: #555;
-    }
+            width: 150px;
+            font-size: 16px;
+            color: #333333;
+            font-family: "Open Sans", Helvetica, sans-serif;
+            padding: 6px 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
 
-    .legend i {
-      width: 18px;
-      height: 18px;
-      float: left;
-      margin-right: 8px;
-      opacity: 0.7;
-    }
+        .legend div {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 2;
+        }
+
+        div.legend.leaflet-control br {
+            clear: both;
+        }
   </style>
 
 </head>
@@ -100,44 +96,78 @@
     let map = L.map("map", { center: [-23.543, -46.633], zoom: 15.0, layers: [base] });
 
     //Cria o elemento para receber as camadas
-    let perimetroLayer = L.layerGroup().addTo(map)
+    let perimetroLayer = L.layerGroup()//.addTo(map)
+    let publicoLayer = L.layerGroup()//.addTo(map)
+    let pavimentoLayer = L.layerGroup()//.addTo(map)
 
-    // This function is run for every feature found in the geojson file. It adds the feature to the empty layer we created above
+
+    //Criando e adicionando as camadas ao mapa
+
+    // ------------------ Camada Perimetro ---------------------------------------------------
     function perimetroData(feature, layer) {
       perimetroLayer.addLayer(layer);
+
       //Adiciona a legenda
       layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
-              '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
-              '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
-              '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
-              '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
-              '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
-              '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
-              '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
-              '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
-              '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
-              '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
-              '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
-              '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
-              '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
-              '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
-              '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
-    
-            );
-
-      // some other code can go here, like adding a popup with layer.bindPopup("Hello")
+        '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
+        '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+        '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+        '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+        '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+        '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+        '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+        '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+        '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+        '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+        '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+      );
     }
 
-    //Adiciona as camadas
-    //UFs
+    //Adiciona a camada ao mapa
     fetch("Lotes_mapa.json")
       .then(function (response) {
         return response.json();
       })
       .then(function (data) {
-        L.geoJSON(data, { onEachFeature: perimetroData, style: style })//.addTo(map)
-
+        L.geoJSON(data, { onEachFeature: perimetroData, style:{color: 'orange',
+        weight: '0.5',
+        fillColor: '#fecc5c',
+        fillOpacity: 0.3} }).addTo(map)
       });
+
+    // ------------------ Camada Imoveis Publicos--------------------------------------------
+    function publicoData(feature, layer) {
+      publicoLayer.addLayer(layer);
+    }
+
+    //Adiciona a camada ao mapa
+    fetch("Lotes_mapa.json")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        L.geoJSON(data, { onEachFeature: publicoData, style: publico_style })//.addTo(map)
+      });
+
+
+    // ------------------ Camada Pavimentos--------------------------------------------
+    function pavimentoData(feature, layer) {
+      pavimentoLayer.addLayer(layer);
+    }
+
+    //Adiciona a camada ao mapa
+    fetch("Lotes_mapa.json")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })//.addTo(map)
+      });
+
 
 
 
@@ -150,78 +180,172 @@
 
     let Camadas = {
       "Perímetro": perimetroLayer,
-
+      "Imóveis Públicos": publicoLayer,
+      "Pavimentos": pavimentoLayer,
     };
 
     L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
     L.control.layers(Camadas, null, { collapsed: false }).addTo(map);
 
+    //-------------------Estilos--------------------------------------------------
 
+    //Estilos dos Mapas
+    //Imóveis Públicos
 
-    //Funcão para definir as cores e o intervalo
-    function getColor(d) {
-      return d > 25 ? '#800026' :
-        d > 20 ? '#BD0026' :
-          d > 15 ? '#E31A1C' :
-            d > 10 ? '#FC4E2A' :
-              d > 5 ? '#FD8D3C' :
-                d > 1 ? '#FEB24C' :
-                  d < 0 ? '#FED976' :
-                    '#FFEDA0';
-    }
-
-    //Função que define o estilo da camada baseado no campo definido, nesse caso o CA
-    function style(feature) {
+    //Função para estilizar o mapa (Imoveis Públicos)
+    function publico_style(feature) {
       return {
+        color: publico_color(feature.properties.IPTU_ImovelPublico),
         weight: 1,
-        opacity: 1,
-        color: getColor(feature.properties.IPTU_CA),
-        //dashArray: '3',
-        fillOpacity: 0.7,
-        fillColor: getColor(feature.properties.IPTU_CA),
-
+        fillColor: publico_color(feature.properties.IPTU_ImovelPublico),
+        fillOpacity: 0.8
       };
     }
 
+    //Função que define as cores (Imoveis Públicos)
+    function publico_color(p) {
+      if (p == "Sim") return "#beaed4";
+      if (p == "Não") return "#fdc086";
+      return "grey"
+    }
 
-    //Legenda 
+      //Pavimentos
 
-    var legend = L.control({ position: 'bottomright' });
+        //Função para estilizar o mapa (Pavimentos)
+        function pavimentos_style(feature) {
+      return {
+        color: 'darkblue',
+        weight: '0.1',
+        fillColor: pavimentos_color(feature.properties.IPTU_QtdPavimentos),
+        fillOpacity: 0.8
+      };
+    }
 
-    legend.onAdd = function (map) {
-
-      var div = L.DomUtil.create('div', 'info legend'),
-        grades = [0, 1, 5, 10, 15, 20, 25],
-        labels = ['<p>Coeficiente de <br>aproveitamento:</p>'],
-        from, to;
-
-      for (var i = 0; i < grades.length; i++) {
-        from = grades[i];
-        to = grades[i + 1];
-
-        labels.push(
-          '<i style="background:' + getColor(from + 1) + '"></i> ' +
-          from + (to ? '&ndash;' + to : '+'));
-      }
-
-      div.innerHTML = labels.join('<br>');
-      return div;
-    };
-
-    legend.addTo(map);
-
-    // Caixa de Texto
-    var info = L.control({ position: "bottomleft" });
-
-    info.onAdd = function (map) {
-      this._div = L.DomUtil.create('div', 'info'), // create a div with a class "info"
-        this._div.innerHTML = '<h4> Neque porro quisquam<br> est qui dolorem ipsum quia dolor<br> sit amet, consectetur, adipisci velit..."</h4>'
-      return this._div;
-    };
-
-    info.addTo(map);
+    //Função que define as cores (Pavimentos)
+    function pavimentos_color(p) {
+      if (p == 0) return "#a6611a";
+      if (p >= 1 && p < 5) return "#92c5de";
+      if (p >= 6) return "#5e3c99";
+      return "grey"
+    }
 
 
+//Legendas
+            //Legenda Imóveis Públicos
+            let legendPublicos = L.control({ position: "bottomright" });
+            legendPublicos.onAdd = function () {
+                let div = L.DomUtil.create("div", "legend");
+                div.innerHTML =
+                    '<b>Imóveis Públicos</b><br>' +
+                    '<br>' +
+                    '<div style="background-color: #beaed4"></div>Sim<br>' +
+                    '<div style="background-color: #fdc086"></div>Não<br>';
+                  return div;
+            };
+legendPublicos//.addTo(map);
+
+
+//Legendas
+            //Legenda Pavimentos
+            let legendPavimentos = L.control({ position: "bottomright" });
+            legendPavimentos.onAdd = function () {
+                let div = L.DomUtil.create("div", "legend");
+                div.innerHTML =
+                    '<b>Quantidade de pavimentos</b><br>' +
+                    '<br>' +
+                    '<div style="background-color: #a6611a"></div>Terreno<br>' +
+                    '<div style="background-color: #92c5de"></div>Até 5<br>'+
+                    '<div style="background-color: #5e3c99"></div>Acima de 6<br>';
+
+                  return div;
+            };
+legendPavimentos//.addTo(map);
+
+
+//Alterna as Legendas
+
+            //Teste alterna a legenda com o layer
+            map.on('baselayerchange', function (eventLayer) {
+                // Switch to the Population legend...
+                if (eventLayer.name === "Imóveis Públicos") {
+                    this.removeControl(legendPavimentos);
+                    legendPublicos.addTo(this);
+                }
+
+                if (eventLayer.name === "Pavimentos") {
+                    this.removeControl(legendPublicos);
+                    legendPavimentos.addTo(this);
+                }
+
+                if (eventLayer.name === "Perímetro") {
+                    this.removeControl(legendPublicos);
+                    this.removeControl(legendPavimentos);
+                                    }
+            });
+
+
+
+
+
+    /*
+    
+        //Funcão para definir as cores e o intervalo
+        function getColor(d) {
+          return d > 25 ? '#800026' :
+            d > 20 ? '#BD0026' :
+              d > 15 ? '#E31A1C' :
+                d > 10 ? '#FC4E2A' :
+                  d > 5 ? '#FD8D3C' :
+                    d > 1 ? '#FEB24C' :
+                      d < 0 ? '#FED976' :
+                        '#FFEDA0';
+        }
+    
+        //Função que define o estilo da camada baseado no campo definido, nesse caso o CA
+        function style(feature) {
+          return {
+            weight: 1,
+            opacity: 1,
+            color: getColor(feature.properties.IPTU_CA),
+            //dashArray: '3',
+            fillOpacity: 0.7,
+            fillColor: getColor(feature.properties.IPTU_CA),
+    
+          };
+        }
+    
+    
+        //Legenda CA
+        var legend = L.control({ position: 'bottomright' });
+        legend.onAdd = function (map) {
+          var div = L.DomUtil.create('div', 'info legend'),
+            grades = [0, 1, 5, 10, 15, 20, 25],
+            labels = ['<p>Coeficiente de <br>aproveitamento:</p>'],
+            from, to;
+          for (var i = 0; i < grades.length; i++) {
+            from = grades[i];
+            to = grades[i + 1];
+            labels.push(
+              '<i style="background:' + getColor(from + 1) + '"></i> ' +
+              from + (to ? '&ndash;' + to : '+'));
+          }
+          div.innerHTML = labels.join('<br>');
+          return div;
+        };
+        legend.addTo(map);
+    
+        // Caixa de Texto
+        var info = L.control({ position: "bottomleft" });
+    
+        info.onAdd = function (map) {
+          this._div = L.DomUtil.create('div', 'info'), // create a div with a class "info"
+            this._div.innerHTML = '<h4> Neque porro quisquam<br> est qui dolorem ipsum quia dolor<br> sit amet, consectetur, adipisci velit..."</h4>'
+          return this._div;
+        };
+    
+        info.addTo(map);
+    
+    */
 
 
   </script>
