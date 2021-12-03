@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Function to update map</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <script src="js/leaflet.js"></script>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+        html, body, #map {
+            height: 100%;
+            width: 100%;
+        }
+        #species_sel {
+            padding: 6px 8px;
+            font: 14px/16px Arial, Helvetica, sans-serif;
+            background-color: rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(0,0,0,0.2);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+let map = L.map("map").setView([32, 35], 8);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+}).addTo(map);
+
+// Define variables
+let plantsLayer = L.layerGroup().addTo(map);
+let url = "https://michaeldorman.carto.com/api/v2/sql?";
+let urlJSON = url + "q=";
+let urlGeoJSON = url + "format=GeoJSON&q=";
+let sqlQuery2 = "SELECT DISTINCT name_lat FROM plants ORDER BY name_lat";
+
+// Add empty dropdown menu
+let dropdown = L.control({position: "topleft"});
+dropdown.onAdd = function() {
+    let div = L.DomUtil.create("div", "dropdown");
+    div.innerHTML = '<select id="species_sel"></select>';
+    return div;
+};
+dropdown.addTo(map);
+
+// Load species list
+fetch(urlJSON + sqlQuery2)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        let html = "";
+        data.rows.forEach(function(element) {
+            html += "<option>" + element.name_lat + "</option>";
+        });
+        document.getElementById("species_sel").innerHTML = html;
+        displaySpecies();
+    });
+
+// Function to reload and display species observations
+function displaySpecies() {
+    let valueSelected = document.getElementById("species_sel").value;
+    let sqlQuery3 = "SELECT name_lat, the_geom FROM plants WHERE name_lat = '" + valueSelected + "'";
+    fetch(urlGeoJSON + sqlQuery3)
+        .then(function(response) {
+            return response.json();
+        })
+        .then(function(data) {
+            plantsLayer.clearLayers();
+            L.geoJSON(data).addTo(plantsLayer);
+        });
+}
+
+// Reload points on selection change
+document
+    .getElementById("species_sel")
+    .addEventListener("change", displaySpecies);
+
+    </script>
+</body>
+</html>

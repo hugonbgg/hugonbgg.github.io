@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Species list</title>
+</head>
+<body>
+    <ul id="list"></ul>
+    <script>
+
+let url = "http://159.89.13.241/sql?q=";
+let sqlQuery = "SELECT DISTINCT name_lat FROM plants ORDER BY name_lat";
+
+fetch(url + sqlQuery)
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        let html = "";
+        data.features.forEach(function(element) {
+            html += "<li>" + element.properties.name_lat + "</li>";
+        });
+        document.getElementById("list").innerHTML = html;
+    });
+
+    </script>
+</body>
+</html>

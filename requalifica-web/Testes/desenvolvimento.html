@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mapa Dinâmico</title>
+
+    <!-- leaflet CSS-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+
+    <!-- Carrega o Jquery-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .legend {
+            width: 250px;
+            font-size: 16px;
+            color: #333333;
+            font-family: "Open Sans", Helvetica, sans-serif;
+            padding: 10px 14px;
+            background-color: rgba(245, 245, 220, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            border: 1px solid grey;
+        }
+
+
+        .legend img {
+            width: 200px;
+            margin: auto;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+        <script>
+
+            //Adiciona os mapas bases
+            let osm = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' });
+            let satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community' });
+
+            //Adiciona as camadas
+            fetch("UFs.json")
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    L.geoJSON(data, { style: states_style }).addTo(map)
+
+                });
+
+
+            //Adicionando um ponto
+            let ponto = L.marker([-15.721387, -48.0774437])
+            //Adiciona um comentário ao ponto
+            ponto.bindPopup("Brasil!");
+
+
+            //cria o mapa e define a centralização
+            let map = L.map("map", { center: [-13.60, -60.00], zoom: 4.0, layers: [osm, ponto] });
+
+            //Adicionando um painel com a descrição do mapa
+            let legend = L.control({ position: "bottomleft" });
+            legend.onAdd = function () {
+                let div = L.DomUtil.create("div", "legend");
+                div.innerHTML = '<p><b>Simple shapes in Leaflet</b></p><hr>' +
+                    '<p>This map shows an example of adding shapes ' +
+                    'on a Leaflet map</p>' +
+                    'The following shapes were added:<br>' +
+                    '<p><ul>' +
+                    '<li>A marker</li>' +
+                    '<li>A line</li>' +
+                    '<li>A polygon</li>' +
+                    '</ul></p>' +
+                    'The line layer has a <b>popup</b>. ' +
+                    'Click on the line to see it!<hr>' +
+                    'Created with the Leaflet library<br>' +
+                    '<img src="https://geobgu.xyz/web-mapping2/examples/images/leaflet.png">';
+                return div;
+            };
+            //Adicionando o painel criado ao mapa
+            legend.addTo(map);
+
+            //Popup com a posição do click
+            /*
+            let popup = L.popup();
+            function onMapClick(e) {
+                popup
+                    .setLatLng(e.latlng)
+                    .setContent(
+                        "Você clicou no mapa na <br>" +
+                        "<b>lon:</b> " + e.latlng.lng.toPrecision(6) + "<br>" +
+                        "<b>lat:</b>" + e.latlng.lat.toPrecision(6)
+                    ).openOn(map);
+            }
+            map.addEventListener("click", onMapClick);
+            */
+
+            //Cria o grupo com as camadas e adiciona o controlador dos layers
+            let baseMaps = {
+                "OSM": osm,
+                "Satélite": satelite
+            };
+            let Camadas = {
+                "Pontos": ponto
+               
+            };
+
+            L.control.layers(baseMaps, Camadas, { collapsed: false }).addTo(map);
+
+            //Função para estilizar o mapa 
+            function states_style(feature) {
+                return {
+                    color: "black",
+                    weight: 1,
+                    fillColor: states_color(feature.properties.NM_REGIAO),
+                    fillOpacity: 0.7
+                };
+            }
+
+            //Função que define as cores
+            function states_color(p) {
+                if (p == "Norte") return "#7fc97f";
+                if (p == "Nordeste") return "#beaed4";
+                if (p == "Sul") return "#fdc086";
+                if (p == "Sudeste") return "#ffff99";
+                if (p == "Centro-oeste") return "#386cb0";
+                return "grey"
+            }
+
+        </script>
+</body>
+
+</html>

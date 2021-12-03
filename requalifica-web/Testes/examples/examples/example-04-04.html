@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Multiple event listeners</title>
+    </head>
+    <body>
+        <p id="p1">Enter this paragraph.</p>
+        <script>
+            let el = document.getElementById("p1");
+            el.addEventListener("mouseover", function() {
+                console.log("You entered p1!");
+            });
+            el.addEventListener("mouseout", function() {
+                console.log("You left p1!");
+            });
+        </script>
+    </body>
+</html>
+

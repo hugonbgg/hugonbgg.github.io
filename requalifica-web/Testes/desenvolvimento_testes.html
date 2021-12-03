@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mapa Dinâmico</title>
+
+    <!-- leaflet CSS-->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+        integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+        crossorigin="" />
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+        integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+        crossorigin=""></script>
+
+    <!-- Carrega o Jquery-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+
+    <style>
+        body {
+            padding: 0;
+            margin: 0
+        }
+
+        html,
+        body,
+        #map {
+            height: 100%;
+            width: 100%;
+        }
+
+        .legend {
+            width: 150px;
+            font-size: 16px;
+            color: #333333;
+            font-family: "Open Sans", Helvetica, sans-serif;
+            padding: 6px 8px;
+            background-color: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+        }
+
+        .legend div {
+            width: 18px;
+            height: 18px;
+            float: left;
+            margin-right: 8px;
+            opacity: 2;
+        }
+
+        div.legend.leaflet-control br {
+            clear: both;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map">
+        <script>
+
+
+
+            //Adiciona os mapas bases
+            let osm = L.tileLayer(
+                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                { attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' });
+            let satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community' });
+
+            //Adicionando um ponto
+            let ponto = L.marker([-15.721387, -48.0774437])
+            //Adiciona um comentário ao ponto
+            ponto.bindPopup("Brasil!");
+
+            //cria o mapa e define a centralização (pode colocar uma camada inicial já tbm)
+            let map = L.map("map", { center: [-13.60, -60.00], zoom: 4.0, layers: [osm, ponto] });
+
+            //Cria o elemento para receber as camadas
+            let UFslayer = L.layerGroup().addTo(map)
+            let Biomaslayer = L.layerGroup()
+
+
+            // This function is run for every feature found in the geojson file. It adds the feature to the empty layer we created above
+            function UFsData(feature, layer) {
+                UFslayer.addLayer(layer)
+                // some other code can go here, like adding a popup with layer.bindPopup("Hello")
+            }
+
+            function BiomasData(feature, biomaslayer) {
+                Biomaslayer.addLayer(biomaslayer)
+                // some other code can go here, like adding a popup with layer.bindPopup("Hello")
+            }
+
+            //Adiciona as camadas
+            //UFs
+            fetch("UFs.json")
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    L.geoJSON(data, { onEachFeature: UFsData, style: states_style })//.addTo(map)
+
+                });
+
+            //Biomas
+            fetch("biomas.json")
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(function (data) {
+                    L.geoJSON(data, { onEachFeature: BiomasData, style: biomas_style })//.addTo(map)
+
+                });
+
+
+            //Cria o grupo com as camadas e adiciona o controlador dos layers
+            let baseMaps = {
+                "OSM": osm,
+                "Satélite": satelite,
+            };
+            let Camadas = {
+                "Pontos": ponto,
+                "UFs": UFslayer,
+                "Biomas": Biomaslayer
+
+            };
+
+            L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
+            L.control.layers(Camadas, null, { collapsed: false }).addTo(map);
+
+
+            //Função para estilizar o mapa (UFs)
+            function states_style(feature) {
+                return {
+                    color: "black",
+                    weight: 1,
+                    fillColor: states_color(feature.properties.NM_REGIAO),
+                    fillOpacity: 0.7
+                };
+            }
+
+            //Função que define as cores (UFs)
+            function states_color(p) {
+                if (p == "Norte") return "#7fc97f";
+                if (p == "Nordeste") return "#beaed4";
+                if (p == "Sul") return "#fdc086";
+                if (p == "Sudeste") return "#ffff99";
+                if (p == "Centro-oeste") return "#386cb0";
+                return "grey"
+            }
+
+            //Função para estilizar o mapa (Biomas)
+            function biomas_style(feature) {
+                return {
+                    color: "black",
+                    weight: 1,
+                    fillColor: biomas_color(feature.properties.Bioma),
+                    fillOpacity: 0.9
+                };
+            }
+
+            //Função que define as cores (UFs)
+            function biomas_color(p) {
+                if (p == "Amazônia") return "#fbb4ae";
+                if (p == "Caatinga") return "#decbe4";
+                if (p == "Cerrado") return "#fed9a6";
+                if (p == "Mata Atlântica") return "#ccebc5";
+                if (p == "Pampa") return "#ffffcc";
+                if (p == "Pantanal") return "#b3cde3";
+                return "grey"
+            }
+
+            //Legendas
+
+
+            //Legenda Biomas
+            let legendBiomas = L.control({ position: "bottomright" });
+            legendBiomas.onAdd = function () {
+                let div = L.DomUtil.create("div", "legend");
+                div.innerHTML =
+                    '<b>Biomas Brasileiros</b><br>by Town<br>' +
+                    '<small>Persons/Town</small><br>' +
+                    '<div style="background-color: #fbb4ae"></div>Amazônia<br>' +
+                    '<div style="background-color: #decbe4"></div>Caatinga<br>' +
+                    '<div style="background-color: #fed9a6"></div>Cerrado<br>' +
+                    '<div style="background-color: #ccebc5"></div>Mata Atlântica<br>' +
+                    '<div style="background-color: #ffffcc"></div>Pampa<br>' +
+                    '<div style="background-color: #b3cde3"></div>Pantanal<br>';
+                return div;
+            };
+            legendBiomas.addTo(map);
+
+            //Legenda UFs
+            let legendUFs = L.control({ position: "bottomright" });
+            legendUFs.onAdd = function () {
+                let div = L.DomUtil.create("div", "legend");
+                div.innerHTML =
+                    '<b>Regiões Brasileiras</b><br>Por UF<br>' +
+                    //'<small>Persons/Town</small><br>' +
+                    '<div style="background-color: #7fc97f"></div>Norte<br>' +
+                    '<div style="background-color: #beaed4"></div>Nordeste<br>' +
+                    '<div style="background-color: #fdc086"></div>Sul<br>' +
+                    '<div style="background-color: #ffff99"></div>Sudeste<br>' +
+                    '<div style="background-color: #386cb0"></div>Centro-Oeste<br>';
+                return div;
+            };
+            legendUFs.addTo(map);
+
+            //Teste alterna a legenda com o layer
+
+        </script>
+</body>
+
+</html>

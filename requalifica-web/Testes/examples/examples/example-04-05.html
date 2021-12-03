@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Event object</title>
+    </head>
+    <body>
+        <p id="position"></p>
+        <script>
+            let el = document.getElementById("position");
+            document.addEventListener("mousemove", function(e) {
+                el.innerHTML = e.pageX + " " + e.pageY;
+            });
+        </script>
+    </body>
+</html>

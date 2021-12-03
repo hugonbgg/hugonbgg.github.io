@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Populating list</title>
+    </head>
+    <body>
+        <p>List of rare <i>Iris</i> species in Israel:</p>
+        <ul id="species"></ul>
+        <p>It was created dynamically using JavaScript.</p>
+        <script>
+            let data = [
+                "Iris atrofusca",
+                "Iris atropurpurea",
+                "Iris bismarckiana",
+                "Iris haynei",
+                "Iris hermona",
+                "Iris lortetii",
+                "Iris mariae",
+                "Iris petrana"
+            ];
+            let html = "";
+            data.forEach(function(element) {
+                html += "<li><i>" + element + "</i></li>";
+            });
+            document.getElementById("species").innerHTML = html;
+        </script>
+    </body>
+</html>

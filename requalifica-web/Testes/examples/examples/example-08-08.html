@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Linked view</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="css/leaflet.css">
+    <script src="js/leaflet.js"></script>
+    <style>
+        #map { 
+            width: 80%;
+            height: 100%;
+            float: left;
+        }
+        #townslist {
+            height: 100%;
+            overflow-y: scroll;
+            margin: 0px;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .highlight {
+            background-color: cyan;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <ul id="townslist"></ul>
+    <script>
+
+let map = L.map("map").setView([32, 35], 8);
+
+L.tileLayer("https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_nolabels/{z}/{x}/{y}.png", {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attribution/">CartoDB</a>',
+    subdomains: "abcd",
+    maxZoom: 19
+}).addTo(map);
+
+// List HTML
+let html = "";
+
+// GeoJSON layer
+let geojson;
+
+// Load GeoJSON
+fetch("data/towns.geojson")
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+
+        // Load GeoJSON on map & construct list HTML code
+        geojson = L.geoJSON(data, {style: normalStyle, onEachFeature: onEachFeature}).addTo(map);
+        
+        // Intert list HTML
+        document.getElementById("townslist").innerHTML = html;
+        
+        // Bind event listeners to list items
+        let el = document.querySelectorAll("#townslist li");
+        for(let i = 0; i < el.length; i++) {
+            el[i].addEventListener("mouseover", function(e) {
+                let hovered_item = e.target;
+                let hovered_id = hovered_item.id;
+                hovered_item.classList.add("highlight");
+                geojson.getLayer(hovered_id).bringToFront().setStyle(highlightStyle);
+            });
+            el[i].addEventListener("mouseout", function(e) {
+                let hovered_item = e.target;
+                let hovered_id = hovered_item.id;
+                geojson.resetStyle(geojson.getLayer(hovered_id));
+                hovered_item.classList.remove("highlight");
+            });
+        }
+
+    });
+
+// Highlighted polygon style
+let highlightStyle = {
+    weight: 5,
+    color: "#666",
+    dashArray: "",
+    fillOpacity: 0.7
+};
+
+// Normal polygon style
+let normalStyle = {
+    fillColor: "red",
+    weight: 1,
+    opacity: 1,
+    color: "gray",
+    fillOpacity: 0.25
+};
+
+// Function applied on each polygon load
+function onEachFeature(feature, layer) {
+    let town = feature.properties.town;
+    let name_eng = feature.properties.name_eng;
+    html += '<li id="' + town + '">' + name_eng + '</li>';
+    layer._leaflet_id = town;
+    layer.addEventListener("mouseover", function(e) {
+        let hovered_feature = e.target;
+        hovered_feature.setStyle(highlightStyle);
+        hovered_feature.bringToFront();
+        let el = document.getElementById(hovered_feature._leaflet_id);
+        el.scrollIntoView({
+            behavior: "auto",
+            block: "center",
+            inline: "center"
+        });
+        el.classList.add("highlight");
+    })
+    layer.addEventListener("mouseout", function(e) {
+        let hovered_feature = e.target;
+        geojson.resetStyle(hovered_feature);
+        let el = document.getElementById(hovered_feature._leaflet_id);
+        el.classList.remove("highlight");
+    });
+}
+
+    </script>
+</body>
+</html>
