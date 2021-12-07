@@ -20,19 +20,20 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
+
   <style type="text/css">
     body {
       margin: 0;
       padding: 0;
     }
 
-    
+
     html,
-        body,
-        #map {
-            height: 100%;
-            width: 100%;
-        }
+    body,
+    #map {
+      height: 100%;
+      width: 100%;
+    }
 
     .leaflet-control-layers {
       padding: 6px 8px;
@@ -45,27 +46,27 @@
     }
 
     .legend {
-            width: 150px;
-            font-size: 16px;
-            color: #333333;
-            font-family: "Open Sans", Helvetica, sans-serif;
-            padding: 6px 8px;
-            background-color: rgba(255, 255, 255, 0.8);
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            border-radius: 5px;
-        }
+      width: 150px;
+      font-size: 16px;
+      color: #333333;
+      font-family: "Open Sans", Helvetica, sans-serif;
+      padding: 6px 8px;
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
 
-        .legend div {
-            width: 18px;
-            height: 18px;
-            float: left;
-            margin-right: 8px;
-            opacity: 2;
-        }
+    .legend div {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 2;
+    }
 
-        div.legend.leaflet-control br {
-            clear: both;
-        }
+    div.legend.leaflet-control br {
+      clear: both;
+    }
   </style>
 
 </head>
@@ -87,6 +88,7 @@
       zoomOffset: -1
     })
 
+
     // Adiciona os mapas base adicionais
 
     var streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {});
@@ -99,6 +101,7 @@
     let perimetroLayer = L.layerGroup()//.addTo(map)
     let publicoLayer = L.layerGroup()//.addTo(map)
     let pavimentoLayer = L.layerGroup()//.addTo(map)
+
 
 
     //Criando e adicionando as camadas ao mapa
@@ -133,40 +136,47 @@
         return response.json();
       })
       .then(function (data) {
-        L.geoJSON(data, { onEachFeature: perimetroData, style:{color: 'orange',
-        weight: '0.5',
-        fillColor: '#fecc5c',
-        fillOpacity: 0.3} }).addTo(map)
+        L.geoJSON(data, {
+          onEachFeature: perimetroData, style: {
+            color: '#361981',
+            weight: '1',
+            fillColor: '#ffa6c9',
+            fillOpacity: 0.3
+          }
+        })//.addTo(map)
+        L.geoJSON(data, { onEachFeature: publicoData, style: publico_style })//.addTo(map)
+        L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })
       });
 
     // ------------------ Camada Imoveis Publicos--------------------------------------------
     function publicoData(feature, layer) {
       publicoLayer.addLayer(layer);
     }
-
-    //Adiciona a camada ao mapa
-    fetch("Lotes_mapa.json")
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        L.geoJSON(data, { onEachFeature: publicoData, style: publico_style })//.addTo(map)
-      });
-
+    /*
+        //Adiciona a camada ao mapa
+        fetch("Lotes_mapa.json")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+    
+          });
+    
+          */
 
     // ------------------ Camada Pavimentos--------------------------------------------
     function pavimentoData(feature, layer) {
       pavimentoLayer.addLayer(layer);
     }
-
-    //Adiciona a camada ao mapa
-    fetch("Lotes_mapa.json")
-      .then(function (response) {
-        return response.json();
-      })
-      .then(function (data) {
-        L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })//.addTo(map)
-      });
+    /*
+        //Adiciona a camada ao mapa
+        fetch("Lotes_mapa.json")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })//.addTo(map)
+          }); */
 
 
 
@@ -209,10 +219,10 @@
       return "grey"
     }
 
-      //Pavimentos
+    //Pavimentos
 
-        //Função para estilizar o mapa (Pavimentos)
-        function pavimentos_style(feature) {
+    //Função para estilizar o mapa (Pavimentos)
+    function pavimentos_style(feature) {
       return {
         color: 'darkblue',
         weight: '0.1',
@@ -224,133 +234,67 @@
     //Função que define as cores (Pavimentos)
     function pavimentos_color(p) {
       if (p == 0) return "#a6611a";
-      if (p >= 1 && p < 5) return "#92c5de";
+      if (p >= 1 && p <= 5) return "#92c5de";
       if (p >= 6) return "#5e3c99";
       return "grey"
     }
 
 
-//Legendas
-            //Legenda Imóveis Públicos
-            let legendPublicos = L.control({ position: "bottomright" });
-            legendPublicos.onAdd = function () {
-                let div = L.DomUtil.create("div", "legend");
-                div.innerHTML =
-                    '<b>Imóveis Públicos</b><br>' +
-                    '<br>' +
-                    '<div style="background-color: #beaed4"></div>Sim<br>' +
-                    '<div style="background-color: #fdc086"></div>Não<br>';
-                  return div;
-            };
-legendPublicos//.addTo(map);
+    //Legendas
+    //Legenda Imóveis Públicos
+    let legendPublicos = L.control({ position: "bottomright" });
+    legendPublicos.onAdd = function () {
+      let div = L.DomUtil.create("div", "legend");
+      div.innerHTML =
+        '<b>Imóveis Públicos</b><br>' +
+        '<br>' +
+        '<div style="background-color: #beaed4"></div>Sim<br>' +
+        '<div style="background-color: #fdc086"></div>Não<br>';
+      return div;
+    };
+    legendPublicos//.addTo(map);
 
 
-//Legendas
-            //Legenda Pavimentos
-            let legendPavimentos = L.control({ position: "bottomright" });
-            legendPavimentos.onAdd = function () {
-                let div = L.DomUtil.create("div", "legend");
-                div.innerHTML =
-                    '<b>Quantidade de pavimentos</b><br>' +
-                    '<br>' +
-                    '<div style="background-color: #a6611a"></div>Terreno<br>' +
-                    '<div style="background-color: #92c5de"></div>Até 5<br>'+
-                    '<div style="background-color: #5e3c99"></div>Acima de 6<br>';
+    //Legendas
+    //Legenda Pavimentos
+    let legendPavimentos = L.control({ position: "bottomright" });
+    legendPavimentos.onAdd = function () {
+      let div = L.DomUtil.create("div", "legend");
+      div.innerHTML =
+        '<b>Quantidade de pavimentos</b><br>' +
+        '<br>' +
+        '<div style="background-color: #a6611a"></div>Terreno<br>' +
+        '<div style="background-color: #92c5de"></div>Até 5<br>' +
+        '<div style="background-color: #5e3c99"></div>Acima de 6<br>';
 
-                  return div;
-            };
-legendPavimentos//.addTo(map);
-
-
-//Alterna as Legendas
-
-            //Teste alterna a legenda com o layer
-            map.on('baselayerchange', function (eventLayer) {
-                // Switch to the Population legend...
-                if (eventLayer.name === "Imóveis Públicos") {
-                    this.removeControl(legendPavimentos);
-                    legendPublicos.addTo(this);
-                }
-
-                else if (eventLayer.name === "Pavimentos") {
-                    this.removeControl(legendPublicos);
-                    legendPavimentos.addTo(this);
-                }
-
-                else {
-                    this.removeControl(legendPublicos);
-                    this.removeControl(legendPavimentos);
-                                    }
-
-                /* else if (eventLayer.name === "Perímetro") {
-                    this.removeControl(legendPublicos);
-                    this.removeControl(legendPavimentos); 
-                                    }*/
-            });
+      return div;
+    };
+    legendPavimentos//.addTo(map);
 
 
+    //Alterna as Legendas
+
+    //Teste alterna a legenda com o layer
+    map.on('baselayerchange', function (eventLayer) {
+      // Switch to the Population legend...
+      if (eventLayer.name === "Imóveis Públicos") {
+        this.removeControl(legendPavimentos);
+        legendPublicos.addTo(this);
+      }
+
+      else if (eventLayer.name === "Pavimentos") {
+        this.removeControl(legendPublicos);
+        legendPavimentos.addTo(this);
+      }
+
+      else {
+        this.removeControl(legendPublicos);
+        this.removeControl(legendPavimentos);
+      }
+
+    });
 
 
-
-    /*
-    
-        //Funcão para definir as cores e o intervalo
-        function getColor(d) {
-          return d > 25 ? '#800026' :
-            d > 20 ? '#BD0026' :
-              d > 15 ? '#E31A1C' :
-                d > 10 ? '#FC4E2A' :
-                  d > 5 ? '#FD8D3C' :
-                    d > 1 ? '#FEB24C' :
-                      d < 0 ? '#FED976' :
-                        '#FFEDA0';
-        }
-    
-        //Função que define o estilo da camada baseado no campo definido, nesse caso o CA
-        function style(feature) {
-          return {
-            weight: 1,
-            opacity: 1,
-            color: getColor(feature.properties.IPTU_CA),
-            //dashArray: '3',
-            fillOpacity: 0.7,
-            fillColor: getColor(feature.properties.IPTU_CA),
-    
-          };
-        }
-    
-    
-        //Legenda CA
-        var legend = L.control({ position: 'bottomright' });
-        legend.onAdd = function (map) {
-          var div = L.DomUtil.create('div', 'info legend'),
-            grades = [0, 1, 5, 10, 15, 20, 25],
-            labels = ['<p>Coeficiente de <br>aproveitamento:</p>'],
-            from, to;
-          for (var i = 0; i < grades.length; i++) {
-            from = grades[i];
-            to = grades[i + 1];
-            labels.push(
-              '<i style="background:' + getColor(from + 1) + '"></i> ' +
-              from + (to ? '&ndash;' + to : '+'));
-          }
-          div.innerHTML = labels.join('<br>');
-          return div;
-        };
-        legend.addTo(map);
-    
-        // Caixa de Texto
-        var info = L.control({ position: "bottomleft" });
-    
-        info.onAdd = function (map) {
-          this._div = L.DomUtil.create('div', 'info'), // create a div with a class "info"
-            this._div.innerHTML = '<h4> Neque porro quisquam<br> est qui dolorem ipsum quia dolor<br> sit amet, consectetur, adipisci velit..."</h4>'
-          return this._div;
-        };
-    
-        info.addTo(map);
-    
-    */
 
 
   </script>
