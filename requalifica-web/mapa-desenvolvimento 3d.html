@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Requalifica Centro</title>
+  <!-- leaflet CSS-->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+    crossorigin="" />
+
+  <!-- Make sure you put this AFTER Leaflet's CSS -->
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+    crossorigin=""></script>
+
+  <!-- Carrega o Jquery-->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <!--Carrega o OSM Builiding-->
+  <script src="https://cdn.osmbuildings.org/classic/0.2.2b/OSMBuildings-Leaflet.js"></script>
+  
+
+  <style type="text/css">
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+
+    html,
+    body,
+    #map {
+      height: 100%;
+      width: 100%;
+    }
+
+    .leaflet-control-layers {
+      padding: 6px 8px;
+      font: 14px/16px Arial, Helvetica, sans-serif;
+      background: white;
+      background: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    .legend {
+      width: 150px;
+      font-size: 16px;
+      color: #333333;
+      font-family: "Open Sans", Helvetica, sans-serif;
+      padding: 6px 8px;
+      background-color: rgba(255, 255, 255, 0.8);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+    }
+
+    .legend div {
+      width: 18px;
+      height: 18px;
+      float: left;
+      margin-right: 8px;
+      opacity: 2;
+    }
+
+    div.legend.leaflet-control br {
+      clear: both;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="map">
+
+  </div>
+
+  <script>
+
+    //Define o mapa base 
+    var base = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+      maxZoom: 18,
+      attribution: 'SPUrbanismo &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+        '© <a href="https://www.mapbox.com/">Mapbox</a>, © <a href="https://www.google.com/">Google</a>',
+      id: 'mapbox/dark-v10',
+      tileSize: 512,
+      zoomOffset: -1
+    })
+
+    // Adiciona os mapas base adicionais
+
+    var streets = L.tileLayer('https://mt1.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {});
+    var satelite = L.tileLayer('http://mt1.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {});
+
+    //Cria o elemento mapa, define o zoom, a centralização e o mapa base
+    let map = L.map("map", { center: [-23.543, -46.633], zoom: 15.0, layers: [base] });
+
+    //Cria o elemento para receber as camadas
+    let perimetroLayer = L.layerGroup()//.addTo(map)
+    let publicoLayer = L.layerGroup()//.addTo(map)
+    let pavimentoLayer = L.layerGroup()//.addTo(map)
+
+    //OSM Building
+    var OSMBuilding = new OSMBuildings(map).load('https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json')
+    map.removeLayer(OSMBuilding)
+    
+   
+    //Criando e adicionando as camadas ao mapa
+
+    // ------------------ Camada Perimetro ---------------------------------------------------
+    function perimetroData(feature, layer) {
+      perimetroLayer.addLayer(layer);
+
+      //Adiciona a legenda
+      layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+        '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
+        '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+        '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+        '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+        '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+        '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+        '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+        '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+        '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+        '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+        '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+      );
+    }
+
+    //Adiciona a camada ao mapa
+    fetch("Lotes_mapa.json")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        L.geoJSON(data, {
+          onEachFeature: perimetroData, style: {
+            color: '#361981',
+            weight: '1',
+            fillColor: '#ffa6c9',
+            fillOpacity: 0.3
+          }
+        })//.addTo(map)
+        L.geoJSON(data, { onEachFeature: publicoData, style: publico_style })//.addTo(map)
+        L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })
+      });
+
+    // ------------------ Camada Imoveis Publicos--------------------------------------------
+    function publicoData(feature, layer) {
+      publicoLayer.addLayer(layer);
+    }
+    /*
+        //Adiciona a camada ao mapa
+        fetch("Lotes_mapa.json")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+    
+          });
+    
+          */
+
+    // ------------------ Camada Pavimentos--------------------------------------------
+    function pavimentoData(feature, layer) {
+      pavimentoLayer.addLayer(layer);
+    }
+    /*
+        //Adiciona a camada ao mapa
+        fetch("Lotes_mapa.json")
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (data) {
+            L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })//.addTo(map)
+          }); */
+
+
+
+
+    //Cria o grupo com as camadas e adiciona o controlador dos layers
+    let baseMaps = {
+      'Google Earth': satelite,
+      'Google Streets': streets,
+      'Mapbox': base
+    };
+
+    let Camadas = {
+      "Imóveis Elegíveis": perimetroLayer,
+      "Imóveis Públicos": publicoLayer,
+      "Pavimentos": pavimentoLayer,
+    };
+
+    let Mapa3d = { "Mapa 3D": OSMBuilding }
+
+    L.control.layers(baseMaps, null, { collapsed: false }).addTo(map);
+    L.control.layers(Camadas, null, { collapsed: false }).addTo(map);
+    L.control.layers(null, Mapa3d, { collapsed: false }).addTo(map);
+
+    //-------------------Estilos--------------------------------------------------
+
+    //Estilos dos Mapas
+    //Imóveis Públicos
+
+    //Função para estilizar o mapa (Imoveis Públicos)
+    function publico_style(feature) {
+      return {
+        color: publico_color(feature.properties.IPTU_ImovelPublico),
+        weight: 1,
+        fillColor: publico_color(feature.properties.IPTU_ImovelPublico),
+        fillOpacity: 0.8
+      };
+    }
+
+    //Função que define as cores (Imoveis Públicos)
+    function publico_color(p) {
+      if (p == "Sim") return "#beaed4";
+      if (p == "Não") return "#fdc086";
+      return "grey"
+    }
+
+    //Pavimentos
+
+    //Função para estilizar o mapa (Pavimentos)
+    function pavimentos_style(feature) {
+      return {
+        color: 'darkblue',
+        weight: '0.1',
+        fillColor: pavimentos_color(feature.properties.IPTU_QtdPavimentos),
+        fillOpacity: 0.8
+      };
+    }
+
+    //Função que define as cores (Pavimentos)
+    function pavimentos_color(p) {
+      if (p == 0) return "#a6611a";
+      if (p >= 1 && p <= 5) return "#92c5de";
+      if (p >= 6) return "#5e3c99";
+      return "grey"
+    }
+
+
+    //Legendas
+    //Legenda Imóveis Públicos
+    let legendPublicos = L.control({ position: "bottomright" });
+    legendPublicos.onAdd = function () {
+      let div = L.DomUtil.create("div", "legend");
+      div.innerHTML =
+        '<b>Imóveis Públicos</b><br>' +
+        '<br>' +
+        '<div style="background-color: #beaed4"></div>Sim<br>' +
+        '<div style="background-color: #fdc086"></div>Não<br>';
+      return div;
+    };
+    legendPublicos//.addTo(map);
+
+
+    //Legendas
+    //Legenda Pavimentos
+    let legendPavimentos = L.control({ position: "bottomright" });
+    legendPavimentos.onAdd = function () {
+      let div = L.DomUtil.create("div", "legend");
+      div.innerHTML =
+        '<b>Quantidade de pavimentos</b><br>' +
+        '<br>' +
+        '<div style="background-color: #a6611a"></div>Terreno<br>' +
+        '<div style="background-color: #92c5de"></div>Até 5<br>' +
+        '<div style="background-color: #5e3c99"></div>Acima de 6<br>';
+
+      return div;
+    };
+    legendPavimentos//.addTo(map);
+
+
+    //Alterna as Legendas
+
+    //Teste alterna a legenda com o layer
+    map.on('baselayerchange', function (eventLayer) {
+      // Switch to the Population legend...
+      if (eventLayer.name === "Imóveis Públicos") {
+        this.removeControl(legendPavimentos);
+        legendPublicos.addTo(this);
+      }
+
+      else if (eventLayer.name === "Pavimentos") {
+        this.removeControl(legendPublicos);
+        legendPavimentos.addTo(this);
+      }
+
+      else {
+        this.removeControl(legendPublicos);
+        this.removeControl(legendPavimentos);
+      }
+
+    });
+
+
+
+
+  </script>
+</body>
+
+</html>
