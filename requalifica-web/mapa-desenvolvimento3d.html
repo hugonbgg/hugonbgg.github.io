@@ -21,7 +21,7 @@
 
   <!--Carrega o OSM Builiding-->
   <script src="https://cdn.osmbuildings.org/classic/0.2.2b/OSMBuildings-Leaflet.js"></script>
-  
+
 
   <style type="text/css">
     body {
@@ -98,26 +98,37 @@
     //Cria o elemento mapa, define o zoom, a centralização e o mapa base
     let map = L.map("map", { center: [-23.543, -46.633], zoom: 15.0, layers: [base] });
 
+    //OSM Building
+    var OSMBuilding = new OSMBuildings
+    //map.removeLayer(OSMBuilding)
+
+    fetch("edificios.geojson")
+      .then(function (response) {
+        return response.json();
+      })
+      .then(function (data) {
+        var OSMBuilding = new OSMBuildings(map).set(data);
+        map.removeLayer(OSMBuilding)
+      });
+
     //Cria o elemento para receber as camadas
     let perimetroLayer = L.layerGroup()//.addTo(map)
     let publicoLayer = L.layerGroup()//.addTo(map)
     let pavimentoLayer = L.layerGroup()//.addTo(map)
+    let caLayer = L.layerGroup()//.addTo(map)
+    let removecamadas = L.layerGroup()
 
-    //OSM Building
-    var OSMBuilding = new OSMBuildings(map).load('https://{s}.data.osmbuildings.org/0.2/anonymous/tile/{z}/{x}/{y}.json')
-    map.removeLayer(OSMBuilding)
-    
-   
+
     //Criando e adicionando as camadas ao mapa
-
+    
     // ------------------ Camada Perimetro ---------------------------------------------------
     function perimetroData(feature, layer) {
       perimetroLayer.addLayer(layer);
 
-      //Adiciona a legenda
+      //Adiciona o popup
       layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
         '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
-        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDonos + '<br>' +
+        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDono + '<br>' +
         '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
         '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
         '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
@@ -135,7 +146,7 @@
     }
 
     //Adiciona a camada ao mapa
-    fetch("Lotes_mapa.json")
+    fetch("Lotes_mapa.geojson")
       .then(function (response) {
         return response.json();
       })
@@ -150,12 +161,31 @@
         })//.addTo(map)
         L.geoJSON(data, { onEachFeature: publicoData, style: publico_style })//.addTo(map)
         L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })
+        L.geoJSON(data, { onEachFeature: caData, style: ca_style })
       });
 
     // ------------------ Camada Imoveis Publicos--------------------------------------------
     function publicoData(feature, layer) {
       publicoLayer.addLayer(layer);
+      layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+        '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDono + '<br>' +
+        '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+        '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+        '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+        '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+        '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+        '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+        '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+        '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+        '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+        '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+      );
     }
+    
     /*
         //Adiciona a camada ao mapa
         fetch("Lotes_mapa.json")
@@ -171,7 +201,25 @@
     // ------------------ Camada Pavimentos--------------------------------------------
     function pavimentoData(feature, layer) {
       pavimentoLayer.addLayer(layer);
+      layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+        '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDono + '<br>' +
+        '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+        '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+        '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+        '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+        '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+        '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+        '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+        '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+        '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+        '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+      );
     }
+    
     /*
         //Adiciona a camada ao mapa
         fetch("Lotes_mapa.json")
@@ -182,7 +230,27 @@
             L.geoJSON(data, { onEachFeature: pavimentoData, style: pavimentos_style })//.addTo(map)
           }); */
 
-
+    // ------------------ Camada CA--------------------------------------------
+    function caData(feature, layer) {
+      caLayer.addLayer(layer);
+      layer.bindPopup('<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
+        '<b>Nome do Contribuinte:</b> ' + feature.properties.NOME_PROPRIETARIO + '<br>' +
+        '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDono + '<br>' +
+        '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
+        '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
+        '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
+        '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
+        '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
+        '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
+        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA + '<br>' +
+        '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
+        '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
+        '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
+        '<b>Ocupado por Mov.de Moradias:</b> ' + feature.properties.Ocupado + '<br>' +
+        '<p><b>Desenvolvimento</b>: SPUrbanismo. <b><br>Fontes</b>: GeoSampa, SMC, SMF, SMUL e LABCidade.'
+      );
+    }
 
 
     //Cria o grupo com as camadas e adiciona o controlador dos layers
@@ -196,6 +264,8 @@
       "Imóveis Elegíveis": perimetroLayer,
       "Imóveis Públicos": publicoLayer,
       "Pavimentos": pavimentoLayer,
+      "CA": caLayer,
+      "Remover camadas": removecamadas,
     };
 
     let Mapa3d = { "Mapa 3D": OSMBuilding }
@@ -205,9 +275,6 @@
     L.control.layers(null, Mapa3d, { collapsed: false }).addTo(map);
 
     //-------------------Estilos--------------------------------------------------
-
-    //Estilos dos Mapas
-    //Imóveis Públicos
 
     //Função para estilizar o mapa (Imoveis Públicos)
     function publico_style(feature) {
@@ -240,14 +307,36 @@
 
     //Função que define as cores (Pavimentos)
     function pavimentos_color(p) {
-      if (p == 0) return "#a6611a";
-      if (p >= 1 && p <= 5) return "#92c5de";
-      if (p >= 6) return "#5e3c99";
+      if (p == 0) return "#f2f0f7";
+      if (p >= 1 && p <= 5) return "#9e9ac8";
+      if (p >= 6 && p < 20) return "#756bb1";
+      if (p >= 20) return "#54278f";
       return "grey"
     }
 
+    //Pavimentos
 
+    //Função para estilizar o mapa (CA)
+    function ca_style(feature) {
+      return {
+        color: 'darkblue',
+        weight: '0.1',
+        fillColor: ca_color(feature.properties.IPTU_CA),
+        fillOpacity: 0.8
+      };
+    }
+
+    //Função que define as cores (CA)
+    function ca_color(p) {
+      if (p >= 0 && p < 3) return "#c7e9b4";
+      if (p >= 3 && p < 5) return "#7fcdbb";
+      if (p >= 5 && p < 7) return "#41b6c4";
+      if (p >= 7 && p < 12) return "#2c7fb8";
+      if (p >= 12) return "#253494";
+      return "grey"
+    }
     //Legendas
+
     //Legenda Imóveis Públicos
     let legendPublicos = L.control({ position: "bottomright" });
     legendPublicos.onAdd = function () {
@@ -261,8 +350,6 @@
     };
     legendPublicos//.addTo(map);
 
-
-    //Legendas
     //Legenda Pavimentos
     let legendPavimentos = L.control({ position: "bottomright" });
     legendPavimentos.onAdd = function () {
@@ -270,14 +357,32 @@
       div.innerHTML =
         '<b>Quantidade de pavimentos</b><br>' +
         '<br>' +
-        '<div style="background-color: #a6611a"></div>Terreno<br>' +
-        '<div style="background-color: #92c5de"></div>Até 5<br>' +
-        '<div style="background-color: #5e3c99"></div>Acima de 6<br>';
+        '<div style="background-color: #f2f0f7"></div>Terreno<br>' +
+        '<div style="background-color: #9e9ac8"></div>Até 5<br>' +
+        '<div style="background-color: #756bb1"></div>Até 20<br>' +
+        '<div style="background-color: #54278f"></div>Acima de 20<br>';
 
       return div;
     };
     legendPavimentos//.addTo(map);
 
+
+    //Legenda CA
+    let legendCA = L.control({ position: "bottomright" });
+    legendCA.onAdd = function () {
+      let div = L.DomUtil.create("div", "legend");
+      div.innerHTML =
+        '<b>Coef. de Aproveitamento</b><br>' +
+        '<br>' +
+        '<div style="background-color: #c7e9b4"></div>Até 2<br>' +
+        '<div style="background-color: #7fcdbb"></div>Até 4<br>' +
+        '<div style="background-color: #41b6c4"></div>Até 6<br>' +
+        '<div style="background-color: #2c7fb8"></div>Até 12<br>' +
+        '<div style="background-color: #253494"></div>Acima de 12<br>';
+
+      return div;
+    };
+    legendCA//.addTo(map);
 
     //Alterna as Legendas
 
@@ -286,12 +391,20 @@
       // Switch to the Population legend...
       if (eventLayer.name === "Imóveis Públicos") {
         this.removeControl(legendPavimentos);
+        this.removeControl(legendCA);
         legendPublicos.addTo(this);
       }
 
       else if (eventLayer.name === "Pavimentos") {
         this.removeControl(legendPublicos);
+        this.removeControl(legendCA);
         legendPavimentos.addTo(this);
+      }
+
+      else if (eventLayer.name === "CA") {
+        this.removeControl(legendPublicos);
+        this.removeControl(legendPavimentos);
+        legendCA.addTo(this);
       }
 
       else {
@@ -300,7 +413,6 @@
       }
 
     });
-
 
 
 
