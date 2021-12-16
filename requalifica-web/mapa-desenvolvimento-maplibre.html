@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Load data from an external GeoJSON file</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+<script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
+<link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
+<style>
+body { margin: 0; padding: 0; }
+#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<script>
+    var map = new maplibregl.Map({
+style:
+'https://api.maptiler.com/maps/basic/style.json?key=60WJTvTDI6MOw9zREiuq',
+center: [-46.633, -23.543],
+zoom: 14,
+pitch: 45,
+bearing: -17.6,
+container: 'map',
+antialias: true
+});
+
+    map.on('load', () => {
+        map.addSource('edificios', {
+            type: 'geojson',
+            // Use a URL for the value for the `data` property.
+            data: 'edificios.geojson'
+        });
+
+        map.addLayer({
+            'id': 'edificios-layer',
+            'type': 'fill-extrusion',
+            'source': 'edificios',
+            'paint':
+            {'fill-extrusion-color':'#A9A9A9',
+            'fill-extrusion-height':{'type': 'identity', 'property':'height'},
+            'fill-extrusion-opacity': 0.7,
+            'fill-extrusion-base': 0
+        }
+        });
+    });
+</script>
+
+</body>
+</html>
