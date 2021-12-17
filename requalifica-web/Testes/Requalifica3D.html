@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Paris bati</title>
+    <meta charset="utf-8" />
+
+    <head>
+        <!-- Include CARTO VL JS from the CARTO CDN-->
+        <script src="https://libs.cartocdn.com/carto-vl/v1.4.4/carto-vl.min.js"></script>
+        <!-- Include Mapbox GL from the Mapbox CDN-->
+        <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.js"></script>
+        <link href="https://api.tiles.mapbox.com/mapbox-gl-js/v1.0.0/mapbox-gl.css" rel="stylesheet" />
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+        <style>
+            body {
+                margin: 0;
+                padding: 0;
+            }
+
+            .map {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+            }
+
+            ul {
+                margin: 20px;
+            }
+
+            ul {
+                margin: 10px;
+                left: 10px;
+            }
+
+            .input-color {
+                position: relative;
+            }
+
+            .input-color input {
+                padding-left: 60px;
+                border-style: dotted;
+                border-color: white;
+                width: auto;
+
+            }
+
+            .input-color .color-box {
+                width: 40px;
+                height: 22px;
+                display: inline-block;
+                position: absolute;
+                left: 10px;
+                top: 5px;
+            }
+
+            .map-overlay {
+                z-index: 1;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.8);
+                margin-right: 20px;
+                font-family: Arial, sans-serif;
+                overflow: auto;
+                border-radius: 3px;
+            }
+
+            .map-overlay-2 {
+                z-index: 1;
+                font: 15px/30px 'Helvetica Neue', Arial, Helvetica, sans-serif;
+                position: absolute;
+                width: auto;
+                top: 20px;
+                left: 40px;
+                padding: 1px;
+                background-color: #FFFFFF;
+                color: #000000;
+                opacity: 0.9;
+
+            }
+
+            .map-overlay-inner .categoryLabel {
+                display: block;
+                color: #011a2b;
+                background-color: #f3f3f3;
+                font-weight: bold;
+                font-size: 21px;
+                margin: 30 30 3px;
+
+            }
+
+            #features {
+                z-index: 1;
+                top: 0;
+                padding: 10px;
+                height: 320px;
+                margin-top: 10px;
+                width: 250px;
+                background-color: #FFFFFF;
+            }
+
+            #remover {
+                z-index: 1;
+
+                margin: 0 auto;
+                background-color: #fb5b3f;
+                color: #fff;
+                font-weight: bold;
+                padding: 0.5em;
+
+                cursor: pointer;
+                position: absolute;
+                left: 60%;
+                top: 9em;
+            }
+
+            #remover:hover {
+                background-color: salmon;
+            }
+        </style>
+
+    </head>
+
+<body>
+
+
+
+
+    <div id='map' class='map'>
+
+
+        <div class='map-overlay-2 top'>
+            <div class='map-overlay-inner'>
+                <fieldset>
+                    <label class="categoryLabel">Requalifica</label>
+
+                    <div id="bouton" class="button">
+                        <button id="2D" class="btn btn-primary">Mapa 2D</button>
+                        <button id="3D" class="btn btn-primary">Mapa em 3D</button>
+                        <BR>
+                        <BR>
+
+                        <B>Altura em m²:</b>
+                        <div class="input-color">
+                            <input type="text" value="0 et 1 planchers" />
+                            <div class="color-box" style="background-color: #2c7bb6;"></div>
+                            <!-- Replace "#FF850A" to change the color -->
+                        </div>
+
+
+                        <div class="input-color">
+                            <input type="text" value="2 à 4 planchers" />
+                            <div class="color-box" style="background-color: #abd9e9;"></div>
+                            <!-- Replace "navy" to change the color -->
+                        </div>
+
+
+                        <div class="input-color">
+                            <input type="text" value="5 à 9 planchers" />
+                            <div class="color-box" style="background-color: #ffffbf;"></div>
+                            <!-- Replace "#FF850A" to change the color -->
+                        </div>
+
+                        <div class="input-color">
+                            <input type="text" value="10 à 15 planchers" />
+                            <div class="color-box" style="background-color: #fdae61;"></div>
+                            <!-- Replace "navy" to change the color -->
+                        </div>
+
+                        <div class="input-color">
+                            <input type="text" value="Plus de 15 planchers" />
+                            <div class="color-box" style="background-color: #d7191c;"></div>
+                            <!-- Replace "navy" to change the color -->
+                        </div>
+
+
+                    </div>
+
+            </div>
+
+            </fieldset>
+        </div>
+    </div>
+    </div>
+
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibmluYW5vdW4iLCJhIjoiY2pjdHBoZGlzMnV4dDJxcGc5azJkbWRiYSJ9.o4dZRrdHcgVEKCveOXG1YQ';
+        var map = new mapboxgl.Map({
+            container: 'map', // container id
+            style: carto.basemaps.positron, //stylesheet location
+            center: [-46.633, -23.543], // starting position
+            zoom: 14,
+            pitch: 0,
+            minZoom: 14
+        });
+
+        map.on('load', function () {
+
+
+            //Volumebati
+
+
+            map.addSource('bati', {
+                type: 'geojson',
+                data: 'edificios.geojson'
+            });
+
+            map.addLayer({
+                "id": "bati3D",
+                "type": "fill-extrusion",
+                "source": "bati",
+                "layout": { 'visibility': 'none' },
+                //"source-layer": "volumesbatisparis-an55g4",
+                "paint": {
+                    'fill-extrusion-color': {
+                        'property': 'height',
+                        'stops': [
+                            [0, '#ffffcc'],
+                            [10, '#c7e9b4'],
+                            [20, '#7fcdbb'],
+                            [40, '#41b6c4'],
+                            [60, '#1d91c0'],
+                            [80, '#225ea8'],
+                            [100, '#0c2c84']]
+                    },
+
+                    'fill-extrusion-height': {
+                        'type': 'identity',
+                        'property': 'height',
+                    },
+                    'fill-extrusion-opacity': 0.90,
+                    'fill-extrusion-base': 0,
+                    'fill-extrusion-vertical-gradient': true
+                }
+            });
+
+
+            map.addLayer({
+                "id": "bati2D",
+                "type": "fill",
+                "source": "bati",
+                "layout": { 'visibility': 'visible' },
+                //"source-layer": "volumesbatisparis-an55g4",
+                "paint": {
+                    'fill-color': {
+                        'property': 'height',
+                        'stops': [
+                            [0, '#ffffcc'],
+                            [5, '#c7e9b4'],
+                            [10, '#7fcdbb'],
+                            [20, '#41b6c4'],
+                            [40, '#1d91c0'],
+                            [60, '#225ea8'],
+                            [100, '#0c2c84']]
+                    },
+                    'fill-opacity': 1
+                }
+            });
+
+
+            map.addLayer({
+                "id": "bati",
+                "type": "fill",
+                "source": "bati",
+                "layout": { 'visibility': 'none' },
+                //"source-layer": "volumesbatisparis-an55g4",
+                "paint": { 'fill-color': '#fdae61' },
+                'fill-opacity': 0.90
+            });
+
+
+
+            //Volumenonbati
+
+            map.addSource('nonbati', {
+
+                type: 'vector',
+                url: 'mapbox://ninanoun.0qqfdqbv'
+            });
+
+            map.addLayer({
+                "id": "nonbati",
+                "type": "fill",
+                "source": "nonbati",
+                "layout": { 'visibility': 'none' },
+                "source-layer": "volumesnonbatisparis-6afrw6",
+                "paint": { 'fill-color': '#47d1d1', 'fill-opacity': 0.6 }
+            });
+
+
+            //Arrondissement
+
+            map.addSource('arr', {
+                type: 'vector',
+                url: 'mapbox://ninanoun.4n2x4b38'
+            });
+
+            map.addLayer({
+                "id": "arr",
+                "type": "line",
+                "source": "arr",
+                "layout": { 'visibility': 'visible' },
+                "source-layer": "arrondissements-acjxwy",
+                "paint": { "line-color": "#000000", "line-width": 1.5 }
+            });
+
+
+            //Configuration changement des couches
+
+
+            switchlayer = function (lname) {
+                if (document.getElementById(lname + "CB").checked) {
+                    map.setLayoutProperty(lname, 'visibility', 'visible');
+                } else {
+                    map.setLayoutProperty(lname, 'visibility', 'none');
+                }
+            }
+
+        });
+
+        //Ajout échelle cartographique
+
+        map.addControl(new mapboxgl.ScaleControl({
+            maxWidth: 120,
+            unit: 'metric'
+        }));
+
+        //Ajout boutons de controle
+
+        var nav = new mapboxgl.NavigationControl();
+        map.addControl(nav, 'top-right');
+
+
+
+        // Config affichage boutons 2D 3D
+
+        document.getElementById('3D').addEventListener('click', function () {
+            map.flyTo({
+                pitch: 60,
+                bearing: -10
+            });
+            map.setLayoutProperty('bati3D', 'visibility', 'visible');
+            map.setLayoutProperty('bati2D', 'visibility', 'none');
+
+        });
+
+        document.getElementById('2D').addEventListener('click', function () {
+            map.flyTo({
+                pitch: 0,
+                bearing: 0
+            });
+            map.setLayoutProperty('bati2D', 'visibility', 'visible');
+            map.setLayoutProperty('bati3D', 'visibility', 'none');
+
+        });
+
+
+    </script>
+
+</body>
+
+</html>
