@@ -1,53 +1,140 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<title>Requalifica Centro - 3d</title>
-<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
-<script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
-<link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
-<style>
-body { margin: 0; padding: 0; }
-#map { position: absolute; top: 0; bottom: 0; width: 100%; }
-</style>
-</head>
-<body>
-<div id="map"></div>
 
-<script>
-    var map = new maplibregl.Map({
-        container: 'map',
-style:
-'https://api.maptiler.com/maps/basic/style.json?key=60WJTvTDI6MOw9zREiuq',
-center: [-46.633, -23.543],
-zoom: 14,
-pitch: 45,
-bearing: -17.6,
-
-//antialias: true
-});
-
-    map.on('load', () => {
-        map.addSource('edificios', {
-            type: 'geojson',
-            // Use a URL for the value for the `data` property.
-            data: 'edificios.geojson'
-        });
-
-        map.addLayer({
-            'id': 'edificios-layer',
-            'type': 'fill-extrusion',
-            'source': 'edificios',
-            'paint':
-
-            {'fill-extrusion-color':'#D3D3D3',
-            'fill-extrusion-height':{'type': 'identity', 'property':'height'},
-            'fill-extrusion-opacity': 0.7,
-            'fill-extrusion-base': 0
+    <meta charset="utf-8">
+    <title>Requalifica Centro - 3d</title>
+    <meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no">
+    <script src="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js"></script>
+    <link href="https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
         }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div id="map"></div>
+
+    <script>
+
+        //Cria o container do mapa e define o zoom inicial e onde irá centralizar.
+
+        var map = new maplibregl.Map({
+            container: 'map',
+            style:
+                'https://api.maptiler.com/maps/darkmatter/style.json?key=get_your_own_OpIi9ZULNHzrESv6T2vL',
+            center: [-46.633, -23.543],
+            zoom: 14,
+            pitch: 45,
+            bearing: -17.6,
+            //antialias: true
         });
-    });
-</script>
+
+        //Só irá carregar os itens ao após o mapa ser carregado
+        map.on('load', () => {
+
+            //Adiciona as fontes de dados
+
+            map.addSource('lotes', { //Camada dos lotes
+                type: 'geojson',
+                data: 'lotes_mapa.geojson'
+            });
+
+            map.addSource('edificios', {//Edificios para o 3d
+                type: 'geojson',
+                data: 'edificios.geojson'
+            });
+
+            //Adiciona o mapa a tela
+
+            map.addLayer({
+                'id': 'CAlayer',
+                'source': 'lotes',
+                'type': 'fill',
+                'paint': {
+                    'fill-color': [
+                        'interpolate',
+                        ['linear'],
+                        ['get', 'IPTU_CA'],
+                        0, '#c7e9b4', 
+                        3.0, '#7fcdbb',
+                        5.0, '#41b6c4',
+                        7.0, '#2c7fb8',
+                        12.0, '#253494'
+                    ],
+                    'fill-opacity': 0.8
+
+                }
+            });
+
+            // When a click event occurs on a feature in the states layer,
+            // open a popup at the location of the click, with description
+            // HTML from the click event's properties.
+            map.on('click', 'CAlayer', (e) => {
+                new maplibregl.Popup()
+                    .setLngLat(e.lngLat)
+                    .setHTML('Coeficiente de Aproveitamento: '+ e.features[0].properties.IPTU_CA)
+                    .addTo(map);
+            });
+
+            // Change the cursor to a pointer when
+            // the mouse is over the states layer.
+            map.on('mouseenter', 'CAlayer', () => {
+                map.getCanvas().style.cursor = 'pointer';
+            });
+
+            // Change the cursor back to a pointer
+            // when it leaves the states layer.
+            map.on('mouseleave', 'CAlayer', () => {
+                map.getCanvas().style.cursor = '';
+            });
+            /*map.addLayer({
+                'id': 'loteslayer', //Mapa dos lotes
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': {},
+                'paint': {
+                    'fill-color': '#f08',
+                    'fill-opacity': 0.2
+                }
+            })*/
+
+
+
+            /* map.addLayer({
+                 'id': 'edificioslayer', //Mapa dos edificios em 3d
+                 'type': 'fill-extrusion',
+                 'source': 'edificios',
+                 //'minzoom': 15,
+                 'paint':
+ 
+                 {
+                     'fill-extrusion-color': '#D3D3D3',
+                     'fill-extrusion-height': { 'type': 'identity', 'property': 'height' },
+                     'fill-extrusion-opacity': 0.7,
+                     'fill-extrusion-base': 0
+                 }
+             }); */
+        });
+
+        // Adiciona o botão de zoom e o de controlar o mapa
+        map.addControl(new maplibregl.NavigationControl());
+    </script>
 
 </body>
+
+
 </html>
+
