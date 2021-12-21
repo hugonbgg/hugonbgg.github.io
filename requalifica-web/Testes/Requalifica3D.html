@@ -232,7 +232,6 @@
                 "type": "fill-extrusion",
                 "source": "bati",
                 "layout": { 'visibility': 'none' },
-                //"source-layer": "volumesbatisparis-an55g4",
                 "paint": {
                     'fill-extrusion-color': {
                         'property': 'height',
@@ -262,7 +261,6 @@
                 "type": "fill",
                 "source": "bati",
                 "layout": { 'visibility': 'visible' },
-                //"source-layer": "volumesbatisparis-an55g4",
                 "paint": {
                     'fill-color': {
                         'property': 'height',
@@ -279,64 +277,6 @@
                 }
             });
 
-
-            map.addLayer({
-                "id": "bati",
-                "type": "fill",
-                "source": "bati",
-                "layout": { 'visibility': 'none' },
-                //"source-layer": "volumesbatisparis-an55g4",
-                "paint": { 'fill-color': '#fdae61' },
-                'fill-opacity': 0.90
-            });
-
-
-
-            //Volumenonbati
-
-            map.addSource('nonbati', {
-
-                type: 'vector',
-                url: 'mapbox://ninanoun.0qqfdqbv'
-            });
-
-            map.addLayer({
-                "id": "nonbati",
-                "type": "fill",
-                "source": "nonbati",
-                "layout": { 'visibility': 'none' },
-                "source-layer": "volumesnonbatisparis-6afrw6",
-                "paint": { 'fill-color': '#47d1d1', 'fill-opacity': 0.6 }
-            });
-
-
-            //Arrondissement
-
-            map.addSource('arr', {
-                type: 'vector',
-                url: 'mapbox://ninanoun.4n2x4b38'
-            });
-
-            map.addLayer({
-                "id": "arr",
-                "type": "line",
-                "source": "arr",
-                "layout": { 'visibility': 'visible' },
-                "source-layer": "arrondissements-acjxwy",
-                "paint": { "line-color": "#000000", "line-width": 1.5 }
-            });
-
-
-            //Configuration changement des couches
-
-
-            switchlayer = function (lname) {
-                if (document.getElementById(lname + "CB").checked) {
-                    map.setLayoutProperty(lname, 'visibility', 'visible');
-                } else {
-                    map.setLayoutProperty(lname, 'visibility', 'none');
-                }
-            }
 
         });
 
