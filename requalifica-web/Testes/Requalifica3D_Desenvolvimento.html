@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requalifica Centro</title>
+
+    <script src='https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.js'></script>
+    <link href='https://unpkg.com/maplibre-gl@1.15.2/dist/maplibre-gl.css' rel='stylesheet' />
+    <script src="https://libs.cartocdn.com/carto-vl/v1.4.4/carto-vl.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            z-index: -1;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!--Cria o div do mapa -->
+    <div id="map"></div>
+
+    <!--Cria o div do titulo-->
+
+    <!--Cria o div dos botões das camadas-->
+    <div id='menu' class='button'>
+        <button id='2D'>Mapa 2D</button>
+        <button id='3D'> Mapa 3D </button>
+        <button id='CA'>Coef. Aproveitamento</button>
+        <button id='publicos'> Imóveis Públicos</button>
+        <button id='pavimentos'>Nº Pavimentos</button>
+
+    </div>
+
+    <script>
+
+        //Cria o container do mapa
+        var map = new maplibregl.Map({
+            container: 'map',
+            style: carto.basemaps.positron,
+            center: [-46.633, -23.543],
+            zoom: 14,
+            pitch: 0,
+
+        });
+
+        //Função para esperar carregar o mapa antes de carregar os elementos
+        map.on('load', () => {
+
+            //Carrega o geojson dos lotes
+            map.addSource('lotes', {
+                type: 'geojson',
+                data: 'lotes_mapa.geojson'
+            })
+
+            //Carrega o geojson dos edificios
+            map.addSource('edificios', {
+                type: 'geojson',
+                data: 'edificios.geojson'
+            });
+
+            
+            //Define o estilo dos lotes e adiciona a camada 2D ao mapa
+            map.addLayer({
+                'id': 'lotes-2d',
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': { 'visibility': 'visible' },
+                'paint': {
+                    'fill-color': '#F4C029',
+                    'fill-outline-color': '#717D7E',
+                    'fill-opacity': 0.70,
+
+                }
+            });
+
+            //Define o estilo dos lotes e adiciona a camada do CA ao mapa
+            map.addLayer({
+                'id': 'CA',
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-color': {
+                        'property': 'IPTU_CA',
+                        'stops': [
+                            [0.0, '#c7e9b4'],
+                            [2.0, '#7fcdbb'],
+                            [4.0, '#41b6c4'],
+                            [6.0, '#2c7fb8'],
+                            [12.0, '#253494'],
+                        ]
+                    }
+
+                }
+            });
+
+            //Define o estilo dos lotes e adiciona a camada dos pavimentos ao mapa
+            map.addLayer({
+                'id': 'pavimentos',
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-color': {
+                        'property': 'IPTU_QtdPavimentos',
+                        'stops': [
+                            [0.0, '#f2f0f7'],
+                            [1.0, '#9e9ac8'],
+                            [6.0, '#756bb1'],
+                            [20.0, '#54278f'],
+                        ]
+                    }
+
+                }
+            });
+
+            //Define o estilo dos lotes e adiciona a camada dos Imóveis Públicos ao mapa
+            map.addLayer({
+                'id': 'publicos',
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-color': [
+                        'case',
+                        ['==', ['get', 'IPTU_ImovelPublico'], 'Não'], '#beaed4',
+                        ['==', ['get', 'IPTU_ImovelPublico'], 'Sim'], '#fdc086',
+                        'grey'
+                    ]
+
+                }
+            });
+
+            //3D - Define o estilo dos edificios e adiciona a camada ao mapa
+            map.addLayer({
+                'id': 'edificios-3d',
+                'type': 'fill-extrusion',
+                'source': 'edificios',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-extrusion-color': {
+                        'property': 'height',
+                        'stops': [
+                            [0, '#ffffcc'],
+                            [10, '#c7e9b4'],
+                            [20, '#7fcdbb'],
+                            [40, '#41b6c4'],
+                            [60, '#1d91c0'],
+                            [80, '#225ea8'],
+                            [100, '#0c2c84']
+                        ]
+                    },
+                    'fill-extrusion-height': {
+                        'type': 'identity',
+                        'property': 'height',
+                    },
+                    'fill-extrusion-opacity': 0.90,
+                    'fill-extrusion-base': 0,
+                    'fill-extrusion-vertical-gradient': true
+                }
+            });
+
+
+            // Configura a ação nos botões das camadas
+
+            //2D
+            document.getElementById('2D').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 0,
+                    bearing: 0
+                });
+                map.setLayoutProperty('lotes-2d', 'visibility', 'visible');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+
+
+
+            });
+            //3D
+            document.getElementById('3D').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 60,
+                    bearing: -10
+                });
+                map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'visible');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+
+
+
+            });
+
+            //CA
+            document.getElementById('CA').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 0,
+                    bearing: 0
+                });
+                map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'visible');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+
+
+
+            });
+            
+            //Pavimentos
+            document.getElementById('pavimentos').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 0,
+                    bearing: 0
+                });
+                map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'visible');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+
+
+
+            });
+            //Publicos
+            document.getElementById('publicos').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 0,
+                    bearing: 0
+                });
+                map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'visible');
+
+
+
+            });
+            
+
+
+
+
+
+        })
+
+    </script>
+
+</body>
+
+</html>
