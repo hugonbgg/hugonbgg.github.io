@@ -29,12 +29,13 @@
         #titulo {
             position: absolute;
             top: 10px;
-            left: 20px;
+            left: 10px;
             width: fit-content;
+            max-width: 40%;
             height: 40px;
             padding: 8px;
-            background-color: #f4f9faf6;
-            color: #0073d1;
+            background-color: #f9fafaf8;
+            color: #025fac;
             font-size: 34px;
             border-radius: 20px;
             font-family: "Open Sans",
@@ -45,13 +46,14 @@
 
         #notas {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
+            bottom: 10px;
+            left: 10px;
 
             width: 70%;
+            max-width: 75%;
             height: fit-content;
             padding: 8px;
-            background-color: #f4f9fab7;
+            background-color: #f9fafaf8;
             color: #065596ee;
             font-size: 14px;
             border-radius: 20px;
@@ -72,7 +74,7 @@
 
         .bt-container button {
 
-            background-color: #1c8fdb;
+            background-color: #025fac;
             opacity: 0.8;
             color: #FFF;
             font-size: 14px;
@@ -91,7 +93,7 @@
 
         .legendas {
             position: absolute;
-            bottom: 30px;
+            bottom: 60px;
             right: 20px;
             width: auto;
             font-size: 16px;
@@ -452,9 +454,19 @@
                 document.getElementById("publicos_legenda").style.display = "none"
                 map.setPaintProperty('lotes-2d', 'fill-color', '#F4C029'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 0.7); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
-
-
+                //map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-outline-color', [
+                    'interpolate',
+                    // Set the exponential rate of change to 0.5
+                    ['exponential', 1.2],
+                    ['zoom'],
+                    // When zoom is 15, buildings will be beige.
+                    14,
+                    'transparent',
+                    // When zoom is 18 or higher, buildings will be yellow.
+                    20,
+                    '#4a5355'
+                ]);
 
 
             });
