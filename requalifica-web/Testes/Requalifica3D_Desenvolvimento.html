@@ -23,6 +23,42 @@
             top: 0;
             bottom: 0;
             width: 100%;
+
+        }
+
+        #titulo {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            width: fit-content;
+            height: 40px;
+            padding: 8px;
+            background-color: #f4f9faf6;
+            color: #0073d1;
+            font-size: 34px;
+            border-radius: 20px;
+            font-family: "Open Sans",
+                Helvetica,
+                sans-serif;
+        }
+
+
+        #notas {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+
+            width: 70%;
+            height: fit-content;
+            padding: 8px;
+            background-color: #f4f9fab7;
+            color: #065596ee;
+            font-size: 14px;
+            border-radius: 20px;
+            text-align: justify;
+            font-family: "Open Sans",
+                Helvetica,
+                sans-serif;
         }
 
         .bt-container {
@@ -64,7 +100,7 @@
             font-size: 17px;
             line-height: 22px;
             padding: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: #ffffffcc;
             opacity: 0.89;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 5px;
@@ -86,6 +122,18 @@
     <div id="map"></div>
 
     <!--Cria o div do titulo-->
+    <div id='titulo'>
+        Requalifica Centro
+    </div>
+
+    <!--Cria o div da nota-->
+    <div id='notas'>
+        <b>Notas:</b>
+        is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard
+        dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type
+        specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining
+        essentially unchanged.
+    </div>
 
     <!--Cria o div dos botões das camadas-->
 
@@ -140,8 +188,9 @@
 
         <b>Imóveis Públicos:</b>
         <br>
-        <div style="background-color: #beaed4"></div>Sim<br>
-        <div style="background-color: #fdc086"></div>Não<br>
+        <div style="background-color: #fdc086"></div>Sim<br>
+        <div style="background-color: #beaed4"></div>Não<br>
+
 
     </div>
 
@@ -160,14 +209,19 @@
     <script>
 
         //Cria o container do mapa
-        var map = new maplibregl.Map({
+        const map = new maplibregl.Map({
+
             container: 'map',
             style: carto.basemaps.positron,
             center: [-46.633, -23.543],
             zoom: 14,
             pitch: 0,
+            attributionControl: false,
 
-        });
+        }).addControl(new maplibregl.AttributionControl({
+            customAttribution: 'SPUrbanismo'
+        }));;
+
 
         //Função para esperar carregar o mapa antes de carregar os elementos
         map.on('load', () => {
@@ -175,7 +229,7 @@
             //Carrega o geojson dos lotes
             map.addSource('lotes', {
                 type: 'geojson',
-                data: 'lotes_mapa.geojson'
+                data: 'lotes_mapa.geojson',
             })
 
             //Carrega o geojson dos edificios
@@ -194,11 +248,24 @@
                 'layout': { 'visibility': 'visible' },
                 'paint': {
                     'fill-color': '#F4C029',
-                    'fill-outline-color': '#717D7E',
+                    //'fill-outline-color': '#717D7E',
                     'fill-opacity': 0.70,
 
                 }
             });
+
+            map.setPaintProperty('lotes-2d', 'fill-outline-color', [
+                'interpolate',
+                // Set the exponential rate of change to 0.5
+                ['exponential', 1.2],
+                ['zoom'],
+                // When zoom is 15, buildings will be beige.
+                14,
+                'transparent',
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                '#4a5355'
+            ]);
 
             map.on('click', 'lotes-2d', function (e) {
                 var feature = e.features[0];
@@ -217,7 +284,7 @@
                         '<b>Área Construída(m²):</b> ' + feature.properties.IPTU_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
                         '<b>Quantidade de Pavimentos:</b> ' + feature.properties.IPTU_QtdPavimentos + '<br>' +
                         '<b>Coeficiente de Aproveitamento:</b> ' + feature.properties.IPTU_CA + '<br>' +
-                        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA.substring(0,45) + '.' +'<br>' +
+                        '<b>Tipologia:</b> ' + feature.properties.IPTU_TIPOLOGIA.substring(0, 45) + '.' + '<br>' +
                         '<b>PEUC:</b> ' + feature.properties.E_PEUC + '<br>' +
                         '<b>IPTU Progressivo:</b> ' + feature.properties.E_IPTU_PROGRESSIVO + '<br>' +
                         '<b>Tombado:</b> ' + feature.properties.Tombado + '<br>' +
@@ -257,6 +324,19 @@
                 }
             });
 
+            map.setPaintProperty('CA', 'fill-outline-color', [
+                'interpolate',
+                // Set the exponential rate of change to 0.5
+                ['exponential', 1.5],
+                ['zoom'],
+                // When zoom is 15, buildings will be beige.
+                14,
+                'transparent',
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                '#4a5355'
+            ]);
+
             //Define o estilo dos lotes e adiciona a camada dos pavimentos ao mapa
             map.addLayer({
                 'id': 'pavimentos',
@@ -277,6 +357,19 @@
                 }
             });
 
+            map.setPaintProperty('pavimentos', 'fill-outline-color', [
+                'interpolate',
+                // Set the exponential rate of change to 0.5
+                ['exponential', 1.2],
+                ['zoom'],
+                // When zoom is 15, buildings will be beige.
+                14,
+                'transparent',
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                'white'
+            ]);
+
             //Define o estilo dos lotes e adiciona a camada dos Imóveis Públicos ao mapa
             map.addLayer({
                 'id': 'publicos',
@@ -289,10 +382,23 @@
                         ['==', ['get', 'IPTU_ImovelPublico'], 'Não'], '#beaed4',
                         ['==', ['get', 'IPTU_ImovelPublico'], 'Sim'], '#fdc086',
                         'grey'
-                    ]
-
+                    ],
                 }
             });
+
+            map.setPaintProperty('publicos', 'fill-outline-color', [
+                'interpolate',
+                // Set the exponential rate of change to 0.5
+                ['exponential', 1.5],
+                ['zoom'],
+                // When zoom is 15, buildings will be beige.
+                14,
+                'transparent',
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                '#4a5355'
+            ]);
+
 
             //3D - Define o estilo dos edificios e adiciona a camada ao mapa
             map.addLayer({
@@ -327,6 +433,8 @@
             // Configura a ação nos botões das camadas
 
             //2D
+
+
             document.getElementById('2D').addEventListener('click', function () {
                 map.flyTo({
                     pitch: 0,
@@ -346,7 +454,7 @@
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 0.7); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
 
-                
+
 
 
             });
@@ -439,8 +547,6 @@
                 map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
 
 
-
-
             });
 
 
@@ -449,6 +555,7 @@
 
 
         })
+
 
     </script>
 
