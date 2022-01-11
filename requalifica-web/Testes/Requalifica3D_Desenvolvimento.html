@@ -312,16 +312,17 @@
                 'source': 'lotes',
                 'layout': { 'visibility': 'none' },
                 'paint': {
-                    'fill-color': {
-                        'property': 'IPTU_CA',
-                        'stops': [
-                            [0.0, '#c7e9b4'],
-                            [2.0, '#7fcdbb'],
-                            [4.0, '#41b6c4'],
-                            [6.0, '#2c7fb8'],
-                            [12.0, '#253494'],
-                        ]
-                    }
+                    'fill-color': [
+                        'step',
+                        ['get', 'IPTU_CA'],
+
+                        '#c7e9b4', 2.0,
+                        '#7fcdbb', 4.0,
+                        '#41b6c4', 6.0,
+                        '#2c7fb8', 12.0,
+                        '#253494',
+                    ]
+
 
                 }
             });
@@ -339,6 +340,7 @@
                 '#4a5355'
             ]);
 
+
             //Define o estilo dos lotes e adiciona a camada dos pavimentos ao mapa
             map.addLayer({
                 'id': 'pavimentos',
@@ -346,15 +348,17 @@
                 'source': 'lotes',
                 'layout': { 'visibility': 'none' },
                 'paint': {
-                    'fill-color': {
-                        'property': 'IPTU_QtdPavimentos',
-                        'stops': [
-                            [0.0, '#f2f0f7'],
-                            [1.0, '#9e9ac8'],
-                            [6.0, '#756bb1'],
-                            [20.0, '#54278f'],
-                        ]
-                    }
+                    'fill-color': [
+                        'step',
+                        ['get', 'IPTU_QtdPavimentos'],
+
+                        '#f2f0f7', 1.0,
+                        '#9e9ac8', 6.0,
+                        '#756bb1', 19.0,
+                        '#54278f'
+
+
+                    ]
 
                 }
             });
