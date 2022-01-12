@@ -615,67 +615,7 @@
                 }
             });
 
-            //2D
-
-            /*
-            document.getElementById('2D').addEventListener('click', function () {
-                map.flyTo({
-                    pitch: 0,
-                    bearing: 0
-                });
-                map.setLayoutProperty('lotes-2d', 'visibility', 'visible');
-                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
-                map.setLayoutProperty('CA', 'visibility', 'none');
-                map.setLayoutProperty('pavimentos', 'visibility', 'none');
-                map.setLayoutProperty('publicos', 'visibility', 'none');
-                document.getElementById("2d_legenda").style.display = "block"
-                document.getElementById("3d_legenda").style.display = "none"
-                document.getElementById("CA_legenda").style.display = "none"
-                document.getElementById("pavimentos_legenda").style.display = "none"
-                document.getElementById("publicos_legenda").style.display = "none"
-                map.setPaintProperty('lotes-2d', 'fill-color', '#F4C029'); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-opacity', 0.7); //Deixa o 2d invisivel para o popup
-                //map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-outline-color', [
-                    'interpolate',
-                    // Set the exponential rate of change to 0.5
-                    ['exponential', 1.2],
-                    ['zoom'],
-                    // When zoom is 15, buildings will be beige.
-                    14,
-                    'transparent',
-                    // When zoom is 18 or higher, buildings will be yellow.
-                    20,
-                    '#4a5355'
-                ]);
-
-
-            });
-            //3D
-            document.getElementById('3D').addEventListener('click', function () {
-                map.flyTo({
-                    pitch: 60,
-                    bearing: -10
-                });
-                //map.setLayoutProperty('lotes-2d', 'visibility', 'none');
-                map.setLayoutProperty('edificios-3d', 'visibility', 'visible');
-                map.setLayoutProperty('CA', 'visibility', 'none');
-                map.setLayoutProperty('pavimentos', 'visibility', 'none');
-                map.setLayoutProperty('publicos', 'visibility', 'none');
-                document.getElementById("2d_legenda").style.display = "none"
-                document.getElementById("3d_legenda").style.display = "block"
-                document.getElementById("CA_legenda").style.display = "none"
-                document.getElementById("pavimentos_legenda").style.display = "none"
-                document.getElementById("publicos_legenda").style.display = "none"
-                map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
-
-
-
-            });
-
-            */
+            
 
             //CA
             document.getElementById('CA').addEventListener('click', function () {
