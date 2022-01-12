@@ -51,7 +51,7 @@
             left: 10px;
 
             width: fit-content;
-            max-width: 80%;
+            max-width: 70%;
             height: fit-content;
             padding: 8px;
             background-color: #f9fafaf8;
@@ -64,10 +64,21 @@
                 sans-serif;
         }
 
+        #logo {
+            position: absolute;
+            top:5px;
+            right: 10px;
+            width: fit-content;
+            height: fit-content;
+            opacity: 0.8;
+            
+
+        }
+
         .bt-container {
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: 60px;
+            right: 10px;
             width: auto;
             height: auto;
             font-size: 16px;
@@ -106,7 +117,7 @@
         .legendas {
             position: absolute;
             bottom: 100px;
-            right: 20px;
+            right: 10px;
             width: auto;
             font-size: 16px;
             color: #333333;
@@ -196,7 +207,12 @@
         <b>Fontes:</b>
         GeoSampa, Secretaria Municipal de Cultura, Secretaria Municipal da Fazenda, Secretaria Municipal de Urbanismo e
         Licenciamento e LABCidade.
-    </div>
+        </div>
+
+    <!--Cria o div do logo-->
+    <div id='logo'>
+        <img src="spurbanismo-logo_color.png" alt="logo spurbanismo" width="150px" height="49px">
+        </div>
 
     <!--Cria o div do 2D/3D-->
     <div id='alterna3d'>
@@ -518,7 +534,6 @@
                 20,
                 '#4a5355'
             ]);
-
 
 
             //3D - Define o estilo dos edificios e adiciona a camada ao mapa
