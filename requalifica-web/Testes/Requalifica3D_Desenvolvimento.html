@@ -34,7 +34,8 @@
             max-width: 40%;
             height: 40px;
             padding: 8px;
-            background-color: rgba(255, 255, 255, 0.5);;
+            background-color: rgba(255, 255, 255, 0.5);
+            ;
             color: #025fac;
             font-size: 34px;
             border-radius: 20px;
@@ -76,7 +77,8 @@
             font-weight: bold;
             line-height: 22px;
             padding: 10px;
-            background-color: rgba(255, 255, 255, 0.25);;
+            background-color: rgba(255, 255, 255, 0.25);
+            ;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
             border-radius: 16px;
 
@@ -124,7 +126,7 @@
             float: left;
             margin-right: 8px;
             opacity: 2;
-            
+
         }
 
         /* The switch - the box around the slider */
@@ -191,9 +193,9 @@
 
     <!--Cria o div da nota-->
     <div id='notas'>
-        <b>Notas:</b>
-        is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard
-        dummy text ever since the 1500s.
+        <b>Fontes:</b>
+        GeoSampa, Secretaria Municipal de Cultura, Secretaria Municipal da Fazenda, Secretaria Municipal de Urbanismo e
+        Licenciamento e LABCidade.
     </div>
 
     <!--Cria o div do 2D/3D-->
@@ -210,8 +212,10 @@
         <button id='3D' class='btn'> Mapa 3D </button> -->
         Camadas:
         <button id='CA' class='btn'>Aproveitamento</button>
-        <button id='publicos' class='btn'>Públicos</button>
         <button id='pavimentos' class='btn'>Pavimentos</button>
+        <button id='publicos' class='btn'>Públicos</button>
+        <button id='tipologia' class='btn'>Tipologia</button>
+
 
     </div>
 
@@ -271,6 +275,18 @@
         <div style="background-color: #9e9ac8"></div>Até 5<br>
         <div style="background-color: #756bb1"></div>Até 20<br>
         <div style="background-color: #54278f"></div>Acima de 20<br>
+    </div>
+
+    <!--Legenda da tipologia -->
+    <div id="tipologia_legenda" class='legendas' style='display: none;'>
+
+        <b>Tipologia:</b>
+        <br>
+        <div style="background-color: #ef8a62"></div>Residenciais<br>
+        <div style="background-color: #67a9cf"></div>Não Residenciais<br>
+        <div style="background-color: #7fbf7b"></div>Uso Misto<br>
+        <div style="background-color: #756bb1"></div>Terrenos<br>
+
     </div>
 
 
@@ -471,6 +487,39 @@
                 '#4a5355'
             ]);
 
+            //Define o estilo dos lotes e adiciona a camada da tipologia ao mapa
+            map.addLayer({
+                'id': 'tipologia',
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-color': [
+                        'case',
+                        ['==', ['get', 'IPTU_TIPOLOGIA'], 'Residencial'], '#ef8a62',
+                        //['==', ['get', 'IPTU_TIPOLOGIA'], 'Residencial'], '#67a9cf',
+                        ['==', ['get', 'IPTU_TIPOLOGIA'], 'Uso Misto'], '#7fbf7b',
+                        ['==', ['get', 'IPTU_TIPOLOGIA'], 'Terreno'], '#756bb1',
+                        '#67a9cf' //Tudo que não se encaixa nas categorias acima, os não residenciais
+                    ],
+                }
+            });
+
+
+            map.setPaintProperty('tipologia', 'fill-outline-color', [
+                'interpolate',
+                // Set the exponential rate of change to 0.5
+                ['exponential', 1.5],
+                ['zoom'],
+                // When zoom is 15, buildings will be beige.
+                14,
+                'transparent',
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                '#4a5355'
+            ]);
+
+
 
             //3D - Define o estilo dos edificios e adiciona a camada ao mapa
 
@@ -484,16 +533,16 @@
                     'fill-extrusion-color': [
                         'step',
                         ['get', 'height'],
-                        
-                            '#ffffcc', 1.0,
-                            '#c7e9b4',10.0,
-                            '#7fcdbb',20.0,
-                            '#41b6c4',40.0,
-                            '#1d91c0',60.0,
-                            '#225ea8',80.0,
-                            '#0c2c84'
-                        ],
-                
+
+                        '#ffffcc', 1.0,
+                        '#c7e9b4', 10.0,
+                        '#7fcdbb', 20.0,
+                        '#41b6c4', 40.0,
+                        '#1d91c0', 60.0,
+                        '#225ea8', 80.0,
+                        '#0c2c84'
+                    ],
+
                     'fill-extrusion-height': {
                         'type': 'identity',
                         'property': 'height',
@@ -526,6 +575,7 @@
                     document.getElementById("CA_legenda").style.display = "none"
                     document.getElementById("pavimentos_legenda").style.display = "none"
                     document.getElementById("publicos_legenda").style.display = "none"
+                    document.getElementById("tipologia_legenda").style.display = "none"
                     map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                     map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
                     map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
@@ -533,34 +583,35 @@
                 } else {
                     console.log("Checkbox is not checked..");
                     map.flyTo({
-                    pitch: 0,
-                    bearing: 0
-                });
-                map.setLayoutProperty('lotes-2d', 'visibility', 'visible');
-                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
-                map.setLayoutProperty('CA', 'visibility', 'none');
-                map.setLayoutProperty('pavimentos', 'visibility', 'none');
-                map.setLayoutProperty('publicos', 'visibility', 'none');
-                document.getElementById("2d_legenda").style.display = "block"
-                document.getElementById("3d_legenda").style.display = "none"
-                document.getElementById("CA_legenda").style.display = "none"
-                document.getElementById("pavimentos_legenda").style.display = "none"
-                document.getElementById("publicos_legenda").style.display = "none"
-                map.setPaintProperty('lotes-2d', 'fill-color', '#F4C029'); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-opacity', 0.7); //Deixa o 2d invisivel para o popup
-                //map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
-                map.setPaintProperty('lotes-2d', 'fill-outline-color', [
-                    'interpolate',
-                    // Set the exponential rate of change to 0.5
-                    ['exponential', 1.2],
-                    ['zoom'],
-                    // When zoom is 15, buildings will be beige.
-                    14,
-                    'transparent',
-                    // When zoom is 18 or higher, buildings will be yellow.
-                    20,
-                    '#4a5355'
-                ]);
+                        pitch: 0,
+                        bearing: 0
+                    });
+                    map.setLayoutProperty('lotes-2d', 'visibility', 'visible');
+                    map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                    map.setLayoutProperty('CA', 'visibility', 'none');
+                    map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                    map.setLayoutProperty('publicos', 'visibility', 'none');
+                    document.getElementById("2d_legenda").style.display = "block"
+                    document.getElementById("3d_legenda").style.display = "none"
+                    document.getElementById("CA_legenda").style.display = "none"
+                    document.getElementById("pavimentos_legenda").style.display = "none"
+                    document.getElementById("publicos_legenda").style.display = "none"
+                    document.getElementById("tipologia_legenda").style.display = "none"
+                    map.setPaintProperty('lotes-2d', 'fill-color', '#F4C029'); //Deixa o 2d invisivel para o popup
+                    map.setPaintProperty('lotes-2d', 'fill-opacity', 0.7); //Deixa o 2d invisivel para o popup
+                    //map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
+                    map.setPaintProperty('lotes-2d', 'fill-outline-color', [
+                        'interpolate',
+                        // Set the exponential rate of change to 0.5
+                        ['exponential', 1.2],
+                        ['zoom'],
+                        // When zoom is 15, buildings will be beige.
+                        14,
+                        'transparent',
+                        // When zoom is 18 or higher, buildings will be yellow.
+                        20,
+                        '#4a5355'
+                    ]);
                 }
             });
 
@@ -637,11 +688,13 @@
                 map.setLayoutProperty('CA', 'visibility', 'visible');
                 map.setLayoutProperty('pavimentos', 'visibility', 'none');
                 map.setLayoutProperty('publicos', 'visibility', 'none');
+                map.setLayoutProperty('tipologia', 'visibility', 'none');
                 document.getElementById("2d_legenda").style.display = "none"
                 document.getElementById("3d_legenda").style.display = "none"
                 document.getElementById("CA_legenda").style.display = "block"
                 document.getElementById("pavimentos_legenda").style.display = "none"
                 document.getElementById("publicos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "none"
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
@@ -659,11 +712,13 @@
                 map.setLayoutProperty('CA', 'visibility', 'none');
                 map.setLayoutProperty('pavimentos', 'visibility', 'visible');
                 map.setLayoutProperty('publicos', 'visibility', 'none');
+                map.setLayoutProperty('tipologia', 'visibility', 'none');
                 document.getElementById("2d_legenda").style.display = "none"
                 document.getElementById("3d_legenda").style.display = "none"
                 document.getElementById("CA_legenda").style.display = "none"
                 document.getElementById("pavimentos_legenda").style.display = "block"
                 document.getElementById("publicos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "none"
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
@@ -683,9 +738,34 @@
                 map.setLayoutProperty('CA', 'visibility', 'none');
                 map.setLayoutProperty('pavimentos', 'visibility', 'none');
                 map.setLayoutProperty('publicos', 'visibility', 'visible');
+                map.setLayoutProperty('tipologia', 'visibility', 'none');
                 document.getElementById("CA_legenda").style.display = "none"
                 document.getElementById("pavimentos_legenda").style.display = "none"
                 document.getElementById("publicos_legenda").style.display = "block"
+                document.getElementById("tipologia_legenda").style.display = "none"
+                map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
+
+
+            });
+
+            //Tipologias
+            document.getElementById('tipologia').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 0,
+                    bearing: 0
+                });
+                //map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+                map.setLayoutProperty('tipologia', 'visibility', 'visible');
+                document.getElementById("CA_legenda").style.display = "none"
+                document.getElementById("pavimentos_legenda").style.display = "none"
+                document.getElementById("publicos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "block"
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
