@@ -231,7 +231,8 @@
         <button id='pavimentos' class='btn'>Pavimentos</button>
         <button id='publicos' class='btn'>Públicos</button>
         <button id='tipologia' class='btn'>Tipologia</button>
-
+        <button id='tombados' class='btn'>Tombados</button>
+        <button id='donos' class='btn'>Único Dono</button>
 
     </div>
 
@@ -261,21 +262,6 @@
     </div>
 
 
-    <!--Legenda do 3D
-    <div id="3d_legenda" class='legendas' style='display: none'>
-
-        <b>Altura em m:</b>
-        <br>
-        <div style="background-color: #ffffcc"></div>Terrenos<br>
-        <div style="background-color: #c7e9b4"></div>Até 10<br>
-        <div style="background-color: #7fcdbb"></div>Até 20<br>
-        <div style="background-color: #41b6c4"></div>Até 40<br>
-        <div style="background-color: #1d91c0"></div>Até 60<br>
-        <div style="background-color: #225ea8"></div>Até 80<br>
-        <div style="background-color: #0c2c84"></div>Acima de 100<br>
-
-    </div>
- -->
     <!--Legenda do CA -->
     <div id="CA_legenda" class='legendas' style='display: none;'>
 
@@ -322,6 +308,27 @@
 
     </div>
 
+    <!--Legenda dos tombados -->
+    <div id="tombados_legenda" class='legendas' style='display: none;'>
+
+        <b>Tombados:</b>
+        <br>
+        <div style="background-color: #ea8c55"></div>Sim<br>
+        <div style="background-color: #7c9eaf"></div>Não<br>
+
+    </div>
+
+    <!--Legenda do unico dono -->
+    <div id="donos_legenda" class='legendas' style='display: none;'>
+
+        <b>Único Dono:</b>
+        <br>
+        <div style="background-color: #425f6f"></div>Sim<br>
+        <div style="background-color: #cacac3"></div>Não<br>
+
+    </div>
+
+
 
     <script>
         /*  Projeto: Requalifica Centro
@@ -337,6 +344,7 @@
             style: carto.basemaps.positron,
             center: [-46.633, -23.543],
             zoom: 14,
+            minZoom: 13,
             pitch: 0,
             attributionControl: false,
 
@@ -357,7 +365,7 @@
             //Carrega o geojson dos edificios
             map.addSource('edificios', {
                 type: 'geojson',
-                data: 'edificios.geojson'
+                data: 'edificios_ok.geojson'
             });
 
 
@@ -557,6 +565,67 @@
                 '#4a5355'
             ]);
 
+            //Define o estilo dos lotes e adiciona a camada dos tombados ao mapa
+            map.addLayer({
+                'id': 'tombados',
+                'type': 'fill',
+                'source': 'lotes',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-color': [
+                        'case',
+                        ['==', ['get', 'Tombado'], 'Sim'], '#ea8c55',
+                        '#7c9eaf'
+
+                    ],
+                }
+            });
+
+            map.setPaintProperty('tombados', 'fill-outline-color', [
+                'interpolate',
+                // Set the exponential rate of change to 0.5
+                ['exponential', 1.5],
+                ['zoom'],
+                // When zoom is 15, buildings will be beige.
+                14,
+                'transparent',
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                '#4a5355'
+            ]);
+
+            //Define o estilo dos lotes e adiciona a camada do unico dono ao mapa
+
+            map.addLayer({
+                'id': 'donos',
+                'type': 'fill-extrusion',
+                'source': 'edificios',
+                'layout': { 'visibility': 'none' },
+                'paint': {
+                    'fill-extrusion-color': [
+                        'step',
+                        ['get', 'cores'],
+
+                        '#cacac3', 50.0,
+                        '#b1afa9', 200.0,
+                        '#7491a0', 250.0,
+                        '#5b7887', 300.0,
+                        '#425f6f', 350.0,
+                        '#2a4858', 
+                        
+
+                    ],
+
+
+                    'fill-extrusion-height': {
+                        'type': 'identity',
+                        'property': 'height',
+                    },
+                    'fill-extrusion-opacity': 0.8,
+                    'fill-extrusion-base': 0,
+                    'fill-extrusion-vertical-gradient': true
+                }
+            });
 
             //3D - Define o estilo dos edificios e adiciona a camada ao mapa
 
@@ -588,36 +657,7 @@
                     'fill-extrusion-vertical-gradient': true
                 }
             });
-            /*
-            map.addLayer({
-                'id': 'edificios-3d',
-                'type': 'fill-extrusion',
-                'source': 'edificios',
-                'layout': { 'visibility': 'none' },
-                'paint': {
-                    'fill-extrusion-color': [
-                        'step',
-                        ['get', 'height'],
 
-                        '#ffffcc', 1.0,
-                        '#c7e9b4', 10.0,
-                        '#7fcdbb', 20.0,
-                        '#41b6c4', 40.0,
-                        '#1d91c0', 60.0,
-                        '#225ea8', 80.0,
-                        '#0c2c84'
-                    ],
-
-                    'fill-extrusion-height': {
-                        'type': 'identity',
-                        'property': 'height',
-                    },
-                    'fill-extrusion-opacity': 0.90,
-                    'fill-extrusion-base': 0,
-                    'fill-extrusion-vertical-gradient': true
-                }
-            });
-*/
             // Configura a ação nos botões das camadas
 
             //Botão que alterna o 2D / 3D
@@ -636,12 +676,16 @@
                     map.setLayoutProperty('pavimentos', 'visibility', 'none');
                     map.setLayoutProperty('publicos', 'visibility', 'none');
                     map.setLayoutProperty('tipologia', 'visibility', 'none');
+                    map.setLayoutProperty('tombados', 'visibility', 'none');
+                    map.setLayoutProperty('donos', 'visibility', 'none');
                     document.getElementById("2d_legenda").style.display = "none"
                     document.getElementById("3d_legenda").style.display = "block"
                     document.getElementById("CA_legenda").style.display = "none"
                     document.getElementById("pavimentos_legenda").style.display = "none"
                     document.getElementById("publicos_legenda").style.display = "none"
                     document.getElementById("tipologia_legenda").style.display = "none"
+                    document.getElementById("tombados_legenda").style.display = "none"
+                    document.getElementById("donos_legenda").style.display = "none"
                     map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                     map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
                     map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
@@ -658,12 +702,16 @@
                     map.setLayoutProperty('pavimentos', 'visibility', 'none');
                     map.setLayoutProperty('publicos', 'visibility', 'none');
                     map.setLayoutProperty('tipologia', 'visibility', 'none');
+                    map.setLayoutProperty('tombados', 'visibility', 'none');
+                    map.setLayoutProperty('donos', 'visibility', 'none');
                     document.getElementById("2d_legenda").style.display = "block"
                     document.getElementById("3d_legenda").style.display = "none"
                     document.getElementById("CA_legenda").style.display = "none"
                     document.getElementById("pavimentos_legenda").style.display = "none"
                     document.getElementById("publicos_legenda").style.display = "none"
                     document.getElementById("tipologia_legenda").style.display = "none"
+                    document.getElementById("tombados_legenda").style.display = "none"
+                    document.getElementById("donos_legenda").style.display = "none"
                     map.setPaintProperty('lotes-2d', 'fill-color', '#F4C029'); //Deixa o 2d invisivel para o popup
                     map.setPaintProperty('lotes-2d', 'fill-opacity', 0.7); //Deixa o 2d invisivel para o popup
                     //map.setPaintProperty('lotes-2d', 'fill-outline-color', '#717D7E'); //Deixa o 2d invisivel para o popup
@@ -696,12 +744,16 @@
                 map.setLayoutProperty('pavimentos', 'visibility', 'none');
                 map.setLayoutProperty('publicos', 'visibility', 'none');
                 map.setLayoutProperty('tipologia', 'visibility', 'none');
+                map.setLayoutProperty('tombados', 'visibility', 'none');
+                map.setLayoutProperty('donos', 'visibility', 'none');
                 document.getElementById("2d_legenda").style.display = "none"
                 document.getElementById("3d_legenda").style.display = "none"
                 document.getElementById("CA_legenda").style.display = "block"
                 document.getElementById("pavimentos_legenda").style.display = "none"
                 document.getElementById("publicos_legenda").style.display = "none"
                 document.getElementById("tipologia_legenda").style.display = "none"
+                document.getElementById("tombados_legenda").style.display = "none"
+                document.getElementById("donos_legenda").style.display = "none"
                 document.getElementById("alterna3d-btn").checked = false; //Desabilita o checkbox para o 3d aparecer desabilitado
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
@@ -721,12 +773,16 @@
                 map.setLayoutProperty('pavimentos', 'visibility', 'visible');
                 map.setLayoutProperty('publicos', 'visibility', 'none');
                 map.setLayoutProperty('tipologia', 'visibility', 'none');
+                map.setLayoutProperty('tombados', 'visibility', 'none');
+                map.setLayoutProperty('donos', 'visibility', 'none');
                 document.getElementById("2d_legenda").style.display = "none"
                 document.getElementById("3d_legenda").style.display = "none"
                 document.getElementById("CA_legenda").style.display = "none"
                 document.getElementById("pavimentos_legenda").style.display = "block"
                 document.getElementById("publicos_legenda").style.display = "none"
                 document.getElementById("tipologia_legenda").style.display = "none"
+                document.getElementById("tombados_legenda").style.display = "none"
+                document.getElementById("donos_legenda").style.display = "none"
                 document.getElementById("alterna3d-btn").checked = false; //Desabilita o checkbox para o 3d aparecer desabilitado
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
@@ -748,12 +804,16 @@
                 map.setLayoutProperty('pavimentos', 'visibility', 'none');
                 map.setLayoutProperty('publicos', 'visibility', 'visible');
                 map.setLayoutProperty('tipologia', 'visibility', 'none');
+                map.setLayoutProperty('tombados', 'visibility', 'none');
+                map.setLayoutProperty('donos', 'visibility', 'none');
                 document.getElementById("2d_legenda").style.display = "none"
                 document.getElementById("3d_legenda").style.display = "none"
                 document.getElementById("CA_legenda").style.display = "none"
                 document.getElementById("pavimentos_legenda").style.display = "none"
                 document.getElementById("publicos_legenda").style.display = "block"
                 document.getElementById("tipologia_legenda").style.display = "none"
+                document.getElementById("tombados_legenda").style.display = "none"
+                document.getElementById("donos_legenda").style.display = "none"
                 document.getElementById("alterna3d-btn").checked = false; //Desabilita o checkbox para o 3d aparecer desabilitado
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
@@ -774,12 +834,76 @@
                 map.setLayoutProperty('pavimentos', 'visibility', 'none');
                 map.setLayoutProperty('publicos', 'visibility', 'none');
                 map.setLayoutProperty('tipologia', 'visibility', 'visible');
+                map.setLayoutProperty('tombados', 'visibility', 'none');
+                map.setLayoutProperty('donos', 'visibility', 'none');
                 document.getElementById("2d_legenda").style.display = "none"
                 document.getElementById("3d_legenda").style.display = "none"
                 document.getElementById("CA_legenda").style.display = "none"
                 document.getElementById("pavimentos_legenda").style.display = "none"
                 document.getElementById("publicos_legenda").style.display = "none"
                 document.getElementById("tipologia_legenda").style.display = "block"
+                document.getElementById("tombados_legenda").style.display = "none"
+                document.getElementById("donos_legenda").style.display = "none"
+                document.getElementById("alterna3d-btn").checked = false; //Desabilita o checkbox para o 3d aparecer desabilitado
+                map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
+
+
+            });
+
+            //Tombados
+            document.getElementById('tombados').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 0,
+                    //bearing: 0
+                });
+                //map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+                map.setLayoutProperty('tipologia', 'visibility', 'none');
+                map.setLayoutProperty('tombados', 'visibility', 'visible');
+                map.setLayoutProperty('donos', 'visibility', 'none');
+                document.getElementById("2d_legenda").style.display = "none"
+                document.getElementById("3d_legenda").style.display = "none"
+                document.getElementById("CA_legenda").style.display = "none"
+                document.getElementById("pavimentos_legenda").style.display = "none"
+                document.getElementById("publicos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "none"
+                document.getElementById("tombados_legenda").style.display = "block"
+                document.getElementById("donos_legenda").style.display = "none"
+                document.getElementById("alterna3d-btn").checked = false; //Desabilita o checkbox para o 3d aparecer desabilitado
+                map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
+                map.setPaintProperty('lotes-2d', 'fill-outline-color', 'transparent'); //Deixa o 2d invisivel para o popup
+
+
+            });
+
+            //Donos
+            document.getElementById('donos').addEventListener('click', function () {
+                map.flyTo({
+                    pitch: 60,
+                    //bearing: 0
+                });
+                //map.setLayoutProperty('lotes-2d', 'visibility', 'none');
+                map.setLayoutProperty('edificios-3d', 'visibility', 'none');
+                map.setLayoutProperty('CA', 'visibility', 'none');
+                map.setLayoutProperty('pavimentos', 'visibility', 'none');
+                map.setLayoutProperty('publicos', 'visibility', 'none');
+                map.setLayoutProperty('tipologia', 'visibility', 'none');
+                map.setLayoutProperty('tombados', 'visibility', 'none');
+                map.setLayoutProperty('donos', 'visibility', 'visible');
+                document.getElementById("2d_legenda").style.display = "none"
+                document.getElementById("3d_legenda").style.display = "none"
+                document.getElementById("CA_legenda").style.display = "none"
+                document.getElementById("pavimentos_legenda").style.display = "none"
+                document.getElementById("publicos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "none"
+                document.getElementById("tombados_legenda").style.display = "none"
+                document.getElementById("donos_legenda").style.display = "block"
                 document.getElementById("alterna3d-btn").checked = false; //Desabilita o checkbox para o 3d aparecer desabilitado
                 map.setPaintProperty('lotes-2d', 'fill-color', 'transparent'); //Deixa o 2d invisivel para o popup
                 map.setPaintProperty('lotes-2d', 'fill-opacity', 1.0); //Deixa o 2d invisivel para o popup
