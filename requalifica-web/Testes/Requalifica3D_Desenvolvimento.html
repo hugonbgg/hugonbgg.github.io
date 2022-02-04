@@ -361,13 +361,13 @@
             //Carrega o geojson dos lotes
             map.addSource('lotes', {
                 type: 'geojson',
-                data: 'lotes_mapa.geojson',
+                data: 'dados/lotes_mapa_ok.geojson',
             })
 
             //Carrega o geojson dos edificios
             map.addSource('edificios', {
                 type: 'geojson',
-                data: 'edificios_ok.geojson'
+                data: 'dados/edificios_ok.geojson'
             });
 
 
@@ -407,7 +407,6 @@
                     .setMaxWidth('none')
                     .setHTML(
                         '<b>SQL:</b> ' + feature.properties.SQL + '<br>' +
-                        '<b>Nome do Contribuinte:</b>' + feature.properties.NOME_PROPRIETARIO + '<br>' +
                         '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU_QtdDono + '<br>' +
                         '<b>Imóvel Público:</b> ' + feature.properties.IPTU_ImovelPublico + '<br>' +
                         '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU_AnoConstrução + '<br>' +
