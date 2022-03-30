@@ -368,7 +368,7 @@
             //Carrega o geojson dos edificios
             map.addSource('edificios', {
                 type: 'geojson',
-                data: 'dados/edificios_ok.geojson'
+                data: 'dados/edificios.geojson'
             });
 
 
@@ -411,6 +411,7 @@
                         '<b>Quantidade de Donos:</b> ' + feature.properties.IPTU22_QtdProprietarios + '<br>' +
                         '<b>Imóvel Público:</b> ' + feature.properties.Publico + '<br>' +
                         '<b>Ano da Construção Corrigido:</b> ' + feature.properties.IPTU22_AnoConstrucaoCorrigido + '<br>' +
+                        '<b>Testada do terreno(m):</b> ' + feature.properties.IPTU22_Testada.toLocaleString('pt-BR') + '<br>' +
                         '<b>Área do Terreno(m²):</b> ' + feature.properties.IPTU22_AreaTerreno.toLocaleString('pt-BR') + '<br>' +
                         '<b>Área Ocupada(m²):</b> ' + feature.properties.IPTU22_AreaOcupada.toLocaleString('pt-BR') + '<br>' +
                         '<b>Área Construída(m²):</b> ' + feature.properties.IPTU22_AreaConstruida.toLocaleString('pt-BR') + '<br>' +
