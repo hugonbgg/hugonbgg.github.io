@@ -51,7 +51,7 @@
             left: 10px;
 
             width: fit-content;
-            max-width: 70%;
+            max-width: 60%;
             height: fit-content;
             padding: 8px;
             background-color: #f9fafaf8;
@@ -243,14 +243,14 @@
     <!--Cria a div das legendas -->
 
     <!--Legenda do 2D -->
-    <div id="2d_legenda" class='legendas' style='display: block;'>
+    <div id="2d_legenda" class='legendas' style='display: none;'>
 
         <div style="background-color: #F4C029"></div>Imóveis Elegíveis<br>
 
     </div>
 
     <!--Legenda do 3D -->
-    <div id="3d_legenda" class='legendas' style='display: none'>
+    <div id="3d_legenda" class='legendas' style='display: visble'>
 
         <b>Altura em m:</b>
         <br>
@@ -346,10 +346,10 @@
 
             container: 'map',
             style: carto.basemaps.positron,
-            center: [-46.633, -23.543],
-            zoom: 14,
+            center: [-46.631, -23.544],
+            zoom: 14.5,
             minZoom: 13,
-            pitch: 0,
+            pitch: 60,
             attributionControl: false,
 
         }).addControl(new maplibregl.AttributionControl({
@@ -379,7 +379,7 @@
                 'z-index': 0,
                 'type': 'fill',
                 'source': 'lotes',
-                'layout': { 'visibility': 'visible' },
+                'layout': { 'visibility': 'none' },
                 'paint': {
                     'fill-color': '#F4C029',
                     //'fill-outline-color': '#717D7E',
@@ -637,7 +637,7 @@
                 'id': 'edificios-3d',
                 'type': 'fill-extrusion',
                 'source': 'edificios',
-                'layout': { 'visibility': 'none' },
+                'layout': { 'visibility': 'visible' },
                 'paint': {
                     'fill-extrusion-color': [
                         'step',
