@@ -1,7 +1,9 @@
-        /*  Projeto: Requalifica Centro
+        /*  
+            Projeto: Requalifica Centro
             Desenvolvimento: SPUrbanismo
             Desenvolvedor: Hugo Nicolau Barbosa de Gusmão
             Data Publicação: Março de 2022
+
           */
 
         //Cria o container do mapa
