@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-core.min.js"></script>
+    <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-sankey.min.js"></script>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Os setores que financiam</title>
+    <style type="text/css">
+      * {
+        padding: 0;
+        margin: 0;
+        vertical-align: baseline;
+        list-style: none;
+        border: 0;
+      }
+
+      html,
+      body,
+      #container {
+        width: 100vw;
+        height: 100vh;
+      }
+      script {font-size: 22px;}
+    </style>
+  </head>
+
+  <body>
+    <div id="container"></div>
+    <script>
+      anychart.onDocumentReady(function () {
+        // create data
+        var data = [
+          {
+            from: "Carne",
+            to: "Bank of America",
+            weight: 4.75,
+          },
+          {
+            from: "Carne",
+            to: "BlackRock",
+            weight: 161.06,
+          },
+          {
+            from: "Carne",
+            to: "Citigroup",
+            weight: 0.84,
+          },
+          {
+            from: "Carne",
+            to: "Dimensional",
+            weight: 43.24,
+          },
+          {
+            from: "Carne",
+            to: "JPMorgan Chase",
+            weight: 165.79,
+          },
+          {
+            from: "Carne",
+            to: "Vanguard",
+            weight: 123.52,
+          },
+          {
+            from: "Papel e Celulose",
+            to: "Bank of America",
+            weight: 951.78,
+          },
+          {
+            from: "Papel e Celulose",
+            to: "BlackRock",
+            weight: 714.79,
+          },
+          {
+            from: "Papel e Celulose",
+            to: "Citigroup",
+            weight: 91.92,
+          },
+          {
+            from: "Papel e Celulose",
+            to: "Dimensional",
+            weight: 46.39,
+          },
+          {
+            from: "Papel e Celulose",
+            to: "JPMorgan Chase",
+            weight: 802.31,
+          },
+          {
+            from: "Papel e Celulose",
+            to: "Vanguard",
+            weight: 275.65,
+          },
+          {
+            from: "Soja",
+            to: "Bank of America",
+            weight: 50.83,
+          },
+          {
+            from: "Soja",
+            to: "BlackRock",
+            weight: 84.58,
+          },
+          {
+            from: "Soja",
+            to: "Citigroup",
+            weight: 37.3,
+          },
+          {
+            from: "Soja",
+            to: "Dimensional",
+            weight: 26.47,
+          },
+          {
+            from: "Soja",
+            to: "JPMorgan Chase",
+            weight: 79.2,
+          },
+          {
+            from: "Soja",
+            to: "Vanguard",
+            weight: 138.1,
+          },
+          {
+            from: "Madeira",
+            to: "Bank of America",
+            weight: 33.95,
+          },
+          {
+            from: "Madeira",
+            to: "BlackRock",
+            weight: 40.06,
+          },
+          {
+            from: "Madeira",
+            to: "Citigroup",
+            weight: 19.4,
+          },
+          {
+            from: "Madeira",
+            to: "JPMorgan Chase",
+            weight: 5.82,
+          },
+          {
+            from: "Bank of America",
+            to: "Archer Daniels Midland",
+            weight: 36,
+          },
+          {
+            from: "BlackRock",
+            to: "Archer Daniels Midland",
+            weight: 53.03,
+          },
+          {
+            from: "Citigroup",
+            to: "Archer Daniels Midland",
+            weight: 32.21,
+          },
+          {
+            from: "Dimensional",
+            to: "Archer Daniels Midland",
+            weight: 6.18,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Archer Daniels Midland",
+            weight: 9.16,
+          },
+          {
+            from: "Vanguard",
+            to: "Archer Daniels Midland",
+            weight: 91.03,
+          },
+          {
+            from: "Bank of America",
+            to: "Bunge",
+            weight: 0.32,
+          },
+          {
+            from: "BlackRock",
+            to: "Bunge",
+            weight: 21.23,
+          },
+          {
+            from: "Citigroup",
+            to: "Bunge",
+            weight: 2.24,
+          },
+          {
+            from: "Dimensional",
+            to: "Bunge",
+            weight: 9.52,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Bunge",
+            weight: 2.36,
+          },
+          {
+            from: "Vanguard",
+            to: "Bunge",
+            weight: 32.3,
+          },
+          {
+            from: "Bank of America",
+            to: "Cargill",
+            weight: 19.01,
+          },
+          {
+            from: "BlackRock",
+            to: "Cargill",
+            weight: 1.16,
+          },
+          {
+            from: "Citigroup",
+            to: "Cargill",
+            weight: 2.93,
+          },
+          {
+            from: "Dimensional",
+            to: "Cargill",
+            weight: 0.34,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Cargill",
+            weight: 20.44,
+          },
+          {
+            from: "Vanguard",
+            to: "Cargill",
+            weight: 0.51,
+          },
+          {
+            from: "BlackRock",
+            to: "JBS",
+            weight: 139.34,
+          },
+          {
+            from: "Citigroup",
+            to: "JBS",
+            weight: 0.12,
+          },
+          {
+            from: "Dimensional",
+            to: "JBS",
+            weight: 36.97,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "JBS",
+            weight: 0.56,
+          },
+          {
+            from: "Vanguard",
+            to: "JBS",
+            weight: 91.96,
+          },
+          {
+            from: "Bank of America",
+            to: "Klabin",
+            weight: 194.43,
+          },
+          {
+            from: "BlackRock",
+            to: "Klabin",
+            weight: 229.32,
+          },
+          {
+            from: "Citigroup",
+            to: "Klabin",
+            weight: 111.1,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Klabin",
+            weight: 33.33,
+          },
+          {
+            from: "Bank of America",
+            to: "Marfrig",
+            weight: 0.25,
+          },
+          {
+            from: "BlackRock",
+            to: "Marfrig",
+            weight: 9.35,
+          },
+          {
+            from: "Citigroup",
+            to: "Marfrig",
+            weight: 0.03,
+          },
+          {
+            from: "Dimensional",
+            to: "Marfrig",
+            weight: 3.22,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Marfrig",
+            weight: 107.99,
+          },
+          {
+            from: "Vanguard",
+            to: "Marfrig",
+            weight: 16.86,
+          },
+          {
+            from: "BlackRock",
+            to: "Minerva",
+            weight: 12.07,
+          },
+          {
+            from: "Dimensional",
+            to: "Minerva",
+            weight: 2.95,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Minerva",
+            weight: 104.09,
+          },
+          {
+            from: "Vanguard",
+            to: "Minerva",
+            weight: 14.56,
+          },
+          {
+            from: "BlackRock",
+            to: "Mitsubishi",
+            weight: 2.84,
+          },
+          {
+            from: "Citigroup",
+            to: "Mitsubishi",
+            weight: 0.61,
+          },
+          {
+            from: "Dimensional",
+            to: "Mitsubishi",
+            weight: 0.19,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Mitsubishi",
+            weight: 0.39,
+          },
+          {
+            from: "Vanguard",
+            to: "Mitsubishi",
+            weight: 2.41,
+          },
+          {
+            from: "BlackRock",
+            to: "SLC Agricola",
+            weight: 6.62,
+          },
+          {
+            from: "Dimensional",
+            to: "SLC Agricola",
+            weight: 10.34,
+          },
+          {
+            from: "Vanguard",
+            to: "SLC Agricola",
+            weight: 11.99,
+          },
+          {
+            from: "Bank of America",
+            to: "Suzano",
+            weight: 791.3,
+          },
+          {
+            from: "BlackRock",
+            to: "Suzano",
+            weight: 525.53,
+          },
+          {
+            from: "Citigroup",
+            to: "Suzano",
+            weight: 0.22,
+          },
+          {
+            from: "Dimensional",
+            to: "Suzano",
+            weight: 46.39,
+          },
+          {
+            from: "JPMorgan Chase",
+            to: "Suzano",
+            weight: 774.8,
+          },
+          {
+            from: "Vanguard",
+            to: "Suzano",
+            weight: 275.65,
+          },
+        ];
+        // create a chart and set the data
+        var chart = anychart.sankey(data);
+
+        //chart title
+        chart.title("Os financiadores por setor:");
+        //customizing the vertical padding of the nodes
+        
+        // set the width of nodes
+        chart.nodeWidth("40%");
+        
+        // set the padding between nodes
+        chart.nodePadding(5);
+
+        
+        // set the container id
+        chart.container("container");
+
+        // initiate drawing the chart
+        chart.draw();
+        chart.node().normal().labels().fontSize(14);
+
+      });
+    </script>
+  </body>
+</html>

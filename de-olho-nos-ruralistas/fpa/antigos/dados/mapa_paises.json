@@ -2,7 +2,7 @@
  {
    "points": [37.090240,-95.712891,-15.303028, -48.092694],
    "total": 7445.77,
-   "from": "Estados Unidos",
+   "from": "United States",
    "curvature": -0.2,
    "label": {
     "position": "0%",
@@ -14,7 +14,7 @@
  {
    "points": [36.204823,138.252930,-15.303028, -48.092694],
    "total": 2225.18,
-   "from": "Japão",
+   "from": "Japan",
    "curvature": -0.5,
    "label": {
     "position": "0%",
@@ -26,7 +26,7 @@
  {
    "points": [56.130367,-106.346771,-15.303028, -48.092694],
    "total": 1414.89,
-   "from": "Canadá",
+   "from": "Canada",
    "curvature": -0.5,
    "label": {
     "position": "0%",
@@ -38,7 +38,7 @@
  {
    "points": [44.227638,-4.213749,-15.303028, -48.092694],
    "total": 1272.97,
-   "from": "França",
+   "from": "France",
    "label": {
     "position": "0%",
     "anchor": "bottom",
@@ -49,7 +49,7 @@
  {
    "points": [56.132633,5.291266,-15.303028, -48.092694],
    "total": 1245.11,
-   "from": "Holanda",
+   "from": "Netherlands",
    "curvature": 0.5,
    "label": {
     "position": "0%",
@@ -61,7 +61,7 @@
  {
    "points": [38.463669,-6.49220,-15.303028, -48.092694],
    "total": 900.84,
-   "from": "Espanha",
+   "from": "Spain",
    "curvature": -0.3,
    "label": {
     "position": "0%",
@@ -73,7 +73,7 @@
  {
    "points": [61.378052,-3.435973,-15.303028, -48.092694],
    "total": 893.43,
-   "from": "Reino Unido",
+   "from": "United Kingdom",
    "curvature": 0.5,
    "label": {
     "position": "0%",
@@ -97,7 +97,7 @@
  {
    "points": [68.472023,8.468946,-15.303028, -48.092694],
    "total": 482.57,
-   "from": "Noruega",
+   "from": "Norway",
    "curvature": 0.6,
    "label": {
     "position": "0%",
@@ -120,7 +120,7 @@
  {
    "points": [51.165691,10.451526,-15.303028, -48.092694],
    "total": 213.86,
-   "from": "Alemanha",
+   "from": "Germany",
    "curvature": 0.5,
    "label": {
     "position": "0%",
@@ -132,7 +132,7 @@
  {
    "points": [42.818188,14.227512,-15.303028, -48.092694],
    "total": 201.67,
-   "from": "Suiça",
+   "from": "Switzerland",
    "curvature": -0.5,
    "label": {
     "position": "0%",
@@ -144,7 +144,7 @@
  {
   "points": [-25.274399,133.775131,-15.303028, -48.092694],
   "total": 96.21,
-  "from": "Austrália",
+  "from": "Australia",
   "curvature": -0.3,
   "label": {
    "position": "0%",
@@ -168,13 +168,13 @@
  {
   "points": [35.907757,127.766922,-15.303028, -48.092694],
   "total": 42.64,
-  "from": "Coréia do Sul",
+  "from": "S. Korea",
   "curvature": -0.4,
   "label": {
    "position": "0%",
    "anchor": "bottom",
    "offsetX": -30,
-   "offsetY": -40
+   "offsetY": -30
 }
 }
 ]
