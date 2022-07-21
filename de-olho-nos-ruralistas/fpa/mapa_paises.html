@@ -1,7 +1,7 @@
 <html>
 
 <head>
-  <title>JavaScript Flow Map</title>
+  <title>De onde vem os investimentos</title>
   <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-core.min.js"></script>
   <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-map.min.js"></script>
 
@@ -11,7 +11,14 @@
   <script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-data-adapter.min.js"></script>
 
   <style type="text/css">
-    html,
+                          * {
+        padding: 0;
+        margin: 0;
+        vertical-align: baseline;
+        list-style: none;
+        border: 0;
+      }
+      html,
     body,
     #container {
       width: 100vw;
@@ -46,8 +53,8 @@
           .useHtml(true)
           .padding([0, 0, 40, 0])
           .text(
-            '<span style="color:#212121;">Título: What is Lorem Ipsum?</span><br/>' +
-            '<span style="font-size: 14px;">Subtítulo:Why do we use it?</span>'
+            '<span style="color:#212121;">A origem dos maiores investidores:</span><br/>'
+            // '<span style="font-size: 14px;">Os países com mais investidores?</span>'
           );
 
         // display all labels even if there is an overlap
@@ -97,6 +104,7 @@
           connectorSeries
             .labels()
             .enabled(true)
+            .fontSize(14)
             .format(function () {
               return this.getData('from');
             })
@@ -184,15 +192,15 @@
           .enabled(true)
           .position('bottom')
           .padding([0, 0, 20, 0])
-          .fontSize(10);
+          .fontSize(14);
 
         map
           .legend()
           .title()
           .enabled(true)
-          .fontSize(13)
+          .fontSize(14)
           .padding([0, 0, 5, 0])
-          .text('Total de investimentos (Em milhões de doláres)');
+          .text('Total de investimentos (Em milhões de dólares)');
 
         // set the container
         map.container('container');
