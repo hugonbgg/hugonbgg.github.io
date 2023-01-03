@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mapeamento das Barragens</title>
+    <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
+    <link
+      href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="map"></div>
+    <script>
+      var map = new maplibregl.Map({
+        container: "map",
+        style:
+          "https://api.maptiler.com/maps/basic-v2/style.json?key=60WJTvTDI6MOw9zREiuq",
+        center: [-44, -18],
+        zoom: 4,
+      });
+      map.on("load", function () {
+        map.loadImage("dados/barragem.png", function (error, image) {
+          if (error) throw error;
+          map.addImage("barragem_icone", image);
+        });
+
+        map.addSource("barragens", {
+          type: "geojson",
+          data: "dados/barragens.geojson",
+        });
+        map.addLayer({
+          id: "barragens",
+          type: "symbol",
+          source: "barragens",
+          layout: {
+            "icon-image": "barragem_icone",
+            'icon-size': 0.2,
+            'icon-allow-overlap': false
+          },
+          'paint': {}
+        });
+      });
+
+      map.addControl(new maplibregl.NavigationControl());
+    </script>
+  </body>
+</html>
