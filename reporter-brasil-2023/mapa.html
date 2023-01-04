@@ -6,10 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mapeamento das Barragens</title>
     <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
-    <link
-      href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css"
-      rel="stylesheet"
-    />
+    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet"/>
+
+    <script src="https://cdn.maptiler.com/maptiler-geocoder/v1.1.0/maptiler-geocoder.js"></script>
+   <link href="https://cdn.maptiler.com/maptiler-geocoder/v1.1.0/maptiler-geocoder.css" rel="stylesheet" />
+
     <style>
       body {
         margin: 0;
@@ -33,12 +34,13 @@
         center: [-44, -18],
         zoom: 4,
       });
+      //Carrega o icone das barragens
       map.on("load", function () {
         map.loadImage("dados/barragem.png", function (error, image) {
           if (error) throw error;
           map.addImage("barragem_icone", image);
         });
-
+      //Adiciona a camada das barragens
         map.addSource("barragens", {
           type: "geojson",
           data: "dados/barragens.geojson",
@@ -55,6 +57,7 @@
           paint: {},
         });
 
+        //Cria e define os popups
         map.on("click", "barragens", function (e) {
           new maplibregl.Popup()
             .setLngLat(e.lngLat)
@@ -74,21 +77,59 @@
               
               )
             .addTo(map);
-        });
-
-        
+        });    
       });
 
+      //Adiciona a caixa para pesquisar locais:
+
+    class searchControl {
+    onAdd(map) {
+      this._map = map;
+      this._container = document.createElement('div');
+      this._container.className = 'maplibregl-ctrl';
+      const _input = document.createElement('input');
+      _input.placeholder = 'Digite o município ou estado...'
+      this._container.appendChild(_input);
+      const geocoder = new maptiler.Geocoder({
+        input: _input,
+        key: '60WJTvTDI6MOw9zREiuq',
+        language:'pt'
+        
+      });
+      geocoder.on('select', function(item) {
+        map.fitBounds(item.bbox);
+      });
+      return this._container;
+    }
+    onRemove() {
+      this._container.parentNode.removeChild(this._container);
+      this._map = undefined;
+    }
+  }
+  map.addControl(new searchControl(), 'top-right');
+
+      //Adiciona os controles de navegação ao mapa
       map.addControl(new maplibregl.NavigationControl());
-        // Change the cursor to a pointer when the mouse is over the places layer.
+
+      // Add geolocate control to the map.
+      map.addControl(
+      new maplibregl.GeolocateControl({
+      positionOptions: {
+      enableHighAccuracy: true
+      },
+      trackUserLocation: true
+      })
+      );
+        //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
       map.on("mouseenter", "barragens", function () {
         map.getCanvas().style.cursor = "pointer";
       });
 
-      // Change it back to a pointer when it leaves.
+      //Mudar o cursor para o ponteiro quando sai de cima da camada escolhida
       map.on("mouseleave", "barragens", function () {
         map.getCanvas().style.cursor = "";
       });
+
 
       
     </script>
