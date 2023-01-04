@@ -29,7 +29,7 @@
       var map = new maplibregl.Map({
         container: "map",
         style:
-          "https://api.maptiler.com/maps/basic-v2/style.json?key=60WJTvTDI6MOw9zREiuq",
+          "https://api.maptiler.com/maps/hybrid/style.json?key=60WJTvTDI6MOw9zREiuq",
         center: [-44, -18],
         zoom: 4,
       });
@@ -49,14 +49,48 @@
           source: "barragens",
           layout: {
             "icon-image": "barragem_icone",
-            'icon-size': 0.2,
-            'icon-allow-overlap': false
+            "icon-size": 0.2,
+            "icon-allow-overlap": false,
           },
-          'paint': {}
+          paint: {},
         });
+
+        map.on("click", "barragens", function (e) {
+          new maplibregl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(
+              "<b>Código da Barragem:</b> " + e.features[0].properties.Codigo + '<br>' +
+              "<b>Nome da Barragem:</b> " + e.features[0].properties.NomeBarragem + '<br>'+ 
+              "<b>Nome do Empreendedor:</b> " + e.features[0].properties.NomeEmpreendedor +'<br>' + 
+              "<b>Município:</b> " + e.features[0].properties.Municipio + '<br>' + 
+              "<b>UF:</b> " + e.features[0].properties.UF + '<br>' + 
+              "<b>Minério:</b> " + e.features[0].properties.Minerio + '<br>'  + 
+              "<b>Altura(m):</b> " + e.features[0].properties.Altura + '<br>'  + 
+              "<b>Método Construtivo:</b> " + e.features[0].properties.MetodoConstrutivoFormatado + '<br>'  + 
+              "<b>Categoria de Risco:</b> " + e.features[0].properties.CategoriaRisco + '<br>'  + 
+              "<b>Dano Potencial:</b> " + e.features[0].properties.DanoPotencial + '<br>'  + 
+              "<b>Inserida no PNSB?</b> " + e.features[0].properties.InseridaPNSBFormatada    
+              
+              
+              )
+            .addTo(map);
+        });
+
+        
       });
 
       map.addControl(new maplibregl.NavigationControl());
+        // Change the cursor to a pointer when the mouse is over the places layer.
+      map.on("mouseenter", "barragens", function () {
+        map.getCanvas().style.cursor = "pointer";
+      });
+
+      // Change it back to a pointer when it leaves.
+      map.on("mouseleave", "barragens", function () {
+        map.getCanvas().style.cursor = "";
+      });
+
+      
     </script>
   </body>
 </html>
