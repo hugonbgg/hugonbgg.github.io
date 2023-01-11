@@ -28,10 +28,34 @@
         bottom: 0;
         width: 100%;
       }
+
+      #notas {
+        position: absolute;
+        bottom: 25px;
+        left: 10px;
+
+        width: fit-content;
+        max-width: 95%;
+        height: fit-content;
+        padding: 8px;
+        background-color: #f9fafaf8;
+        color: #065596ee;
+        font-size: 13px;
+        border-radius: 20px;
+        text-align: justify;
+        font-family: "Open Sans", Helvetica, sans-serif;
+      }
     </style>
   </head>
   <body>
+    <!--Cria o div do mapa-->
     <div id="map"></div>
+    <!--Cria o div da nota-->
+    <div id="notas">
+      <b>Categoria de risco:</b> indica a possibilidade da ocorrência de um desastre ou outro tipo de falha.
+      <b>Dano potencial:</b> indica a intensidade da destruição que pode ser causada por uma falha de barragem.
+      <br><b>PNSB:</b> a Política Nacional de Segurança de Barragens regulamenta ações e padrões de segurança e faz com que eles sejam seguidos para reduzir a possibilidade de acidentes e suas consequências.
+    </div>
     <script>
       var map = new maplibregl.Map({
         container: "map",
