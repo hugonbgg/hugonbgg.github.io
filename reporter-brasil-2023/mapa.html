@@ -86,13 +86,11 @@
           new maplibregl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(
-              "<b>Código da Barragem:</b> " +
-                e.features[0].properties.Codigo +
-                "<br>" +
+
                 "<b>Nome da Barragem:</b> " +
-                e.features[0].properties.NomeBarragem +
+                e.features[0].properties.NomeBarragem + " (" + e.features[0].properties.Codigo + ")" +
                 "<br>" +
-                "<b>Nome do Empreendedor:</b> " +
+                "<b>Empresa / Responsável:</b> " +
                 e.features[0].properties.NomeEmpreendedor +
                 "<br>" +
                 "<b>Município:</b> " +
@@ -103,10 +101,7 @@
                 "<br>" +
                 "<b>Minério:</b> " +
                 e.features[0].properties.Minerio +
-                "<br>" +
-                "<b>Altura(m):</b> " +
-                e.features[0].properties.Altura +
-                "<br>" +
+                "<br>" + 
                 "<b>Método Construtivo:</b> " +
                 e.features[0].properties.MetodoConstrutivoFormatado +
                 "<br>" +
