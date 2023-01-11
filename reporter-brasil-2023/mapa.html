@@ -6,10 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Mapeamento das Barragens</title>
     <script src="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css" rel="stylesheet"/>
+    <link
+      href="https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css"
+      rel="stylesheet"
+    />
 
     <script src="https://cdn.maptiler.com/maptiler-geocoder/v1.1.0/maptiler-geocoder.js"></script>
-   <link href="https://cdn.maptiler.com/maptiler-geocoder/v1.1.0/maptiler-geocoder.css" rel="stylesheet" />
+    <link
+      href="https://cdn.maptiler.com/maptiler-geocoder/v1.1.0/maptiler-geocoder.css"
+      rel="stylesheet"
+    />
 
     <style>
       body {
@@ -34,13 +40,31 @@
         center: [-44, -18],
         zoom: 4,
       });
-      //Carrega o icone das barragens
+
       map.on("load", function () {
+        //Adiciona as manchas das ZAS
+        map.addSource("zas", {
+          type: "geojson",
+          data: "dados/mariana.geojson",
+        });
+        map.addLayer({
+          id: "zas",
+          type: "fill",
+          source: "zas",
+          layout: {},
+          paint: {
+            "fill-color": "#6c3803",
+            "fill-opacity": 0.3,
+          },
+        });
+
+        //Carrega o icone das barragens
+
         map.loadImage("dados/barragem.png", function (error, image) {
           if (error) throw error;
           map.addImage("barragem_icone", image);
         });
-      //Adiciona a camada das barragens
+        //Adiciona a camada das barragens
         map.addSource("barragens", {
           type: "geojson",
           data: "dados/barragens.geojson",
@@ -62,65 +86,83 @@
           new maplibregl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(
-              "<b>Código da Barragem:</b> " + e.features[0].properties.Codigo + '<br>' +
-              "<b>Nome da Barragem:</b> " + e.features[0].properties.NomeBarragem + '<br>'+ 
-              "<b>Nome do Empreendedor:</b> " + e.features[0].properties.NomeEmpreendedor +'<br>' + 
-              "<b>Município:</b> " + e.features[0].properties.Municipio + '<br>' + 
-              "<b>UF:</b> " + e.features[0].properties.UF + '<br>' + 
-              "<b>Minério:</b> " + e.features[0].properties.Minerio + '<br>'  + 
-              "<b>Altura(m):</b> " + e.features[0].properties.Altura + '<br>'  + 
-              "<b>Método Construtivo:</b> " + e.features[0].properties.MetodoConstrutivoFormatado + '<br>'  + 
-              "<b>Categoria de Risco:</b> " + e.features[0].properties.CategoriaRisco + '<br>'  + 
-              "<b>Dano Potencial:</b> " + e.features[0].properties.DanoPotencial + '<br>'  + 
-              "<b>Inserida no PNSB?</b> " + e.features[0].properties.InseridaPNSBFormatada    
-              
-              
-              )
+              "<b>Código da Barragem:</b> " +
+                e.features[0].properties.Codigo +
+                "<br>" +
+                "<b>Nome da Barragem:</b> " +
+                e.features[0].properties.NomeBarragem +
+                "<br>" +
+                "<b>Nome do Empreendedor:</b> " +
+                e.features[0].properties.NomeEmpreendedor +
+                "<br>" +
+                "<b>Município:</b> " +
+                e.features[0].properties.Municipio +
+                "<br>" +
+                "<b>UF:</b> " +
+                e.features[0].properties.UF +
+                "<br>" +
+                "<b>Minério:</b> " +
+                e.features[0].properties.Minerio +
+                "<br>" +
+                "<b>Altura(m):</b> " +
+                e.features[0].properties.Altura +
+                "<br>" +
+                "<b>Método Construtivo:</b> " +
+                e.features[0].properties.MetodoConstrutivoFormatado +
+                "<br>" +
+                "<b>Categoria de Risco:</b> " +
+                e.features[0].properties.CategoriaRisco +
+                "<br>" +
+                "<b>Dano Potencial:</b> " +
+                e.features[0].properties.DanoPotencial +
+                "<br>" +
+                "<b>Inserida no PNSB?</b> " +
+                e.features[0].properties.InseridaPNSBFormatada
+            )
             .addTo(map);
-        });    
+        });
       });
 
       //Adiciona a caixa para pesquisar locais:
 
-    class searchControl {
-    onAdd(map) {
-      this._map = map;
-      this._container = document.createElement('div');
-      this._container.className = 'maplibregl-ctrl';
-      const _input = document.createElement('input');
-      _input.placeholder = 'Digite o município ou estado...'
-      this._container.appendChild(_input);
-      const geocoder = new maptiler.Geocoder({
-        input: _input,
-        key: '60WJTvTDI6MOw9zREiuq',
-        language:'pt'
-        
-      });
-      geocoder.on('select', function(item) {
-        map.fitBounds(item.bbox);
-      });
-      return this._container;
-    }
-    onRemove() {
-      this._container.parentNode.removeChild(this._container);
-      this._map = undefined;
-    }
-  }
-  map.addControl(new searchControl(), 'top-right');
+      class searchControl {
+        onAdd(map) {
+          this._map = map;
+          this._container = document.createElement("div");
+          this._container.className = "maplibregl-ctrl";
+          const _input = document.createElement("input");
+          _input.placeholder = "Digite o município ou estado...";
+          this._container.appendChild(_input);
+          const geocoder = new maptiler.Geocoder({
+            input: _input,
+            key: "60WJTvTDI6MOw9zREiuq",
+            language: "pt",
+          });
+          geocoder.on("select", function (item) {
+            map.fitBounds(item.bbox);
+          });
+          return this._container;
+        }
+        onRemove() {
+          this._container.parentNode.removeChild(this._container);
+          this._map = undefined;
+        }
+      }
+      map.addControl(new searchControl(), "top-right");
 
       //Adiciona os controles de navegação ao mapa
       map.addControl(new maplibregl.NavigationControl());
 
       // Add geolocate control to the map.
       map.addControl(
-      new maplibregl.GeolocateControl({
-      positionOptions: {
-      enableHighAccuracy: true
-      },
-      trackUserLocation: true
-      })
+        new maplibregl.GeolocateControl({
+          positionOptions: {
+            enableHighAccuracy: true,
+          },
+          trackUserLocation: true,
+        })
       );
-        //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
+      //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
       map.on("mouseenter", "barragens", function () {
         map.getCanvas().style.cursor = "pointer";
       });
@@ -129,9 +171,6 @@
       map.on("mouseleave", "barragens", function () {
         map.getCanvas().style.cursor = "";
       });
-
-
-      
     </script>
   </body>
 </html>
