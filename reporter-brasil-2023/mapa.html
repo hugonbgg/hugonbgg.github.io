@@ -45,6 +45,14 @@
         text-align: justify;
         font-family: "Open Sans", Helvetica, sans-serif;
       }
+
+      .maplibregl-popup-content {
+        
+        font-family: "Open Sans", Helvetica, sans-serif;
+        border-radius: 5px;
+        
+
+      }
     </style>
   </head>
   <body>
@@ -52,9 +60,12 @@
     <div id="map"></div>
     <!--Cria o div da nota-->
     <div id="notas">
-      <b>Categoria de risco:</b> indica a possibilidade da ocorrência de um desastre ou outro tipo de falha.
-      <b>Dano potencial:</b> indica a intensidade da destruição que pode ser causada por uma falha de barragem.
-      <br><b>PNSB:</b> a Política Nacional de Segurança de Barragens regulamenta ações e padrões de segurança e faz com que eles sejam seguidos para reduzir a possibilidade de acidentes e suas consequências.
+      <b>Categoria de risco:</b> indica a possibilidade da ocorrência de um
+      desastre ou outro tipo de falha. <b>Dano potencial:</b> indica a
+      intensidade da destruição que pode ser causada por uma falha de barragem.
+      <br /><b>PNSB:</b> a Política Nacional de Segurança de Barragens
+      regulamenta ações e padrões de segurança e faz com que eles sejam seguidos
+      para reduzir a possibilidade de acidentes e suas consequências.
     </div>
     <script>
       var map = new maplibregl.Map({
@@ -110,9 +121,11 @@
           new maplibregl.Popup()
             .setLngLat(e.lngLat)
             .setHTML(
-
-                "<b>Nome da Barragem:</b> " +
-                e.features[0].properties.NomeBarragem + " (" + e.features[0].properties.Codigo + ")" +
+              "<b>Nome da Barragem:</b> " +
+                e.features[0].properties.NomeBarragem +
+                " (" +
+                e.features[0].properties.Codigo +
+                ")" +
                 "<br>" +
                 "<b>Empresa / Responsável:</b> " +
                 e.features[0].properties.NomeEmpreendedor +
@@ -125,7 +138,7 @@
                 "<br>" +
                 "<b>Minério:</b> " +
                 e.features[0].properties.Minerio +
-                "<br>" + 
+                "<br>" +
                 "<b>Método Construtivo:</b> " +
                 e.features[0].properties.MetodoConstrutivoFormatado +
                 "<br>" +
