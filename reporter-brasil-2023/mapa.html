@@ -51,7 +51,7 @@
         
         font-family: "Open Sans", Helvetica, sans-serif;
         border-radius: 5px;
-        background-color: rgba(249, 250, 250, 0.75);
+        background-color: rgba(249, 250, 250, 0.85);
         
 
       }
@@ -74,25 +74,41 @@
       var map = new maplibregl.Map({
         container: "map",
         style:
-          "https://api.maptiler.com/maps/hybrid/style.json?key=60WJTvTDI6MOw9zREiuq",
-        center: [-44, -18],
-        zoom: 4,
+          "https://api.maptiler.com/maps/stage/style.json?key=60WJTvTDI6MOw9zREiuq",
+        center: [-44, -19],
+        zoom: 6.5,
       });
 
       map.on("load", function () {
-        //Adiciona as manchas das ZAS
-        map.addSource("zas", {
+        //Adiciona as manchas das ZAS - Cidades com mais barragens em MG
+        map.addSource("zas_maiores", {
           type: "geojson",
-          data: "dados/mariana.geojson",
+          data: "/dados/cidades_com_mais_barragens_mg.json",
         });
         map.addLayer({
-          id: "zas",
+          id: "zas_maiores",
           type: "fill",
-          source: "zas",
+          source: "zas_maiores",
           layout: {},
           paint: {
             "fill-color": "#6c3803",
-            "fill-opacity": 0.3,
+            "fill-opacity": 1,
+          },
+        });
+
+        //Adiciona as manchas das ZAS - Outras cidades em MG com barragens
+        map.addSource("zas_outras", {
+          type: "geojson",
+          data: "dados/outras_cidades_mg.json",
+        });
+        map.addLayer({
+          id: "zas_outras",
+          type: "fill",
+          source: "zas_outras",
+          layout: {},
+          paint: {
+            "fill-color": "#6c3803",
+            "fill-opacity": 1,
           },
         });
 
@@ -105,7 +121,7 @@
         //Adiciona a camada das barragens
         map.addSource("barragens", {
           type: "geojson",
-          data: "dados/barragens.geojson",
+          data: "dados/barragens_mg.geojson",
         });
         map.addLayer({
           id: "barragens",
@@ -127,7 +143,7 @@
               "<b>Nome da Barragem:</b> " +
                 e.features[0].properties.NomeBarragem +
                 " (" +
-                e.features[0].properties.Codigo +
+                e.features[0].properties.codigo +
                 ")" +
                 "<br>" +
                 "<b>Empresa / Responsável:</b> " +
