@@ -112,6 +112,38 @@
           },
         });
 
+        //Adiciona as manchas das ZAS - Mato Grosso
+        map.addSource("zas_mato_grosso", {
+          type: "geojson",
+          data: "dados/mato_grosso.json",
+        });
+        map.addLayer({
+          id: "zas_mato_grosso",
+          type: "fill",
+          source: "zas_mato_grosso",
+          layout: {},
+          paint: {
+            "fill-color": "#6c3803",
+            "fill-opacity": 1,
+          },
+        });
+
+        //Adiciona as manchas das ZAS - Outras cidades em MG com barragens
+        map.addSource("zas_outras_br", {
+          type: "geojson",
+          data: "dados/outras_cidades_br.json",
+        });
+        map.addLayer({
+          id: "zas_outras_br",
+          type: "fill",
+          source: "zas_outras_br",
+          layout: {},
+          paint: {
+            "fill-color": "#6c3803",
+            "fill-opacity": 1,
+          },
+        });
+
         //Carrega o icone das barragens
 
         map.loadImage("dados/barragem.png", function (error, image) {
@@ -121,7 +153,7 @@
         //Adiciona a camada das barragens
         map.addSource("barragens", {
           type: "geojson",
-          data: "dados/barragens_mg.geojson",
+          data: "dados/barragens_mapa.geojson",
         });
         map.addLayer({
           id: "barragens",
