@@ -140,13 +140,13 @@ var zssVisible = true;
         // Add the "ZAS" GeoJSON as a source
         map.addSource("zas", {
           type: "geojson",
-          data: "ZAS_simplify.json", // Replace with the file path of your "ZAS" GeoJSON file
+          data: "dados/ZAS_simplify.json", // Replace with the file path of your "ZAS" GeoJSON file
         });
 
         // Add the "ZSS" GeoJSON as a source
         map.addSource("zss", {
           type: "geojson",
-          data: "/ZSS_simplify.json", // Replace with the file path of your "ZSS" GeoJSON file
+          data: "dados/ZSS_simplify.json", // Replace with the file path of your "ZSS" GeoJSON file
         });
 
         // Add a layer for the "ZAS" polygons
@@ -170,6 +170,8 @@ var zssVisible = true;
             'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
           },
         });
+
+        
 
   // Add click handlers for the buttons
   document.getElementById('zas-button').addEventListener('click', function() {
