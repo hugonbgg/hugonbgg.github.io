@@ -171,31 +171,100 @@ var zssVisible = true;
           },
         });
 
+        //Carrega o icone das barragens
+
+        map.loadImage("dados/barragem.png", function (error, image) {
+          if (error) throw error;
+          map.addImage("barragem_icone", image);
+        });
+        //Adiciona a camada das barragens
+        map.addSource("barragens", {
+          type: "geojson",
+          data: "dados/barragens_mapa.geojson",
+        });
+        map.addLayer({
+          id: "barragens",
+          type: "symbol",
+          source: "barragens",
+          layout: {
+            "icon-image": "barragem_icone",
+            "icon-size": 0.2,
+            "icon-allow-overlap": false,
+          },
+          paint: {},
+        });
+
+         //Cria e define os popups
+         map.on("click", "barragens", function (e) {
+          new mapboxgl.Popup()
+            .setLngLat(e.lngLat)
+            .setHTML(
+              "<b>Nome da Barragem:</b> " +
+                e.features[0].properties.NomeBarragem +
+                " (" +
+                e.features[0].properties.codigo +
+                ")" +
+                "<br>" +
+                "<b>Empresa / Responsável:</b> " +
+                e.features[0].properties.NomeEmpreendedor +
+                "<br>" +
+                "<b>Município:</b> " +
+                e.features[0].properties.Municipio +
+                "<br>" +
+                "<b>UF:</b> " +
+                e.features[0].properties.UF +
+                "<br>" +
+                "<b>Minério:</b> " +
+                e.features[0].properties.Minerio +
+                "<br>" +
+                "<b>Método Construtivo:</b> " +
+                e.features[0].properties.MetodoConstrutivoFormatado +
+                "<br>" +
+                "<b>Categoria de Risco:</b> " +
+                e.features[0].properties.CategoriaRisco +
+                "<br>" +
+                "<b>Dano Potencial:</b> " +
+                e.features[0].properties.DanoPotencial +
+                "<br>" +
+                "<b>Inserida no PNSB?</b> " +
+                e.features[0].properties.InseridaPNSBFormatada
+            )
+            .addTo(map);
+        });
         
 
-  // Add click handlers for the buttons
-  document.getElementById('zas-button').addEventListener('click', function() {
-    zasVisible = true;
-    zssVisible = false;
-    map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
-    map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0 : 0);
-  });
+        // Add click handlers for the buttons
+        document.getElementById('zas-button').addEventListener('click', function() {
+          zasVisible = true;
+          zssVisible = false;
+          map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
+          map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0 : 0);
+        });
 
-  document.getElementById('zss-button').addEventListener('click', function() {
-    zasVisible = false;
-    zssVisible = true;
-    map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0 : 0);
-    map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
-  });
+        document.getElementById('zss-button').addEventListener('click', function() {
+          zasVisible = false;
+          zssVisible = true;
+          map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0 : 0);
+          map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
+        });
 
-  document.getElementById('all-button').addEventListener('click', function() {
-    zasVisible = true;
-    zssVisible = true;
-    map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
-    map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
-  });
+        document.getElementById('all-button').addEventListener('click', function() {
+          zasVisible = true;
+          zssVisible = true;
+          map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
+          map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
+        });
       });
 
+      //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
+      map.on("mouseenter", "barragens", function () {
+        map.getCanvas().style.cursor = "pointer";
+      });
+
+      //Mudar o cursor para o ponteiro quando sai de cima da camada escolhida
+      map.on("mouseleave", "barragens", function () {
+        map.getCanvas().style.cursor = "";
+      });
       
       // Adiciona o buscapador de localização ao mapa
       map.addControl(
