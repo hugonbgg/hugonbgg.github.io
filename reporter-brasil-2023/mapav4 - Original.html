@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mapeamento das Barragens</title>
-  <!-- Carrega as libs do mapbox -->
+
   <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
   <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet" />
   <!-- Carrega o plugin de geocoding -->
@@ -15,12 +15,6 @@
   <link rel="stylesheet"
     href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
     type="text/css" />
-  <!-- Carrega o bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js"
-    integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13"
-    crossorigin="anonymous"></script>
   <style>
     body {
       margin: 0;
@@ -36,11 +30,11 @@
 
     #notas {
       position: absolute;
-      bottom: 30px;
+      bottom: 25px;
       left: 10px;
 
       width: fit-content;
-      max-width: 70%;
+      max-width: 95%;
       height: fit-content;
       padding: 8px;
       background-color: rgba(249, 250, 250, 0.75);
@@ -54,7 +48,7 @@
     /* Position the buttons in the bottom-right corner and align them to the right */
     .button-container {
       position: absolute;
-      bottom: 80px;
+      bottom: 60px;
       right: 10px;
       width: auto;
       height: auto;
@@ -64,7 +58,7 @@
       font-weight: bold;
       line-height: 22px;
       padding: 8px;
-      background-color: rgba(255, 255, 255, 0.5);
+      background-color: rgba(255, 255, 255, 0.25);
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
       border-radius: 16px;
     }
@@ -118,35 +112,24 @@
   <!--Cria o div da nota-->
   <div id="notas">
     <i><b>Categoria de risco:</b></i> indica a possibilidade da ocorrência de
-    um desastre ou outro tipo de falha. <br>
-    <i><b>Dano potencial:</b></i> indica a intensidade da destruição que pode ser causada por uma falha de barragem.<br>
-    <i><b>Fiscalização federal: </b></i>Indica se a construção está incluída na Política Nacional de Segurança de
-    Barragens (PNSB).
-
+    um desastre ou outro tipo de falha. <i><b>Dano potencial:</b></i> indica a
+    intensidade da destruição que pode ser causada por uma falha de barragem.
+    <br /><i><b>PNSB:</b></i> a Política Nacional de Segurança de Barragens
+    regulamenta ações e padrões de segurança e faz com que eles sejam seguidos
+    para reduzir a possibilidade de acidentes e suas consequências.
   </div>
 
   <div class="button-container">
+    <!--
+          <button id='2D' class='btn'>Mapa 2D</button>
+          <button id='3D' class='btn'> Mapa 3D </button> -->
+    Camadas:
 
-    Legenda:
-
-    <!--  <button id="zas-button" class="btn">ZAS</button>
+    <button id="zas-button" class="btn">ZAS</button>
     <button id="zss-button" class="btn">ZSS</button>
     <button id="all-button" class="btn">ZAS e ZSS</button>
-    -->
 
-    <div class="form-check-container">
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="ZAS_switch" checked>
-        <label class="form-check-label" for="flexSwitchCheckDefault">Zona de Auto Salvamento (ZAS)</label>
-      </div>
-    </div>
 
-    <div class="form-check-container">
-      <div class="form-check form-switch">
-        <input class="form-check-input" type="checkbox" role="switch" id="ZSS_switch" checked>
-        <label class="form-check-label" for="flexSwitchCheckChecked">Zona Secundária de Salvamento (ZSS)</label>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -160,6 +143,10 @@
       zoom: 3.3, // starting zoom
     });
 
+
+
+    var zasVisible = true;
+    var zssVisible = true;
 
     map.on("load", function () {
       // Add the "ZAS" GeoJSON as a source
@@ -181,7 +168,7 @@
         source: "zas",
         paint: {
           "fill-color": "red",
-          'fill-opacity': 0.7 // Set the opacity to 0 if the layer is not visible
+          'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
         },
       });
 
@@ -192,7 +179,7 @@
         source: "zss",
         paint: {
           "fill-color": "orange",
-          'fill-opacity': 0.7 // Set the opacity to 0 if the layer is not visible
+          'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
         },
       });
 
@@ -351,36 +338,27 @@
       });
 
 
-      // Selecione o botão de alternância (switch) por seu ID
-      const zasSwitch = document.querySelector('#ZAS_switch');
-
-      // Adicione o ouvinte de evento de alteração (change) ao botão de alternância
-      zasSwitch.addEventListener('change', function () {
-        // Verifique se o botão de alternância está marcado (checked)
-        if (this.checked) {
-          // Se estiver marcado, defina a propriedade de pintura do Mapbox GLJS para 0.7
-          map.setPaintProperty('zas-polygons', 'fill-opacity', 0.7);
-        } else {
-          // Caso contrário, defina a propriedade de pintura do Mapbox GLJS para 0
-          map.setPaintProperty('zas-polygons', 'fill-opacity', 0);
-        }
+      // Add click handlers for the buttons
+      document.getElementById('zas-button').addEventListener('click', function () {
+        zasVisible = true;
+        zssVisible = false;
+        map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
+        map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0 : 0);
       });
 
-      // Selecione o botão de alternância (switch) por seu ID
-      const zssSwitch = document.querySelector('#ZSS_switch');
-
-      // Adicione o ouvinte de evento de alteração (change) ao botão de alternância
-      zssSwitch.addEventListener('change', function () {
-        // Verifique se o botão de alternância está marcado (checked)
-        if (this.checked) {
-          // Se estiver marcado, defina a propriedade de pintura do Mapbox GLJS para 0.7
-          map.setPaintProperty('zss-polygons', 'fill-opacity', 0.7);
-        } else {
-          // Caso contrário, defina a propriedade de pintura do Mapbox GLJS para 0
-          map.setPaintProperty('zss-polygons', 'fill-opacity', 0);
-        }
+      document.getElementById('zss-button').addEventListener('click', function () {
+        zasVisible = false;
+        zssVisible = true;
+        map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0 : 0);
+        map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
       });
 
+      document.getElementById('all-button').addEventListener('click', function () {
+        zasVisible = true;
+        zssVisible = true;
+        map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
+        map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
+      });
     });
 
     //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
@@ -425,11 +403,7 @@
           enableHighAccuracy: true,
         },
       })
-
-
     );
-
-
   </script>
 </body>
 
