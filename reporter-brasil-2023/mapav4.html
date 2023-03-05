@@ -92,7 +92,17 @@
         box-shadow: 0px 0px 0px #cccccc;
         transform: translateY(2px);
         }
+        
 
+
+      .mapboxgl-ctrl-geocoder {
+      width: 310px;
+      height: auto;
+      min-width: 100%;
+      max-width: 200%;
+      margin: 0;
+      
+      }
 
     </style>
   </head>
@@ -129,9 +139,11 @@
         container: "map", // container ID
         // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
         style: "mapbox://styles/hugonbg/cle3eyejo00df01mty9rbk70o", // style URL
-        center: [-44, -19], // starting position [lng, lat]
-        zoom: 6.5, // starting zoom
+        center: [-55, -19], // starting position [lng, lat]
+        zoom: 3.3, // starting zoom
       });
+
+
 
 var zasVisible = true;
 var zssVisible = true;
@@ -191,6 +203,8 @@ var zssVisible = true;
         map.addSource("barragens", {
           type: "geojson",
           data: "dados/barragens.geojson",
+          cluster: true, // Enable clustering
+          clusterMaxZoom: 8 // Maximum zoom level at which to cluster
         });
         /*
         map.addLayer({
@@ -205,10 +219,48 @@ var zssVisible = true;
           paint: {},
         });
         */
+        //Adiciona o cluster das barragens
+        map.addLayer({
+        id: "barragens_cluster",
+        type: "circle",
+        source: "barragens",
+        filter: ["has", "point_count"], // Only show clusters at small zoom levels
+        paint: {
+          "circle-color": "#1978c8",
+          "circle-radius": [
+            "step",
+            ["get", "point_count"],
+            15,
+            10,
+            20,
+            25,
+            30
+          ],
+          "circle-opacity": 0.7
+        }
+      });
+
+        //Adiciona a contagem ao cluster
+        map.addLayer({
+        id: 'cluster-count',
+        type: 'symbol',
+        source: 'barragens',
+        filter: ['has', 'point_count'],
+        layout: {
+        'text-field': ['get', 'point_count_abbreviated'],
+        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+        'text-size': 14
+        },
+        paint: {
+      "text-color": "#ffffff"
+        }
+        });
+      
         map.addLayer({
         id: "barragens",
         type: "symbol",
         source: "barragens",
+        filter: ['!', ['has', 'point_count']], // Only show individual dams at large zoom levels
         layout: {
           "icon-image": [
             "case",
@@ -220,14 +272,15 @@ var zssVisible = true;
           "interpolate",
           ["linear"],
           ["zoom"],
-          6.5, 0.3,
+          8, 0,
+          8.1, 0.4,
           15, 0.6
     ],
           "icon-allow-overlap": false
         },
         paint: {}
       });
-
+      
          //Cria e define os popups
          map.on("click", "barragens", function (e) {
           new mapboxgl.Popup()
@@ -305,7 +358,7 @@ var zssVisible = true;
         new MapboxGeocoder({
           accessToken: mapboxgl.accessToken,
           mapboxgl: mapboxgl,
-          placeholder: 'Digite a localidade...',
+          placeholder: 'Veja se a sua localidade é afetada...',
           countries: 'br'
          
         })
