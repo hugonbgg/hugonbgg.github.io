@@ -1,226 +1,226 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mapeamento das Barragens</title>
 
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <!-- Carrega o plugin de geocoding -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
-      type="text/css"
-    />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-      }
-      #map {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 100%;
-      }
-      #notas {
-        position: absolute;
-        bottom: 25px;
-        left: 10px;
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mapeamento das Barragens</title>
 
-        width: fit-content;
-        max-width: 95%;
-        height: fit-content;
-        padding: 8px;
-        background-color: rgba(249, 250, 250, 0.75);
-        color: #065596ee;
-        font-size: 13px;
-        border-radius: 20px;
-        text-align: justify;
-        font-family: "Open Sans", Helvetica, sans-serif;
-      }
-        /* Position the buttons in the bottom-right corner and align them to the right */
-        .button-container {
-        position: absolute;
-        bottom: 60px;
-        right: 10px;
-        width: auto;
-        height: auto;
-        color: #025fac;
-        font-family: "Open Sans", Helvetica, sans-serif;
-        font-size: 14px;
-        font-weight: bold;
-        line-height: 22px;
-        padding: 8px;
-        background-color: rgba(255, 255, 255, 0.25);
-        box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-        border-radius: 16px;
-        }
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.12.0/mapbox-gl.css" rel="stylesheet" />
+  <!-- Carrega o plugin de geocoding -->
+  <script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.min.js"></script>
+  <link rel="stylesheet"
+    href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.0/mapbox-gl-geocoder.css"
+    type="text/css" />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
 
-        .button-container button {
-        display: block;
-        width: 100px;
-        margin: 2px;
-        padding: 3px;
-        background-color: #025fac;
-        opacity: 0.8;
-        color: #fff;
-        font-size: 12px;
-        font-family: "Open Sans", Helvetica, sans-serif;
-        border-radius: 6px;
-        cursor: pointer;
-        transition-duration: 0.2s;
-        }
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
 
-        /* Style the buttons on hover */
-        .button-container button:hover {
-        background-color: #025fac;
-        opacity: 0.6;
-        box-shadow: 0px 0px 10px #cccccc;
-        }
+    #notas {
+      position: absolute;
+      bottom: 25px;
+      left: 10px;
 
-        /* Style the buttons when they are pressed */
-        .button-container button:active {
-        background-color: #1c4574;
-        opacity: 1;
-        box-shadow: 0px 0px 0px #cccccc;
-        transform: translateY(2px);
-        }
-        
+      width: fit-content;
+      max-width: 95%;
+      height: fit-content;
+      padding: 8px;
+      background-color: rgba(249, 250, 250, 0.75);
+      color: #065596ee;
+      font-size: 13px;
+      border-radius: 20px;
+      text-align: justify;
+      font-family: "Open Sans", Helvetica, sans-serif;
+    }
+
+    /* Position the buttons in the bottom-right corner and align them to the right */
+    .button-container {
+      position: absolute;
+      bottom: 60px;
+      right: 10px;
+      width: auto;
+      height: auto;
+      color: #025fac;
+      font-family: "Open Sans", Helvetica, sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      line-height: 22px;
+      padding: 8px;
+      background-color: rgba(255, 255, 255, 0.25);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+      border-radius: 16px;
+    }
+
+    .button-container button {
+      display: block;
+      width: 100px;
+      margin: 2px;
+      padding: 3px;
+      background-color: #025fac;
+      opacity: 0.8;
+      color: #fff;
+      font-size: 12px;
+      font-family: "Open Sans", Helvetica, sans-serif;
+      border-radius: 6px;
+      cursor: pointer;
+      transition-duration: 0.2s;
+    }
+
+    /* Style the buttons on hover */
+    .button-container button:hover {
+      background-color: #025fac;
+      opacity: 0.6;
+      box-shadow: 0px 0px 10px #cccccc;
+    }
+
+    /* Style the buttons when they are pressed */
+    .button-container button:active {
+      background-color: #1c4574;
+      opacity: 1;
+      box-shadow: 0px 0px 0px #cccccc;
+      transform: translateY(2px);
+    }
 
 
-      .mapboxgl-ctrl-geocoder {
+
+    .mapboxgl-ctrl-geocoder {
       width: 310px;
       height: auto;
       min-width: 100%;
       max-width: 200%;
       margin: 0;
-      
-      }
 
-    </style>
-  </head>
-  <body>
-    <!--Cria o div do mapa-->
-    <div id="map"></div>
-    <!--Cria o div da nota-->
-    <div id="notas">
-        <i><b>Categoria de risco:</b></i> indica a possibilidade da ocorrência de
-        um desastre ou outro tipo de falha. <i><b>Dano potencial:</b></i> indica a
-        intensidade da destruição que pode ser causada por uma falha de barragem.
-        <br /><i><b>PNSB:</b></i> a Política Nacional de Segurança de Barragens
-        regulamenta ações e padrões de segurança e faz com que eles sejam seguidos
-        para reduzir a possibilidade de acidentes e suas consequências.
-      </div>
-      
-    <div class="button-container">
-        <!--
+    }
+  </style>
+</head>
+
+<body>
+  <!--Cria o div do mapa-->
+  <div id="map"></div>
+  <!--Cria o div da nota-->
+  <div id="notas">
+    <i><b>Categoria de risco:</b></i> indica a possibilidade da ocorrência de
+    um desastre ou outro tipo de falha. <i><b>Dano potencial:</b></i> indica a
+    intensidade da destruição que pode ser causada por uma falha de barragem.
+    <br /><i><b>PNSB:</b></i> a Política Nacional de Segurança de Barragens
+    regulamenta ações e padrões de segurança e faz com que eles sejam seguidos
+    para reduzir a possibilidade de acidentes e suas consequências.
+  </div>
+
+  <div class="button-container">
+    <!--
           <button id='2D' class='btn'>Mapa 2D</button>
           <button id='3D' class='btn'> Mapa 3D </button> -->
-        Camadas:
-        
-        <button id="zas-button" class="btn">ZAS</button>
-        <button id="zss-button" class="btn">ZSS</button>
-        <button id="all-button" class="btn">ZAS e ZSS</button>
+    Camadas:
 
-              
-      </div>
+    <button id="zas-button" class="btn">ZAS</button>
+    <button id="zss-button" class="btn">ZSS</button>
+    <button id="all-button" class="btn">ZAS e ZSS</button>
 
-    <script>
-      mapboxgl.accessToken =
-        "pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw";
-      const map = new mapboxgl.Map({
-        container: "map", // container ID
-        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
-        style: "mapbox://styles/hugonbg/cle3eyejo00df01mty9rbk70o", // style URL
-        center: [-55, -19], // starting position [lng, lat]
-        zoom: 3.3, // starting zoom
+
+  </div>
+
+  <script>
+    mapboxgl.accessToken =
+      "pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjanFza2JmaTQwZDllNDNyeGtub3VsODZ0In0.eYH5xYQqrhVWaKIndItTOw";
+    const map = new mapboxgl.Map({
+      container: "map", // container ID
+      // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+      style: "mapbox://styles/hugonbg/cle3eyejo00df01mty9rbk70o", // style URL
+      center: [-55, -19], // starting position [lng, lat]
+      zoom: 3.3, // starting zoom
+    });
+
+
+
+    var zasVisible = true;
+    var zssVisible = true;
+
+    map.on("load", function () {
+      // Add the "ZAS" GeoJSON as a source
+      map.addSource("zas", {
+        type: "geojson",
+        data: "dados/ZAS_simplify.json", // Replace with the file path of your "ZAS" GeoJSON file
       });
 
+      // Add the "ZSS" GeoJSON as a source
+      map.addSource("zss", {
+        type: "geojson",
+        data: "dados/ZSS_simplify.json", // Replace with the file path of your "ZSS" GeoJSON file
+      });
 
+      // Add a layer for the "ZAS" polygons
+      map.addLayer({
+        id: "zas-polygons",
+        type: "fill",
+        source: "zas",
+        paint: {
+          "fill-color": "red",
+          'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
+        },
+      });
 
-var zasVisible = true;
-var zssVisible = true;
+      // Add a layer for the "ZSS" polygons
+      map.addLayer({
+        id: "zss-polygons",
+        type: "fill",
+        source: "zss",
+        paint: {
+          "fill-color": "orange",
+          'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
+        },
+      });
 
-      map.on("load", function () {
-        // Add the "ZAS" GeoJSON as a source
-        map.addSource("zas", {
-          type: "geojson",
-          data: "dados/ZAS_simplify.json", // Replace with the file path of your "ZAS" GeoJSON file
-        });
+      //Carrega os icones das barragens
 
-        // Add the "ZSS" GeoJSON as a source
-        map.addSource("zss", {
-          type: "geojson",
-          data: "dados/ZSS_simplify.json", // Replace with the file path of your "ZSS" GeoJSON file
-        });
-
-        // Add a layer for the "ZAS" polygons
-        map.addLayer({
-          id: "zas-polygons",
-          type: "fill",
-          source: "zas",
-          paint: {
-            "fill-color": "red",
-            'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
-          },
-        });
-
-        // Add a layer for the "ZSS" polygons
-        map.addLayer({
-          id: "zss-polygons",
-          type: "fill",
-          source: "zss",
-          paint: {
-            "fill-color": "orange",
-            'fill-opacity': zasVisible ? 0.7 : 0 // Set the opacity to 0 if the layer is not visible
-          },
-        });
-
-        //Carrega os icones das barragens
-
-        map.loadImage("dados/barragem.png", function (error, image) {
+      map.loadImage("dados/barragem.png", function (error, image) {
         if (error) throw error;
         map.addImage("barragem_icone", image);
       });
 
       map.loadImage("dados/barragem_com_dados.png", function (error, image) {
-          if (error) throw error;
-          map.addImage("barragem_com_dados_icone", image);
-        });
-        map.loadImage("dados/barragem_sem_dados.png", function (error, image) {
-          if (error) throw error;
-          map.addImage("barragem_sem_dados_icone", image);
-        });
+        if (error) throw error;
+        map.addImage("barragem_com_dados_icone", image);
+      });
+      map.loadImage("dados/barragem_sem_dados.png", function (error, image) {
+        if (error) throw error;
+        map.addImage("barragem_sem_dados_icone", image);
+      });
 
-        //Adiciona a camada das barragens
-        map.addSource("barragens", {
-          type: "geojson",
-          data: "dados/barragens.geojson",
-          cluster: true, // Enable clustering
-          clusterMaxZoom: 8 // Maximum zoom level at which to cluster
-        });
-        /*
-        map.addLayer({
-          id: "barragens",
-          type: "symbol",
-          source: "barragens",
-          layout: {
-            "icon-image": "barragem_icone",
-            "icon-size": 0.2,
-            "icon-allow-overlap": false,
-          },
-          paint: {},
-        });
-        */
-        //Adiciona o cluster das barragens
-        map.addLayer({
+      //Adiciona a camada das barragens
+      map.addSource("barragens", {
+        type: "geojson",
+        data: "dados/barragens.geojson",
+        cluster: true, // Enable clustering
+        clusterMaxZoom: 8 // Maximum zoom level at which to cluster
+      });
+      /*
+      map.addLayer({
+        id: "barragens",
+        type: "symbol",
+        source: "barragens",
+        layout: {
+          "icon-image": "barragem_icone",
+          "icon-size": 0.2,
+          "icon-allow-overlap": false,
+        },
+        paint: {},
+      });
+      */
+      //Adiciona o cluster das barragens
+      map.addLayer({
         id: "barragens_cluster",
         type: "circle",
         source: "barragens",
@@ -240,23 +240,23 @@ var zssVisible = true;
         }
       });
 
-        //Adiciona a contagem ao cluster
-        map.addLayer({
+      //Adiciona a contagem ao cluster
+      map.addLayer({
         id: 'cluster-count',
         type: 'symbol',
         source: 'barragens',
         filter: ['has', 'point_count'],
         layout: {
-        'text-field': ['get', 'point_count_abbreviated'],
-        'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
-        'text-size': 14
+          'text-field': ['get', 'point_count_abbreviated'],
+          'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+          'text-size': 14
         },
         paint: {
-      "text-color": "#ffffff"
+          "text-color": "#ffffff"
         }
-        });
-      
-        map.addLayer({
+      });
+
+      map.addLayer({
         id: "barragens",
         type: "symbol",
         source: "barragens",
@@ -269,112 +269,142 @@ var zssVisible = true;
             "barragem_sem_dados_icone"
           ],
           "icon-size": [
-          "interpolate",
-          ["linear"],
-          ["zoom"],
-          8, 0,
-          8.1, 0.4,
-          15, 0.6
-    ],
+            "interpolate",
+            ["linear"],
+            ["zoom"],
+            8.1, 0,
+            8.2, 0.4,
+            15, 0.6
+          ],
           "icon-allow-overlap": false
         },
         paint: {}
       });
-      
-         //Cria e define os popups
-         map.on("click", "barragens", function (e) {
-          new mapboxgl.Popup()
-            .setLngLat(e.lngLat)
-            .setHTML(
-              "<b>Nome da Barragem:</b> " +
-                e.features[0].properties.NomeBarragem +
-                " (" +
-                e.features[0].properties.codigo +
-                ")" +
-                "<br>" +
-                "<b>Empresa / Responsável:</b> " +
-                e.features[0].properties.NomeEmpreendedor +
-                "<br>" +
-                "<b>Município:</b> " +
-                e.features[0].properties.Municipio +
-                "<br>" +
-                "<b>UF:</b> " +
-                e.features[0].properties.UF +
-                "<br>" +
-                "<b>Minério:</b> " +
-                e.features[0].properties.Minerio +
-                "<br>" +
-                "<b>Método Construtivo:</b> " +
-                e.features[0].properties.MetodoConstrutivoFormatado +
-                "<br>" +
-                "<b>Categoria de Risco:</b> " +
-                e.features[0].properties.CategoriaRisco +
-                "<br>" +
-                "<b>Dano Potencial:</b> " +
-                e.features[0].properties.DanoPotencial +
-                "<br>" +
-                "<b>Inserida no PNSB?</b> " +
-                e.features[0].properties.InseridaPNSBFormatada
-            )
-            .addTo(map);
-        });
-        
 
-        // Add click handlers for the buttons
-        document.getElementById('zas-button').addEventListener('click', function() {
-          zasVisible = true;
-          zssVisible = false;
-          map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
-          map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0 : 0);
+      // inspect a cluster on click
+      map.on('click', 'barragens_cluster', (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ['barragens_cluster']
         });
+        const clusterId = features[0].properties.cluster_id;
+        map.getSource('barragens').getClusterExpansionZoom(
+          clusterId,
+          (err, zoom) => {
+            if (err) return;
 
-        document.getElementById('zss-button').addEventListener('click', function() {
-          zasVisible = false;
-          zssVisible = true;
-          map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0 : 0);
-          map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
-        });
-
-        document.getElementById('all-button').addEventListener('click', function() {
-          zasVisible = true;
-          zssVisible = true;
-          map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
-          map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
-        });
+            map.easeTo({
+              center: features[0].geometry.coordinates,
+              zoom: zoom
+            });
+          }
+        );
+      });
+      //Cria e define os popups
+      map.on("click", "barragens", function (e) {
+        new mapboxgl.Popup()
+          .setLngLat(e.lngLat)
+          .setHTML(
+            "<b>Nome da Barragem:</b> " +
+            e.features[0].properties.NomeBarragem +
+            " (" +
+            e.features[0].properties.codigo +
+            ")" +
+            "<br>" +
+            "<b>Empresa / Responsável:</b> " +
+            e.features[0].properties.NomeEmpreendedor +
+            "<br>" +
+            "<b>Município:</b> " +
+            e.features[0].properties.Municipio +
+            "<br>" +
+            "<b>UF:</b> " +
+            e.features[0].properties.UF +
+            "<br>" +
+            "<b>Minério:</b> " +
+            e.features[0].properties.Minerio +
+            "<br>" +
+            "<b>Método Construtivo:</b> " +
+            e.features[0].properties.MetodoConstrutivoFormatado +
+            "<br>" +
+            "<b>Categoria de Risco:</b> " +
+            e.features[0].properties.CategoriaRisco +
+            "<br>" +
+            "<b>Dano Potencial:</b> " +
+            e.features[0].properties.DanoPotencial +
+            "<br>" +
+            "<b>Inserida no PNSB?</b> " +
+            e.features[0].properties.InseridaPNSBFormatada
+          )
+          .addTo(map);
       });
 
-      //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
-      map.on("mouseenter", "barragens", function () {
-        map.getCanvas().style.cursor = "pointer";
+
+      // Add click handlers for the buttons
+      document.getElementById('zas-button').addEventListener('click', function () {
+        zasVisible = true;
+        zssVisible = false;
+        map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
+        map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0 : 0);
       });
 
-      //Mudar o cursor para o ponteiro quando sai de cima da camada escolhida
-      map.on("mouseleave", "barragens", function () {
-        map.getCanvas().style.cursor = "";
+      document.getElementById('zss-button').addEventListener('click', function () {
+        zasVisible = false;
+        zssVisible = true;
+        map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0 : 0);
+        map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
       });
-      
-      // Adiciona o buscapador de localização ao mapa
-      map.addControl(
-        new MapboxGeocoder({
-          accessToken: mapboxgl.accessToken,
-          mapboxgl: mapboxgl,
-          placeholder: 'Veja se a sua localidade é afetada...',
-          countries: 'br'
-         
-        })
-      );
 
-      //Adiciona os controles de navegação ao mapa
-      map.addControl(new mapboxgl.NavigationControl());
+      document.getElementById('all-button').addEventListener('click', function () {
+        zasVisible = true;
+        zssVisible = true;
+        map.setPaintProperty('zas-polygons', 'fill-opacity', zasVisible ? 0.7 : 0);
+        map.setPaintProperty('zss-polygons', 'fill-opacity', zssVisible ? 0.7 : 0);
+      });
+    });
 
-      //Adiciona a localização do usuário ao mapa
-      map.addControl(
-        new mapboxgl.GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true,
-          },
-        })
-      );
-    </script>
-  </body>
+    //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
+
+    map.on('mouseenter', 'barragens_cluster', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+
+    //Mudar o cursor para o ponteiro quando sai de cima da camada escolhida
+    map.on('mouseleave', 'barragens_cluster', () => {
+      map.getCanvas().style.cursor = '';
+    });
+
+    //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
+    map.on("mouseenter", "barragens", function () {
+      map.getCanvas().style.cursor = "pointer";
+    });
+
+    //Mudar o cursor para o ponteiro quando sai de cima da camada escolhida
+    map.on("mouseleave", "barragens", function () {
+      map.getCanvas().style.cursor = "";
+    });
+
+    // Adiciona o buscapador de localização ao mapa
+    map.addControl(
+      new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        placeholder: 'Veja se a sua localidade é afetada...',
+        countries: 'br'
+
+      })
+    );
+
+    //Adiciona os controles de navegação ao mapa
+    map.addControl(new mapboxgl.NavigationControl());
+
+    //Adiciona a localização do usuário ao mapa
+    map.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: {
+          enableHighAccuracy: true,
+        },
+      })
+    );
+  </script>
+</body>
+
 </html>
