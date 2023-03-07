@@ -94,6 +94,10 @@
       margin: 0;
 
     }
+
+    .bg-brown {
+      background-color: #8b4513;
+    }
   </style>
 </head>
 
@@ -129,6 +133,15 @@
         <label class="form-check-label" for="flexSwitchCheckChecked">Zona afetada em mais de 30 minutos (ZSS)</label>
       </div>
     </div>
+
+    <div class="form-check-container">
+      <div class="form-check form-switch">
+        <input class="form-check-input opacity-10 " type="checkbox" role="switch"
+          style="background-color:#A0522D; border-color: #A0522D;" id="manchas_switch" checked>
+        <label class="form-check-label" for="flexSwitchCheckChecked">Zona afetada em mais de 30 minutos (ZSS)</label>
+      </div>
+    </div>
+
 
     <div class="logos-barragens">
       <p>
@@ -173,13 +186,20 @@
           data: "dados/ZSS_simplify.json", // Replace with the file path of your "ZSS" GeoJSON file
         });
 
+        // Add the "ZSS" GeoJSON as a source
+        map.addSource("manchas", {
+          type: "geojson",
+          data: "dados/manchas_simplify.json", // Replace with the file path of your "ZSS" GeoJSON file
+        });
+
+
         // Add a layer for the "ZAS" polygons
         map.addLayer({
-          id: "zas-polygons",
+          id: "manchas-polygons",
           type: "fill",
-          source: "zas",
+          source: "manchas",
           paint: {
-            "fill-color": "red",
+            "fill-color": "brown",
             'fill-opacity': 0.7 // Set the opacity to 0 if the layer is not visible
           },
         });
@@ -194,6 +214,18 @@
             'fill-opacity': 0.7 // Set the opacity to 0 if the layer is not visible
           },
         });
+        // Add a layer for the "ZAS" polygons
+        map.addLayer({
+          id: "zas-polygons",
+          type: "fill",
+          source: "zas",
+          paint: {
+            "fill-color": "red",
+            'fill-opacity': 0.7 // Set the opacity to 0 if the layer is not visible
+          },
+        });
+
+
 
         //Carrega os icones das barragens
 
@@ -346,6 +378,7 @@
             .addTo(map);
         });
 
+        //ZAS
 
         // Selecione o botão de alternância (switch) por seu ID
         const zasSwitch = document.querySelector('#ZAS_switch');
@@ -362,6 +395,8 @@
           }
         });
 
+        //ZSS
+
         // Selecione o botão de alternância (switch) por seu ID
         const zssSwitch = document.querySelector('#ZSS_switch');
 
@@ -377,7 +412,29 @@
           }
         });
 
+        //Manchas
+
+        // Selecione o botão de alternância (switch) por seu ID
+        const manchasSwitch = document.querySelector('#manchas_switch');
+
+        // Adicione o ouvinte de evento de alteração (change) ao botão de alternância
+        manchasSwitch.addEventListener('change', function () {
+          // Verifique se o botão de alternância está marcado (checked)
+          if (this.checked) {
+            // Se estiver marcado, defina a propriedade de pintura do Mapbox GLJS para 0.7
+            map.setPaintProperty('manchas-polygons', 'fill-opacity', 0.7);
+          } else {
+            // Caso contrário, defina a propriedade de pintura do Mapbox GLJS para 0
+            map.setPaintProperty('manchas-polygons', 'fill-opacity', 0);
+          }
+        });
+
+
       });
+
+
+
+
 
       //Mudar o cursor para a 'mãozinha' quando fica em cima da camada escolhida
 
