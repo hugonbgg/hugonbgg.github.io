@@ -82,7 +82,7 @@
       width: 30px;
       height: 30px;
       vertical-align: middle;
-      margin-left: 5px;
+      margin-left: 0px;
       margin-bottom: 3px;
     }
 
@@ -107,16 +107,16 @@
   <!--Cria o div da nota-->
   <div id="notas">
     <i><b>Categoria de risco:</b></i> indica a possibilidade da ocorrência de
-    um desastre ou outro tipo de falha. <br>
-    <i><b>Dano potencial:</b></i> indica a intensidade da destruição que pode ser causada por uma falha de barragem.<br>
+    desastre ou outro tipo de falha<br>
+    <i><b>Dano potencial:</b></i> indica a intensidade da destruição que pode ser causada por falha da barragem<br>
     <i><b>Fiscalização federal: </b></i>Indica se a construção está incluída na Política Nacional de Segurança de
-    Barragens (PNSB).
+    Barragens (PNSB)
 
   </div>
 
   <div class="button-container">
 
-    <b>Legenda:</b>
+    <b><p>Áreas inundáveis</p></b>
 
     <div class="form-check-container">
       <div class="form-check form-switch">
@@ -138,17 +138,17 @@
       <div class="form-check form-switch">
         <input class="form-check-input opacity-10 " type="checkbox" role="switch"
           style="background-color:#A0522D; border-color: #A0522D;" id="manchas_switch" checked>
-        <label class="form-check-label" for="flexSwitchCheckChecked">Zona afetada em mais de 30 minutos (ZSS)</label>
+        <label class="form-check-label" for="flexSwitchCheckChecked">Zona afetada sem informação temporal</label>
       </div>
     </div>
 
 
     <div class="logos-barragens">
       <p>
-        Barragem com dados de áreas afetadas:
-        <img src="dados/barragem_com_dados.png" class="imagens" alt="Imagem de barragem"><br>
-        Barragem sem dados de áreas afetadas:
-        <img src="dados/barragem_sem_dados.png" class="imagens" alt="Imagem de barragem">
+        
+        <img src="dados/barragem_com_dados.png" class="imagens" alt="Imagem de barragem"> Barragem com dados de áreas afetadas<br>
+        
+        <img src="dados/barragem_sem_dados.png" class="imagens" alt="Imagem de barragem"> Barragem sem dados de áreas afetadas
       </p>
     </div>
 
