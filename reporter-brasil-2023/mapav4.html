@@ -36,9 +36,8 @@
 
     #notas {
       position: absolute;
-      bottom: 30px;
-      left: 10px;
-
+      bottom: 40px;
+      left: 15px;
       width: fit-content;
       max-width: 70%;
       height: fit-content;
@@ -50,6 +49,12 @@
       text-align: justify;
       font-family: "Open Sans", Helvetica, sans-serif;
     }
+
+    #notas a {
+            color: #065596ee;
+            text-decoration: none;
+            font-size: 15px;
+        }
 
     /* Position the buttons in the bottom-right corner and align them to the right */
     .button-container {
@@ -104,19 +109,31 @@
 <body>
   <!--Cria o div do mapa-->
   <div id="map"></div>
+
+    <!--Cria o div das orientações-->
+
   <!--Cria o div da nota-->
   <div id="notas">
-    <i><b>Categoria de risco:</b></i> indica a possibilidade da ocorrência de
-    desastre ou outro tipo de falha<br>
-    <i><b>Dano potencial:</b></i> indica a intensidade da destruição que pode ser causada por falha da barragem<br>
-    <i><b>Fiscalização federal: </b></i>Indica se a construção está incluída na Política Nacional de Segurança de
-    Barragens (PNSB)
+    <a  class="nota-titulo" data-bs-toggle="collapse" href="#nota-corpo" role="button" aria-expanded="false"
+            aria-controls="nota-corpo"><b><i>Notas +</i></b></a>
 
-  </div>
+    
+    <div id="nota-corpo" class="collapse">
+        <i><b>Categoria de risco:</b></i> indica a possibilidade da ocorrência de
+        desastre ou outro tipo de falha<br>
+        <i><b>Dano potencial:</b></i> indica a intensidade da destruição que pode ser causada por falha da
+        barragem<br>
+        <i><b>Fiscalização federal: </b></i>Indica se a construção está incluída na Política Nacional de Segurança
+        de
+        Barragens (PNSB)
+    </div>
+</div>
 
   <div class="button-container">
 
-    <b><p>Áreas inundáveis</p></b>
+    <b>
+      <p>Áreas inundáveis</p>
+    </b>
 
     <div class="form-check-container">
       <div class="form-check form-switch">
@@ -145,10 +162,12 @@
 
     <div class="logos-barragens">
       <p>
-        
-        <img src="dados/barragem_com_dados.png" class="imagens" alt="Imagem de barragem"> Barragem com dados de áreas afetadas<br>
-        
-        <img src="dados/barragem_sem_dados.png" class="imagens" alt="Imagem de barragem"> Barragem sem dados de áreas afetadas
+
+        <img src="dados/barragem_com_dados.png" class="imagens" alt="Imagem de barragem"> Barragem com dados de áreas
+        afetadas<br>
+
+        <img src="dados/barragem_sem_dados.png" class="imagens" alt="Imagem de barragem"> Barragem sem dados de áreas
+        afetadas
       </p>
     </div>
 
