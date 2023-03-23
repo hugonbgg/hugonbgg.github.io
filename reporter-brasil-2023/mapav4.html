@@ -302,7 +302,7 @@
           type: "geojson",
           data: "dados/barragens.geojson",
           cluster: true, // Enable clustering
-          clusterMaxZoom: 8 // Maximum zoom level at which to cluster
+          clusterMaxZoom: 12 // Maximum zoom level at which to cluster
         });
         /*
         map.addLayer({
@@ -370,11 +370,13 @@
               "interpolate",
               ["linear"],
               ["zoom"],
-              8.1, 0,
-              8.2, 0.4,
+              8.4, 0.0,
+              8.5, 0.4,
+              11.0, 0.4,
+              13.0, 0.4,
               15, 0.6
             ],
-            "icon-allow-overlap": false
+            "icon-allow-overlap": true
           },
           paint: {}
         });
