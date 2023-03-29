@@ -1,0 +1,96 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+#abertura {
+  position: absolute;
+  bottom: 40px;
+  left: 15px;
+  width: fit-content;
+  max-width: 50%;
+  height: fit-content;
+  padding: 8px;
+  background-color: rgba(249, 250, 250, 0.75);
+  color: #065596ee;
+  font-size: 15px;
+  border-radius: 20px;
+  text-align: justify;
+  font-family: "Open Sans", Helvetica, sans-serif;
+}
+
+#notas {
+  position: absolute;
+  bottom: 40px;
+  left: 15px;
+  width: fit-content;
+  max-width: 70%;
+  height: fit-content;
+  padding: 8px;
+  background-color: rgba(249, 250, 250, 0.75);
+  color: #065596ee;
+  font-size: 13px;
+  border-radius: 20px;
+  text-align: justify;
+  font-family: "Open Sans", Helvetica, sans-serif;
+}
+
+#notas a {
+  color: #065596ee;
+  text-decoration: none;
+  font-size: 15px;
+}
+
+/* Position the buttons in the bottom-right corner and align them to the right */
+.button-container {
+  position: absolute;
+  bottom: 30px;
+  right: 10px;
+  width: auto;
+  height: auto;
+  color: #555555;
+  font-family: "Open Sans", Helvetica, sans-serif;
+  font-size: 14px;
+
+  line-height: 22px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+  border-radius: 16px;
+}
+
+.logos-barragens {
+  display: flex;
+  align-items: center;
+}
+
+.logos-barragens p {
+  margin-right: 10px;
+}
+
+.logos-barragens .imagens {
+  width: 30px;
+  height: 30px;
+  vertical-align: middle;
+  margin-left: 0px;
+  margin-bottom: 3px;
+}
+
+.mapboxgl-ctrl-geocoder {
+  width: 310px;
+  height: auto;
+  min-width: 100%;
+  max-width: 200%;
+  margin: 0;
+}
+
+.bg-brown {
+  background-color: #8b4513;
+}
