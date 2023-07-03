@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Include the CesiumJS JavaScript and CSS files -->
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.106/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.106/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+        #cesiumContainer {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            position: absolute;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="cesiumContainer"></div>
+    <script>
+
+        Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJkNTZmMzRhYS0zODcwLTQ4ZWUtYmVhNy1iYWJjYjE5MGNhZmQiLCJpZCI6NzU4MDIsImlhdCI6MTYzODg4ODY2MH0.4MCS5wjNzl9o-m6MS6Jj88gpnYZdbFW_cYrMZuBYyGA';
+
+        // Inicializando o Cesium Viewer
+        const viewer = new Cesium.Viewer("cesiumContainer", {
+            skyAtmosphere: false,
+            shouldAnimate: true,
+            //terrain: Cesium.createWorldTerrain(),
+            scene3DOnly: true,
+        });
+        const globe = viewer.scene.globe;
+
+        // Variáveis usadas no código original
+        let clippingPlanesEnabled = true;
+        let edgeStylingEnabled = true;
+        let tileset;
+
+        // Função loadStHelens do código original
+        async function loadStHelens() {
+            // Aqui vai todo o código da função loadStHelens
+
+            // Create clipping planes for polygon around area to be clipped.
+            /*
+            const points = [
+                new Cesium.Cartesian3(
+                    -2058434.3501556474,
+                    -3043554.5012105294,
+                    4581080.771684084
+                ),
+                new Cesium.Cartesian3(
+                    -2057886.4482675144,
+                    -3044467.562778789,
+                    4581020.9199767085
+                ),
+                new Cesium.Cartesian3(
+                    -4357299.84353055,
+                    -5744954.0879047974,
+                    4581080.992360969
+                ),
+                new Cesium.Cartesian3(
+                    -4356412.05169956,
+                    -7745385.3013702347,
+                    4580893.4737207815
+                ),
+                new Cesium.Cartesian3(
+                    -5355472.889436636,
+                    -1745256.5725702164,
+                    4581252.3128526565)
+
+            ];
+            */
+            // Definindo as coordenadas dos quatro vértices (aproximadas)
+            /*let points = [
+                Cesium.Cartesian3.fromDegrees(-46.82639, -24.00822),
+                Cesium.Cartesian3.fromDegrees(-46.36529, -24.00822),
+                Cesium.Cartesian3.fromDegrees(-46.36529, -23.35601),
+                Cesium.Cartesian3.fromDegrees(-46.82639, -23.35601)
+            ];
+            */
+
+            let points = [
+                
+                Cesium.Cartesian3.fromDegrees(-46.7019727097011, -23.56353829808004,), //Em cima do lado esquerdo
+                Cesium.Cartesian3.fromDegrees(-46.702167565698396, -23.564876102914155),//Embaixo do lado esquerdo
+                Cesium.Cartesian3.fromDegrees(-46.70122682044085, -23.56496542772102), //Embaixo do lado direito
+                Cesium.Cartesian3.fromDegrees(-46.700994609114105, -23.563899016437926) //Em cima do lado direito
+
+            ];
+            
+           
+
+            console.log(points)
+
+            const pointsLength = points.length;
+
+            // Create center points for each clipping plane
+            const clippingPlanes = [];
+            for (let i = 0; i < pointsLength; ++i) {
+                const nextIndex = (i + 1) % pointsLength;
+                let midpoint = Cesium.Cartesian3.add(
+                    points[i],
+                    points[nextIndex],
+                    new Cesium.Cartesian3()
+                );
+                midpoint = Cesium.Cartesian3.multiplyByScalar(
+                    midpoint,
+                    0.5,
+                    midpoint
+                );
+
+                const up = Cesium.Cartesian3.normalize(
+                    midpoint,
+                    new Cesium.Cartesian3()
+                );
+                let right = Cesium.Cartesian3.subtract(
+                    points[nextIndex],
+                    midpoint,
+                    new Cesium.Cartesian3()
+                );
+                right = Cesium.Cartesian3.normalize(right, right);
+
+                let normal = Cesium.Cartesian3.cross(
+                    right,
+                    up,
+                    new Cesium.Cartesian3()
+                );
+                normal = Cesium.Cartesian3.normalize(normal, normal);
+
+                // Compute distance by pretending the plane is at the origin
+                const originCenteredPlane = new Cesium.Plane(normal, 0.0);
+                const distance = Cesium.Plane.getPointDistance(
+                    originCenteredPlane,
+                    midpoint
+                );
+
+                clippingPlanes.push(new Cesium.ClippingPlane(normal, distance));
+            }
+            globe.clippingPlanes = new Cesium.ClippingPlaneCollection({
+                planes: clippingPlanes,
+                edgeWidth: edgeStylingEnabled ? 1.0 : 0.0,
+                edgeColor: Cesium.Color.WHITE,
+                enabled: clippingPlanesEnabled,
+            });
+            globe.backFaceCulling = true;
+            globe.showSkirts = true;
+
+            try {
+                // Load tileset
+                tileset = await Cesium.Cesium3DTileset.fromIonAssetId(1912440);
+
+
+                // Adjust height so tileset is in terrain
+                const cartographic = Cesium.Cartographic.fromCartesian(
+                    tileset.boundingSphere.center
+                );
+                const surface = Cesium.Cartesian3.fromRadians(
+                    cartographic.longitude,
+                    cartographic.latitude,
+                    0.0
+                );
+                const offset = Cesium.Cartesian3.fromRadians(
+                    cartographic.longitude,
+                    cartographic.latitude,
+                    -20.0
+                );
+                const translation = Cesium.Cartesian3.subtract(
+                    offset,
+                    surface,
+                    new Cesium.Cartesian3()
+                );
+                tileset.modelMatrix = Cesium.Matrix4.fromTranslation(translation);
+
+                tileset.style = new Cesium.Cesium3DTileStyle({
+                    color: "rgb(207, 255, 207)",
+                });
+
+                viewer.scene.primitives.add(tileset);
+
+                const boundingSphere = tileset.boundingSphere;
+
+                const radius = boundingSphere.radius;
+                viewer.camera.viewBoundingSphere(
+                    boundingSphere,
+                    new Cesium.HeadingPitchRange(0.5, -0.2, radius * 4.0)
+                );
+                viewer.camera.lookAtTransform(Cesium.Matrix4.IDENTITY);
+            } catch (error) {
+                console.log(`Error loading tileset: ${error}`);
+            }
+        }
+
+        // Carregando StHelens assim que o script for executado
+        loadStHelens();
+
+
+
+        // Definindo as coordenadas dos quatro vértices (aproximadas)
+        let saoPauloPolygonCoordinates = [
+                Cesium.Cartesian3.fromDegrees(-46.7019727097011, -23.56353829808004), //Em cima do lado esquerdo
+                Cesium.Cartesian3.fromDegrees(-46.702167565698396, -23.564876102914155),//Embaixo do lado esquerdo
+                Cesium.Cartesian3.fromDegrees(-46.70122682044085, -23.56496542772102), //Embaixo do lado direito
+                Cesium.Cartesian3.fromDegrees(-46.700994609114105, -23.563899016437926) //Em cima do lado direito
+        ];
+
+        console.log(saoPauloPolygonCoordinates)
+
+
+        // Desenhando o polígono sobre São Paulo
+        viewer.entities.add({
+            name: 'São Paulo',
+            polygon: {
+                hierarchy: saoPauloPolygonCoordinates,
+                material: Cesium.Color.GREEN.withAlpha(0.8), //Define a opacidade da cor
+                outline: true,
+                //height: 0,
+                outlineColor: Cesium.Color.BLACK
+            }
+        });
+        
+
+        // Centralizando a câmera na cidade de São Paulo
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-46.633308, -23.550520, 50000.0)
+        });
+
+        // Fly the camera to San Francisco at the given longitude, latitude, and height.
+        viewer.camera.flyTo({
+            destination: Cesium.Cartesian3.fromDegrees(-46.701698, -23.567251, 1600),
+            orientation: {
+                heading: Cesium.Math.toRadians(15.0),
+                pitch: Cesium.Math.toRadians(-65.0),
+            }
+        });
+
+
+    </script>
+</body>
+
+</html>

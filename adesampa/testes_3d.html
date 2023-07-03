@@ -36,32 +36,29 @@
 
         // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
         const viewer = new Cesium.Viewer('cesiumContainer', {
-            //globe: false, // Desabilita o céu
+            terrainProvider: Cesium.createWorldTerrain({
+                requestWaterMask: true,
+                requestVertexNormals: true
+            }),
 
         });
 
-        try {
-            const tileset = await Cesium.createGooglePhotorealistic3DTileset();
-            viewer.scene.primitives.add(tileset);
-        } catch (error) {
-            console.log(`Failed to load tileset: ${error}`);
-        }
+        //viewer.scene.globe.depthTestAgainstTerrain = true;
+        const globe = viewer.scene.globe;
+        // Variáveis usadas no código original
+        let clippingPlanesEnabled = true;
+        let edgeStylingEnabled = true;
+        //let tileset;
 
-        const tileset = viewer.scene.primitives.add(
-            await Cesium.Cesium3DTileset.fromIonAssetId(1912440)
+        //Define o poligono do corte
+        let points = [
 
-        );
+            Cesium.Cartesian3.fromDegrees(-46.7019727097011, -23.56353829808004,), //Em cima do lado esquerdo
+            Cesium.Cartesian3.fromDegrees(-46.702167565698396, -23.564876102914155),//Embaixo do lado esquerdo
+            Cesium.Cartesian3.fromDegrees(-46.70122682044085, -23.56496542772102), //Embaixo do lado direito
+            Cesium.Cartesian3.fromDegrees(-46.700994609114105, -23.563899016437926) //Em cima do lado direito
 
-        const pontos = [
-            [-23.563540469771937, -46.70196987603503, 750],
-            [-23.563887067573262, -46.70103090162925, 750],
-            [-23.56496872597258, -46.70121108320442, 750],
-            [-23.56488066692314, -46.70207937300994, 750],
-            [-23.56392675224435, -46.70188893618535, 750]
         ];
-
-        const points = pontos.map(([lat, lon, alt]) => Cesium.Cartesian3.fromDegrees(lon, lat, alt));
-        console.log(points);
 
         const pointsLength = points.length;
 
@@ -106,10 +103,35 @@
 
             clippingPlanes.push(new Cesium.ClippingPlane(normal, distance));
         }
+        globe.clippingPlanes = new Cesium.ClippingPlaneCollection({
+            planes: clippingPlanes,
+            edgeWidth: edgeStylingEnabled ? 1.0 : 0.0,
+            edgeColor: Cesium.Color.WHITE,
+            enabled: clippingPlanesEnabled,
+        });
+        globe.backFaceCulling = true;
+        globe.showSkirts = true;
+
+        //Cria o basemap com 3D do Google
+
+        const tileset = await Cesium.createGooglePhotorealistic3DTileset();
+        viewer.scene.primitives.add(tileset);
+
+        tileset.clippingPlanes = new Cesium.ClippingPlaneCollection({
+            planes: clippingPlanes,
+            edgeColor: Cesium.Color.WHITE,
+            unionClippingRegions: false,
+            enabled: true
+        });
 
 
+        viewer.scene.primitives.add(
+            await Cesium.Cesium3DTileset.fromIonAssetId(1934526)
+
+        );
 
         
+       
 
 
         // Fly the camera to San Francisco at the given longitude, latitude, and height.
@@ -121,7 +143,6 @@
             }
         });
 
-//Mudar para o cesium terrain
     </script>
     </div>
 
