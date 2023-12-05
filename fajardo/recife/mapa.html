@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+
+
+
+    <title>Recife</title>
+</head>
+
+<body>
+
+    <div style="position: absolute; z-index: 1; background: rgba(255, 255, 255, 0.25); padding: 10px;">
+        <input type="radio" id="dusk" name="timeOfDay" value="dusk">
+        <label for="dusk">Anoitecer</label><br>
+
+        <input type="radio" id="dawn" name="timeOfDay" value="dawn">
+        <label for="dawn">Amanhecer</label><br>
+
+        <input type="radio" id="day" name="timeOfDay" value="day">
+        <label for="day">Dia</label><br>
+
+        <input type="radio" id="night" name="timeOfDay" value="night">
+        <label for="night">Noite</label>
+    </div>
+
+
+    <div id='map'></div>
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjbHByaHZ2eGMwN2Y3MmpwOXAzdHN0NG1yIn0.Zm3JekQESJdylLdUiiMEUg';
+        const map = new mapboxgl.Map({
+            container: 'map', // container ID
+            //style: 'mapbox://styles/mapbox/streets-v11', 
+            center: [-34.87, -8.055], // starting position [lng, lat]
+            zoom: 14, // starting zoom
+        });
+        map.on('style.load', () => {
+            map.addSource('mapbox-dem', {
+                'type': 'raster-dem',
+                'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+                'tileSize': 512,
+                'maxzoom': 14
+            });
+
+            map.addSource('edificacoes-geojson', {
+                'type': 'geojson',
+                'data': 'edificacoes.json'
+            });
+
+            /*
+            map.addLayer({
+                'id': 'edificacoes-layer',
+                'type': 'fill',
+                'source': 'edificacoes-geojson',
+                'paint': {
+                    'fill-color': 'lightgray',
+                    'fill-opacity': 0.8
+                }
+            });
+            */
+
+            map.addLayer({
+                'id': 'edificacoes-layer',
+                'type': 'fill-extrusion',
+                'source': 'edificacoes-geojson',
+                'paint': {
+                    // Defina a cor das extrusões
+                    'fill-extrusion-color': 'lightgray',
+                    // Defina a opacidade das extrusões
+                    'fill-extrusion-opacity': 0.75,
+                    // Use a propriedade 'altura' do GeoJSON para definir a altura das extrusões
+                    'fill-extrusion-height': ['get', 'altura']
+                }
+            });
+
+
+            // add the DEM source as a terrain layer with exaggerated height
+            map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+            map.setConfigProperty('basemap', 'lightPreset', 'dawn');
+            map.setConfigProperty('basemap', 'showPointOfInterestLabels', false);
+        });
+
+
+        // Função para atualizar o basemap com base na seleção
+        function updateBasemap(timeOfDay) {
+            map.setConfigProperty('basemap', 'lightPreset', timeOfDay);
+        }
+
+        // Adiciona um ouvinte de evento a cada botão rádio
+        document.querySelectorAll('input[name="timeOfDay"]').forEach((elem) => {
+            elem.addEventListener('change', function (event) {
+                updateBasemap(event.target.value);
+            });
+        });
+    </script>
+
+    </script>
+
+
+
+
+
+</body>
+
+</html>
