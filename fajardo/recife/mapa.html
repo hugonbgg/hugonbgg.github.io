@@ -127,10 +127,10 @@
     <!--Cria o div da nota-->
     <div id="notas">
         <b>Notas:</b>
-        Para rotacionar o mapa clique e arraste utilizando o botão direito. Clique na base do 3D para obter as
+        Para rotacionar o mapa clique e arraste utilizando o botão direito. <!--Clique na base do 3D para obter as
         informações sobre o lote.As
         camadas contêm as informações sobre os lotes, já o 3D é uma representação
-        da morfologia do perímetro.
+        da morfologia do perímetro.-->
         <b>Fontes:</b> Lorem ipsum, dolor sit amet consectetur adipisicing elit.
     </div>
 
@@ -140,11 +140,11 @@
               <button id='3D' class='btn'> Mapa 3D </button> -->
         Camadas:
 
-        <button id="gabarito" class="btn">Gabarito</button>
+        <!--<button id="gabarito" class="btn">Gabarito</button> -->
         <button id="pavimentos" class="btn">Pavimentos</button>
-        <button id="publicos" class="btn">Públicos</button>
         <button id="tipologia" class="btn">Tipologia</button>
         <button id="tombados" class="btn">Tombados</button>
+        <button id="3d" class="btn">3D</button>
 
 
     </div>
@@ -152,10 +152,51 @@
     <!--Cria a div das legendas -->
 
     <!--Legenda do 2D -->
-    <div id="2d_legenda" class="legendas" style="display: visible">
+    <div id="2d_legenda" class="legendas" style="display: none">
         <div style="background-color: #f4c029"></div>
-        LEGENDA: Imóveis Elegíveis<br />
+        LEGENDA<br />
     </div>
+
+    <!--Legenda do números de pavimentos -->
+    <div id="pavimentos_legenda" class="legendas" style="display: none">
+        <b>Número de Pavimentos:</b>
+        <br />
+        <div style="background-color: #dadaeb"></div>
+        Terrenos<br />
+        <div style="background-color: #bcbddc"></div>
+        Até 5<br />
+        <div style="background-color: #9e9ac8"></div>
+        Até 14<br />
+        <div style="background-color: #756bb1"></div>
+        Até 20<br />
+        <div style="background-color: #54278f"></div>
+        Acima de 20<br />
+    </div>
+
+    <!--Legenda da tipologia -->
+    <div id="tipologia_legenda" class="legendas" style="display: none">
+        <b>Tipologia:</b>
+        <br />
+        <div style="background-color: #ef8a62"></div>
+        Residenciais<br />
+        <div style="background-color: #67a9cf"></div>
+        Não Residenciais<br />
+        <div style="background-color: #7fbf7b"></div>
+        Uso Misto<br />
+        <div style="background-color: #756bb1"></div>
+        Terrenos<br />
+    </div>
+
+    <!--Legenda dos tombados -->
+    <div id="tombados_legenda" class="legendas" style="display: none">
+        <b>Tombados:</b>
+        <br />
+        <div style="background-color: #756bb1"></div>
+        Sim<br />
+        <div style="background-color: #9ebcda"></div>
+        Não<br />
+    </div>
+
 
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjbHByaHZ2eGMwN2Y3MmpwOXAzdHN0NG1yIn0.Zm3JekQESJdylLdUiiMEUg';
@@ -178,6 +219,11 @@
                 'data': 'edificacoes_simplify.json'
             });
 
+            map.addSource('lotes', {
+                'type': 'geojson',
+                'data': 'lotes_simplify.json'
+            });
+
             /*
             map.addLayer({
                 'id': 'edificacoes-layer',
@@ -190,10 +236,12 @@
             });
             */
 
+            // Define o estilo e adiciona a camada das edificações ao mapa
             map.addLayer({
                 'id': 'edificacoes-layer',
                 'type': 'fill-extrusion',
                 'source': 'edificacoes-geojson',
+                layout: { visibility: "none" },
                 'paint': {
                     // Defina a cor das extrusões
                     'fill-extrusion-color': 'lightgray',
@@ -204,6 +252,128 @@
                 }
             });
 
+            //Define o estilo dos lotes e adiciona a camada dos pavimentos ao mapa
+            /*
+            map.addLayer({
+                id: "pavimentos",
+                type: "fill",
+                source: "lotes",
+                layout: { visibility: "none" },
+                paint: {
+                    "fill-color": [
+                        "step",
+                        ["get", "QTDPAVIMENTOS"],
+
+                        "#dadaeb",
+                        1.0,
+                        "#bcbddc",
+                        6.0,
+                        "#9e9ac8",
+                        15.0,
+                        "#756bb1",
+                        19.0,
+                        "#54278f",
+                    ],
+                },
+            }); */
+
+            map.addLayer({
+                id: "pavimentos",
+                type: "fill",
+                source: "lotes",
+                layout: { visibility: "none" },
+                paint: {
+                    "fill-color": [
+                        "case",
+                        ["==", ["get", "QTDPAVIMENTOS"], null], "transparent", // Se QTDPAVIMENTOS for nulo, use transparente
+                        ["step",
+                            ["get", "QTDPAVIMENTOS"],
+
+                            "#dadaeb", 1.0,
+                            "#bcbddc", 6.0,
+                            "#9e9ac8", 15.0,
+                            "#756bb1", 19.0,
+                            "#54278f"
+                        ]
+                    ],
+                },
+            });
+
+            map.setPaintProperty("pavimentos", "fill-outline-color", [
+                "interpolate",
+                // Set the exponential rate of change to 0.5
+                ["exponential", 1.2],
+                ["zoom"],
+                // When zoom is 15, buildings will be beige.
+                14,
+                "transparent",
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                "white",
+            ]);
+
+            //Define o estilo dos lotes e adiciona a camada da tipologia ao mapa
+            map.addLayer({
+                id: "tipologia",
+                type: "fill",
+                source: "lotes",
+                layout: { visibility: "none" },
+                paint: {
+                    "fill-color": [
+                        "case",
+                        ["==", ["get", "Tipologia"], "RESIDENCIAL"],
+                        "#ef8a62",
+                        //['==', ['get', 'IPTU_TIPOLOGIA'], 'Residencial'], '#67a9cf',
+                        ["==", ["get", "Tipologia"], "USO MISTO"],
+                        "#7fbf7b",
+                        ["==", ["get", "Tipologia"], "TERRENO"],
+                        "#756bb1",
+                        "#67a9cf", //Tudo que não se encaixa nas categorias acima, os não residenciais
+                    ],
+                },
+            });
+
+            map.setPaintProperty("tipologia", "fill-outline-color", [
+                "interpolate",
+                // Set the exponential rate of change to 0.5
+                ["exponential", 1.5],
+                ["zoom"],
+                // When zoom is 15, buildings will be beige.
+                14,
+                "transparent",
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                "#4a5355",
+            ]);
+
+            //Define o estilo dos lotes e adiciona a camada dos tombados ao mapa
+            map.addLayer({
+                id: "tombados",
+                type: "fill",
+                source: "lotes",
+                layout: { visibility: "none" },
+                paint: {
+                    "fill-color": [
+                        "case",
+                        ["==", ["get", "Tombados"], "Sim"],
+                        "#756bb1",
+                        "#9ebcda",
+                    ],
+                },
+            });
+
+            map.setPaintProperty("tombados", "fill-outline-color", [
+                "interpolate",
+                // Set the exponential rate of change to 0.5
+                ["exponential", 1.5],
+                ["zoom"],
+                // When zoom is 15, buildings will be beige.
+                14,
+                "transparent",
+                // When zoom is 18 or higher, buildings will be yellow.
+                20,
+                "#4a5355",
+            ]);
 
             // add the DEM source as a terrain layer with exaggerated height
             map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
@@ -223,6 +393,86 @@
                 updateBasemap(event.target.value);
             });
         });
+
+        //Pavimentos
+        document
+            .getElementById("pavimentos")
+            .addEventListener("click", function () {
+                map.flyTo({
+                    pitch: 0,
+                    //bearing: 0
+                });
+                map.setLayoutProperty("pavimentos", "visibility", "visible");
+                map.setLayoutProperty("edificacoes-layer", "visibility", "none");
+                map.setLayoutProperty("tipologia", "visibility", "none");
+                map.setLayoutProperty("tombados", "visibility", "none");
+                //document.getElementById("2d_legenda").style.display = "none";
+                //document.getElementById("3d_legenda").style.display = "none";
+                //document.getElementById("CA_legenda").style.display = "none";
+                document.getElementById("pavimentos_legenda").style.display = "block";
+                document.getElementById("tipologia_legenda").style.display = "none";
+                document.getElementById("tombados_legenda").style.display = "none";
+            });
+
+        //Tipologia
+        document
+            .getElementById("tipologia")
+            .addEventListener("click", function () {
+                map.flyTo({
+                    pitch: 0,
+                    //bearing: 0
+                });
+                map.setLayoutProperty("pavimentos", "visibility", "none");
+                map.setLayoutProperty("edificacoes-layer", "visibility", "none");
+                map.setLayoutProperty("tipologia", "visibility", "visible");
+                map.setLayoutProperty("tombados", "visibility", "none");
+                //document.getElementById("2d_legenda").style.display = "none";
+                //document.getElementById("3d_legenda").style.display = "none";
+                //document.getElementById("CA_legenda").style.display = "none";
+                document.getElementById("pavimentos_legenda").style.display = "none";
+                document.getElementById("tipologia_legenda").style.display = "block";
+                document.getElementById("tombados_legenda").style.display = "none";
+            });
+
+        //Tombados
+        document
+            .getElementById("tombados")
+            .addEventListener("click", function () {
+                map.flyTo({
+                    pitch: 0,
+                    //bearing: 0
+                });
+                map.setLayoutProperty("pavimentos", "visibility", "none");
+                map.setLayoutProperty("edificacoes-layer", "visibility", "none");
+                map.setLayoutProperty("tipologia", "visibility", "none");
+                map.setLayoutProperty("tombados", "visibility", "visible");
+                //document.getElementById("2d_legenda").style.display = "none";
+                //document.getElementById("3d_legenda").style.display = "none";
+                //document.getElementById("CA_legenda").style.display = "none";
+                document.getElementById("pavimentos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "none";
+                document.getElementById("tombados_legenda").style.display = "block";
+            });
+
+        //3D
+        document
+            .getElementById("3d")
+            .addEventListener("click", function () {
+                map.flyTo({
+                    pitch: 60,
+                    //bearing: 0
+                });
+                map.setLayoutProperty("pavimentos", "visibility", "none");
+                map.setLayoutProperty("edificacoes-layer", "visibility", "none");
+                map.setLayoutProperty("tipologia", "visibility", "none");
+                map.setLayoutProperty("tombados", "visibility", "none");
+                //document.getElementById("2d_legenda").style.display = "none";
+                //document.getElementById("3d_legenda").style.display = "none";
+                //document.getElementById("CA_legenda").style.display = "none";
+                document.getElementById("pavimentos_legenda").style.display = "none"
+                document.getElementById("tipologia_legenda").style.display = "none";
+                document.getElementById("tombados_legenda").style.display = "none";
+            });
     </script>
 
     </script>
