@@ -7,6 +7,10 @@
     <title>Mapa de Edificações</title>
     <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.css'
+        rel='stylesheet' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.js'></script>
+
 
     <style>
         body {
@@ -35,6 +39,8 @@
         <div id="building-info">Edifício: Nenhum</div>
         <input id="heightInput" type="text" placeholder="Digite a altura" style="display: none;">
         <button id="updateHeight" style="display: none;">Atualizar Altura</button>
+        <input id="polygonHeight" type="number" placeholder="Altura do Polígono">
+        <button id="setPolygonHeight">Definir Altura</button>
     </div>
 
     <script>
@@ -45,6 +51,16 @@
             center: [-34.87, -8.055], // Coordenadas de inicialização
             zoom: 15,
         });
+
+        // Adiciona Mapbox GL Draw
+        const draw = new MapboxDraw({
+            displayControlsDefault: false,
+            controls: {
+                polygon: true,
+                trash: true
+            }
+        });
+        map.addControl(draw);
 
         let selectedBuildingId = null;
         let geojsonData = null; // Garanta que essa variável global seja declarada
@@ -104,8 +120,23 @@
                         }
                     });
 
+                    document.getElementById('setPolygonHeight').addEventListener('click', function () {
+                        const height = parseInt(document.getElementById('polygonHeight').value);
+                        if (!isNaN(height)) {
+                            const drawnData = draw.getAll();
 
+                            if (drawnData.features.length > 0) {
+                                const lastFeature = drawnData.features[drawnData.features.length - 1];
+                                lastFeature.properties.Altura = height; // Certifique-se que a propriedade corresponde ao seu GeoJSON
 
+                                // Adiciona o polígono desenhado ao geojsonData
+                                geojsonData.features.push(lastFeature);
+
+                                // Atualiza a fonte de dados no mapa
+                                map.getSource('edificacoes').setData(geojsonData);
+                            }
+                        }
+                    });
 
 
                 });
