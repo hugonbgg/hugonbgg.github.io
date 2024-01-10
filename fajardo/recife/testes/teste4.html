@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Edificações</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .sidebar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='map'></div>
+    <div class="sidebar">
+        <div id="building-info">Edifício: Nenhum</div>
+        <input id="heightInput" type="text" placeholder="Digite a altura" style="display: none;">
+        <button id="updateHeight" style="display: none;">Atualizar Altura</button>
+    </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjbHByaHZ2eGMwN2Y3MmpwOXAzdHN0NG1yIn0.Zm3JekQESJdylLdUiiMEUg'; // Substitua com o seu token de acesso
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [-34.87, -8.055], // Coordenadas de inicialização
+            zoom: 15,
+        });
+
+        let selectedBuildingId = null;
+        let geojsonData = null; // Garanta que essa variável global seja declarada
+
+        map.on('load', function () {
+            // Carrega os dados GeoJSON
+            fetch('edificacoes_simplify.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    geojsonData = data; // Armazena os dados GeoJSON
+                    map.addSource('edificacoes', {
+                        type: 'geojson',
+                        data: geojsonData,
+                        //generateId: true,
+                    });
+
+
+                    map.addLayer({
+                        'id': 'edificacoes-layer',
+                        'type': 'fill-extrusion',
+                        'source': 'edificacoes',
+                        'paint': {
+                            'fill-extrusion-color': 'lightgray',
+                            'fill-extrusion-opacity': 0.8,
+                            'fill-extrusion-height': ['get', 'Altura']
+                        }
+                    });
+
+
+
+                    let selectedBuildingPredioId = null;
+
+                    map.on('click', 'edificacoes-layer', (e) => {
+                        if (e.features.length > 0) {
+                            selectedBuildingPredioId = e.features[0].properties.predioid; // Usando a nova propriedade predioid
+                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId;
+                            document.getElementById('heightInput').style.display = 'block';
+                            document.getElementById('updateHeight').style.display = 'block';
+                        }
+                    });
+
+
+                    document.getElementById('updateHeight').addEventListener('click', function () {
+                        const newHeight = parseInt(document.getElementById('heightInput').value);
+
+                        if (selectedBuildingPredioId !== null && geojsonData && !isNaN(newHeight)) {
+                            const buildingFeature = geojsonData.features.find(feature => feature.properties.predioid === selectedBuildingPredioId);
+
+                            if (buildingFeature) {
+                                buildingFeature.properties.Altura = newHeight; // Atualiza a nova altura
+                                map.getSource('edificacoes').setData(geojsonData); // Atualiza a fonte de dados
+
+                                console.log("Altura atualizada:", buildingFeature.properties.Altura);
+                            } else {
+                                console.log("Feature não encontrada com predioid:", selectedBuildingPredioId);
+                            }
+                        }
+                    });
+
+
+
+
+
+                });
+        });
+    </script>
+</body>
+
+</html>
