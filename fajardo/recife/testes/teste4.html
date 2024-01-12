@@ -9,6 +9,8 @@
     <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
     <link href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.css'
         rel='stylesheet' />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" rel="stylesheet">
+
     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.js'></script>
 
 
@@ -30,17 +32,35 @@
             top: 10px;
             right: 10px;
         }
+
+        .mapboxgl-ctrl-top-right {
+            top: 250px;
+            /* Ajuste este valor conforme necessário */
+        }
     </style>
 </head>
 
 <body>
+
     <div id='map'></div>
+    <!--
     <div class="sidebar">
         <div id="building-info">Edifício: Nenhum</div>
         <input id="heightInput" type="text" placeholder="Digite a altura" style="display: none;">
         <button id="updateHeight" style="display: none;">Atualizar Altura</button>
         <input id="polygonHeight" type="number" placeholder="Altura do Polígono">
         <button id="setPolygonHeight">Definir Altura</button>
+    </div>
+-->
+
+    <div class="sidebar">
+        <div id="building-info">Edifício: Nenhum</div>
+        <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura"
+            style="display: visible;">
+        <button id="updateHeight" class="btn btn-primary my-2" style="display: visible;">Atualizar Altura</button>
+        <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Polígono"
+            style="display: visible;">
+        <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button>
     </div>
 
     <script>
@@ -74,7 +94,7 @@
                     map.addSource('edificacoes', {
                         type: 'geojson',
                         data: geojsonData,
-                        //generateId: true,
+                        generateId: true,
                     });
 
 
@@ -83,20 +103,72 @@
                         'type': 'fill-extrusion',
                         'source': 'edificacoes',
                         'paint': {
-                            'fill-extrusion-color': 'lightgray',
+                            "fill-extrusion-color": [
+                                "case",
+                                ["boolean", ["feature-state", "hover"], false],
+                                "#FF8C00", 'lightgray'],
                             'fill-extrusion-opacity': 0.8,
                             'fill-extrusion-height': ['get', 'Altura']
                         }
                     });
 
 
+                    // Change the cursor to a pointer when the mouse is over the places layer.
+                    map.on("mouseenter", "edificacoes-layer", function () {
+                        map.getCanvas().style.cursor = "pointer";
+                    });
+
+                    // Change it back to a pointer when it leaves.
+                    map.on("mouseleave", "edificacoes-layer", function () {
+                        map.getCanvas().style.cursor = "";
+                    });
+
+                    //Configura o hover para o 3D
+                    // When the user moves their mouse over the state-fill layer, we'll update the
+                    // feature state for the feature under the mouse.
+
+                    let hoveredStateId = null; //▒Declara a variavel para o hover            
+                    map.on("mousemove", "edificacoes-layer", (e) => {
+                        //map.getCanvas().style.cursor = "pointer";
+                        //console.log(hoveredStateId);
+                        if (e.features.length > 0) {
+                            if (hoveredStateId !== undefined) {
+                                map.setFeatureState(
+                                    { source: "edificacoes", id: hoveredStateId },
+                                    { hover: false }
+                                );
+                            }
+                            hoveredStateId = e.features[0].id;
+                            map.setFeatureState(
+                                { source: "edificacoes", id: hoveredStateId },
+                                { hover: true }
+                            );
+                        }
+                    });
+
+                    // When the mouse leaves the state-fill layer, update the feature state of the
+                    // previously hovered feature.
+                    map.on("mouseleave", "edificacoes-layer", () => {
+                        map.getCanvas().style.cursor = "";
+                        if (hoveredStateId !== undefined) {
+                            map.setFeatureState(
+                                { source: "edificacoes", id: hoveredStateId },
+                                { hover: false }
+                            );
+                        }
+                        hoveredStateId = null;
+                    });
+
+
 
                     let selectedBuildingPredioId = null;
+                    let selectedBuildingPredioAltura = null;
 
                     map.on('click', 'edificacoes-layer', (e) => {
                         if (e.features.length > 0) {
                             selectedBuildingPredioId = e.features[0].properties.predioid; // Usando a nova propriedade predioid
-                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId;
+                            selectedBuildingPredioAltura = e.features[0].properties.Altura; // Usando a nova propriedade predioid
+                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId + ' - Altura: ' + selectedBuildingPredioAltura +'m';
                             document.getElementById('heightInput').style.display = 'block';
                             document.getElementById('updateHeight').style.display = 'block';
                         }
