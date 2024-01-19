@@ -12,6 +12,8 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" rel="stylesheet">
 
     <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.js'></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
 
 
     <style>
@@ -37,12 +39,51 @@
             top: 250px;
             /* Ajuste este valor conforme necessário */
         }
+
+        .legenda {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 3px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+            font-size: 14px;
+            line-height: 1.5;
+            z-index: 1;
+            /* Garantir que a legenda fique acima do mapa */
+        }
+
+        .legenda h4 {
+            margin: 0 0 10px;
+        }
+
+        .legenda div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legenda span {
+            height: 15px;
+            width: 30px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        #exportMap {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }
     </style>
 </head>
 
 <body>
 
     <div id='map'></div>
+
     <!--
     <div class="sidebar">
         <div id="building-info">Edifício: Nenhum</div>
@@ -63,6 +104,16 @@
         <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button>
     </div>
 
+    <div id="legenda" class="legenda">
+        <h4>Legenda</h4>
+        <div><span style="background-color: #fb89ba;"></span>Tombados</div>
+        <div><span style="background-color: #93c47d;"></span>Residenciais</div>
+        <div><span style="background-color: #e8e0a1;"></span>Não Residencias</div>
+        <div><span style="background-color: #ffab22;"></span>Uso Misto</div>
+        <div><span style="background-color: #F5F5F5;"></span>Sem Classificação</div>
+    </div>
+    <button id="exportMap">Exportar Captura de Tela</button>
+
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjbHByaHZ2eGMwN2Y3MmpwOXAzdHN0NG1yIn0.Zm3JekQESJdylLdUiiMEUg'; // Substitua com o seu token de acesso
         const map = new mapboxgl.Map({
@@ -70,6 +121,8 @@
             style: 'mapbox://styles/mapbox/streets-v12',
             center: [-34.87, -8.055], // Coordenadas de inicialização
             zoom: 15,
+            preserveDrawingBuffer: true,
+            antialias: true
         });
 
         // Adiciona Mapbox GL Draw
@@ -87,7 +140,18 @@
 
         map.on('load', function () {
             // Carrega os dados GeoJSON
+            /*
             fetch('edificacoes_simplify.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    geojsonData = data; // Armazena os dados GeoJSON
+                    map.addSource('edificacoes', {
+                        type: 'geojson',
+                        data: geojsonData,
+                        generateId: true,
+                    });*/
+            // Carrega os dados GeoJSON
+            fetch('edificacoes_dados_lotes.geojson')
                 .then(response => response.json())
                 .then(data => {
                     geojsonData = data; // Armazena os dados GeoJSON
@@ -98,6 +162,7 @@
                     });
 
 
+                    /*
                     map.addLayer({
                         'id': 'edificacoes-layer',
                         'type': 'fill-extrusion',
@@ -111,7 +176,39 @@
                             'fill-extrusion-height': ['get', 'Altura']
                         }
                     });
+                    */
 
+                    map.addLayer({
+                        id: "edificacoes-layer",
+                        type: "fill-extrusion",
+                        source: "edificacoes",
+                        //layout: { visibility: "visible" },
+                        paint: {
+                            "fill-extrusion-color": [
+                                "case",
+                                ["boolean", ["feature-state", "hover"], false],
+                                "#FF8C00",
+                                ["==", ["get", "Tombados"], "Sim"],
+                                "#fb89ba",
+                                ["==", ["get", "Tipologia"], "RESIDENCIAL"],
+                                "#93c47d",
+                                ["==", ["get", "Tipologia"], "NÃO RESIDENCIAL"],
+                                "#e8e0a1",
+                                ["==", ["get", "Tipologia"], "USO MISTO"],
+                                "#ffab22",
+
+                                "#F5F5F5", //Tudo que não se encaixa nas categorias acima, os não residenciais
+                            ],
+
+                            "fill-extrusion-height": {
+                                type: "identity",
+                                property: "Altura",
+                            },
+                            "fill-extrusion-opacity": 0.9,
+                            "fill-extrusion-base": 0,
+                            "fill-extrusion-vertical-gradient": true,
+                        },
+                    });
 
                     // Change the cursor to a pointer when the mouse is over the places layer.
                     map.on("mouseenter", "edificacoes-layer", function () {
@@ -168,7 +265,7 @@
                         if (e.features.length > 0) {
                             selectedBuildingPredioId = e.features[0].properties.predioid; // Usando a nova propriedade predioid
                             selectedBuildingPredioAltura = e.features[0].properties.Altura; // Usando a nova propriedade predioid
-                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId + ' - Altura: ' + selectedBuildingPredioAltura +'m';
+                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId + ' - Altura: ' + selectedBuildingPredioAltura + 'm';
                             document.getElementById('heightInput').style.display = 'block';
                             document.getElementById('updateHeight').style.display = 'block';
                         }
@@ -209,6 +306,105 @@
                             }
                         }
                     });
+
+                    /*
+                    document.getElementById('exportMap').addEventListener('click', function () {
+                        const scale = 2; // Ajuste este valor para mudar a resolução
+                        const mapCanvas = document.querySelector('.mapboxgl-canvas');
+                        const originalSize = { width: mapCanvas.width, height: mapCanvas.height };
+
+                        // Criar um novo canvas offscreen
+                        const offscreenCanvas = document.createElement('canvas');
+                        offscreenCanvas.width = originalSize.width * scale;
+                        offscreenCanvas.height = originalSize.height * scale;
+
+                        const ctx = offscreenCanvas.getContext('2d');
+                        ctx.scale(scale, scale);
+                        ctx.drawImage(mapCanvas, 0, 0);
+
+                        // Exportar a imagem do offscreen canvas
+                        offscreenCanvas.toBlob(function (blob) {
+                            const imgURL = URL.createObjectURL(blob);
+
+                            const link = document.createElement('a');
+                            link.href = imgURL;
+                            link.download = 'captura-mapa.png';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            URL.revokeObjectURL(imgURL); // Libera a memória ao finalizar
+                        }, 'image/png');
+                    });
+                    */
+
+                    /*document.getElementById('exportMap').addEventListener('click', function () {
+                        const mapContainer = document.getElementById('map'); // Seleciona o contêiner
+
+                        html2canvas(mapContainer).then(canvas => {
+                            const imgURL = canvas.toDataURL("image/png");
+
+                            const link = document.createElement('a');
+                            link.href = imgURL;
+                            link.download = 'mapa-legenda-captura.png'; // Nome do arquivo de download
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                        });
+                    });
+                    */
+                    const scale = 2; // Aumentar para obter uma imagem maior
+                    document.getElementById('exportMap').addEventListener('click', function () {
+                        // Capturar a imagem do mapa
+                        const mapCanvas = document.querySelector('.mapboxgl-canvas');
+                        const mapImgURL = mapCanvas.toDataURL("image/png");
+
+                        // Capturar a imagem da legenda
+                        html2canvas(document.getElementById('legenda')).then(legendaCanvas => {
+                            const legendaImgURL = legendaCanvas.toDataURL("image/png");
+                            combineImages(mapImgURL, legendaImgURL);
+                        });
+                    });
+
+                    function combineImages(mapImgURL, legendaImgURL) {
+                        const mapImg = new Image();
+                        const legendaImg = new Image();
+
+                        mapImg.onload = () => {
+                            legendaImg.onload = () => {
+                                // Criar um canvas combinado
+                                const combinedCanvas = document.createElement('canvas');
+                                combinedCanvas.width = mapImg.width;
+                                combinedCanvas.height = mapImg.height;
+                                const ctx = combinedCanvas.getContext('2d');
+
+                                // Desenhar a imagem do mapa
+                                ctx.drawImage(mapImg, 0, 0);
+
+                                // Posição da legenda no canto inferior direito
+                                const x = mapImg.width - legendaImg.width - 10; // 10 pixels de margem
+                                const y = mapImg.height - legendaImg.height - 10;
+
+                                // Desenhar a imagem da legenda
+                                ctx.drawImage(legendaImg, x, y);
+
+                                // Exportar a imagem combinada
+                                exportCombinedImage(combinedCanvas.toDataURL("image/png"));
+                            };
+                            legendaImg.src = legendaImgURL;
+                        };
+                        mapImg.src = mapImgURL;
+                    }
+
+                    function exportCombinedImage(imgURL) {
+                        const link = document.createElement('a');
+                        link.href = imgURL;
+                        link.download = 'mapa-legenda-captura.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+
+
 
 
                 });
