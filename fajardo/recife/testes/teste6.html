@@ -29,14 +29,8 @@
             width: 100%;
         }
 
-        .sidebar {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-        }
-
         .mapboxgl-ctrl-top-right {
-            top: 250px;
+            top: 375px;
             /* Ajuste este valor conforme necessário */
         }
 
@@ -77,6 +71,41 @@
             left: 10px;
             z-index: 1;
         }
+
+        .sidebar {
+
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 170px;
+            /* Defina a largura conforme necessário */
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            /* Alinha os elementos horizontalmente */
+        }
+
+        .sidebar input,
+        .sidebar button {
+            font-size: 14px;
+            margin-bottom: 5px;
+            width: 100%;
+            /* Faz com que os elementos ocupem toda a largura da sidebar */
+            box-sizing: border-box;
+            /* Garante que padding e borda estejam incluídos na largura */
+
+        }
+
+        /* Ajustes adicionais para o Color Picker */
+        #colorPicker {
+            padding: 5px;
+            height: 38px;
+            /* Altura para igualar com os botões */
+            border: 1px solid #ced4da;
+            /* Borda para combinar com o estilo do Bootstrap */
+            border-radius: .25rem;
+            /* Arredondamento das bordas */
+        }
     </style>
 </head>
 
@@ -84,16 +113,8 @@
 
     <div id='map'></div>
 
-    <!--
-    <div class="sidebar">
-        <div id="building-info">Edifício: Nenhum</div>
-        <input id="heightInput" type="text" placeholder="Digite a altura" style="display: none;">
-        <button id="updateHeight" style="display: none;">Atualizar Altura</button>
-        <input id="polygonHeight" type="number" placeholder="Altura do Polígono">
-        <button id="setPolygonHeight">Definir Altura</button>
-    </div>
--->
 
+    <!--
     <div class="sidebar">
         <div id="building-info">Edifício: Nenhum</div>
         <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura"
@@ -102,12 +123,24 @@
         <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Polígono"
             style="display: visible;">
         <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button><br><br>
-        <input type="color" id="colorPicker" value="#ff0000"> <!-- Valor padrão vermelho -->
+        <input type="color" id="colorPicker" value="#ff0000">
         <button id="setColor" class="btn btn-primary">Definir Cor</button><br><br>
-
         <button id="deletePolygon" class="btn btn-primary">Deletar Polígono</button>
+        </div>
+    -->
 
+
+    <div class="sidebar">
+        <div id="building-info">Edifício: Nenhum</div>
+        <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura">
+        <button id="updateHeight" class="btn btn-primary my-2">Atualizar Altura</button>
+        <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Polígono">
+        <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button>
+        <input type="color" id="colorPicker" value="#ff0000">
+        <button id="setColor" class="btn btn-primary">Definir Cor</button>
+        <button id="deletePolygon" class="btn btn-primary">Deletar Polígono</button>
     </div>
+
 
     <div id="legenda" class="legenda">
         <h4>Legenda</h4>
@@ -144,17 +177,7 @@
         let geojsonData = null; // Garanta que essa variável global seja declarada
 
         map.on('load', function () {
-            // Carrega os dados GeoJSON
-            /*
-            fetch('edificacoes_simplify.geojson')
-                .then(response => response.json())
-                .then(data => {
-                    geojsonData = data; // Armazena os dados GeoJSON
-                    map.addSource('edificacoes', {
-                        type: 'geojson',
-                        data: geojsonData,
-                        generateId: true,
-                    });*/
+
             // Carrega os dados GeoJSON
             fetch('edificacoes_dados_lotes.geojson')
                 .then(response => response.json())
@@ -165,23 +188,6 @@
                         data: geojsonData,
                         generateId: true,
                     });
-
-
-                    /*
-                    map.addLayer({
-                        'id': 'edificacoes-layer',
-                        'type': 'fill-extrusion',
-                        'source': 'edificacoes',
-                        'paint': {
-                            "fill-extrusion-color": [
-                                "case",
-                                ["boolean", ["feature-state", "hover"], false],
-                                "#FF8C00", 'lightgray'],
-                            'fill-extrusion-opacity': 0.8,
-                            'fill-extrusion-height': ['get', 'Altura']
-                        }
-                    });
-                    */
 
                     map.addLayer({
                         id: "edificacoes-layer",
@@ -327,6 +333,9 @@
 
                                 // Atualizar a fonte de dados no mapa
                                 map.getSource('edificacoes').setData(geojsonData);
+
+                                // Resetar o ID selecionado
+                                selectedPolygonId = null;
                             }
                         }
                     });
@@ -354,53 +363,6 @@
                         }
                     });
 
-
-
-                    /*
-                    document.getElementById('exportMap').addEventListener('click', function () {
-                        const scale = 2; // Ajuste este valor para mudar a resolução
-                        const mapCanvas = document.querySelector('.mapboxgl-canvas');
-                        const originalSize = { width: mapCanvas.width, height: mapCanvas.height };
-
-                        // Criar um novo canvas offscreen
-                        const offscreenCanvas = document.createElement('canvas');
-                        offscreenCanvas.width = originalSize.width * scale;
-                        offscreenCanvas.height = originalSize.height * scale;
-
-                        const ctx = offscreenCanvas.getContext('2d');
-                        ctx.scale(scale, scale);
-                        ctx.drawImage(mapCanvas, 0, 0);
-
-                        // Exportar a imagem do offscreen canvas
-                        offscreenCanvas.toBlob(function (blob) {
-                            const imgURL = URL.createObjectURL(blob);
-
-                            const link = document.createElement('a');
-                            link.href = imgURL;
-                            link.download = 'captura-mapa.png';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            URL.revokeObjectURL(imgURL); // Libera a memória ao finalizar
-                        }, 'image/png');
-                    });
-                    */
-
-                    /*document.getElementById('exportMap').addEventListener('click', function () {
-                        const mapContainer = document.getElementById('map'); // Seleciona o contêiner
-
-                        html2canvas(mapContainer).then(canvas => {
-                            const imgURL = canvas.toDataURL("image/png");
-
-                            const link = document.createElement('a');
-                            link.href = imgURL;
-                            link.download = 'mapa-legenda-captura.png'; // Nome do arquivo de download
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                        });
-                    });
-                    */
                     const scale = 2; // Aumentar para obter uma imagem maior
                     document.getElementById('exportMap').addEventListener('click', function () {
                         // Capturar a imagem do mapa
@@ -452,8 +414,6 @@
                         link.click();
                         document.body.removeChild(link);
                     }
-
-
 
 
                 });
