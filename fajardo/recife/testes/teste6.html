@@ -118,10 +118,12 @@
         <div id="building-info">Edifício: Nenhum</div>
         <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura">
         <button id="updateHeight" class="btn btn-primary my-2">Atualizar Altura</button>
-        <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Polígono">
+        <button id="drawPolygon" class="btn btn-primary">Desenhar Prédio</button>
+        <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Prédio">
         <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button>
-        <input type="color" id="colorPicker" value="#ff0000">
+
         <button id="setColor" class="btn btn-primary">Definir Cor</button>
+        <input type="color" id="colorPicker" value="#ff0000">
         <button id="deletePolygon" class="btn btn-primary">Deletar Prédio</button>
     </div>
 
@@ -151,8 +153,8 @@
         const draw = new MapboxDraw({
             displayControlsDefault: false,
             controls: {
-                polygon: true,
-                trash: true
+                //polygon: true,
+                //trash: true
             }
         });
         map.addControl(draw);
@@ -252,6 +254,11 @@
                             );
                         }
                         hoveredStateId = null;
+                    });
+
+                    document.getElementById('drawPolygon').addEventListener('click', function () {
+                        // Ativar o modo de desenho para polígonos
+                        draw.changeMode('draw_polygon');
                     });
 
 
@@ -354,11 +361,15 @@
                         const mapImgURL = mapCanvas.toDataURL("image/png");
 
                         // Capturar a imagem da legenda
-                        html2canvas(document.getElementById('legenda')).then(legendaCanvas => {
+                        html2canvas(document.getElementById('legenda'), {
+                            backgroundColor: '#FFFFFF' // Força o fundo branco
+
+                        }).then(legendaCanvas => {
                             const legendaImgURL = legendaCanvas.toDataURL("image/png");
                             combineImages(mapImgURL, legendaImgURL);
                         });
                     });
+
 
                     function combineImages(mapImgURL, legendaImgURL) {
                         const mapImg = new Image();
