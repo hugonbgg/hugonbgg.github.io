@@ -278,10 +278,6 @@
                     // Adiciona evento para capturar criação de novos desenhos
 
 
-
-
-
-
                     let selectedBuildingPredioId = null;
                     let selectedBuildingPredioAltura = null;
 
@@ -315,6 +311,9 @@
                             }
                         }
                     });
+                    // Define um contador inicial para os prédios desenhados
+                    let predioIdCounter = 100000;
+
 
                     document.getElementById('setPolygonHeight').addEventListener('click', function () {
                         const height = parseInt(document.getElementById('polygonHeight').value);
@@ -322,9 +321,14 @@
                             const drawnData = draw.getAll();
 
                             if (drawnData.features.length > 0) {
-                                const lastFeature = drawnData.features[drawnData.features.length - 1];
+                                const lastFeatureIndex = drawnData.features.length - 1;
+                                const lastFeature = drawnData.features[lastFeatureIndex];
                                 lastFeature.properties.Altura = height; // Certifique-se que a propriedade corresponde ao seu GeoJSON
 
+                                // Atribuir um novo ID único ao polígono desenhado
+                                lastFeature.properties.predioid = predioIdCounter.toString();
+                                
+                                predioIdCounter++; // Incrementa o contador para o próximo prédio
                                 // Adiciona o polígono desenhado ao geojsonData
                                 geojsonData.features.push(lastFeature);
 
