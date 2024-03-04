@@ -65,6 +65,23 @@
             display: inline-block;
         }
 
+        /* Estilo para os botões da legenda ao passar o mouse */
+        .legenda div[data-tipologia]:hover {
+            cursor: pointer;
+            /* Muda o cursor para indicar ação */
+            background-color: #e9ecef;
+            /* Cor de fundo mais clara para o hover */
+            border-radius: 5px;
+            /* Bordas arredondadas */
+        }
+
+        /* Ajustando o espaçamento e padding para os botões da legenda */
+        .legenda div {
+            /* Adiciona um pequeno espaço entre os botões */
+            transition: background-color 0.3s ease;
+            /* Suaviza a transição da cor de fundo */
+        }
+
         /*#exportMap {
             position: absolute;
             top: 10px;
@@ -96,6 +113,12 @@
 
         }
 
+        #building-info {
+            background-color: white;
+            border-radius: 2%;
+            padding: 3px;
+        }
+
         /* Ajustes adicionais para o Color Picker */
         #colorPicker {
             padding: 5px;
@@ -122,6 +145,7 @@
 
         #logos-container img {
             margin-right: 10px;
+            margin-left: 10px;
             margin-top: 5px;
             margin-bottom: 5px;
             /* Espaçamento entre os logos */
@@ -157,7 +181,7 @@
 
     <div class="sidebar">
 
-        <div id="building-info">Edifício: Nenhum</div>
+        <div id="building-info" class="bg-light p-1 rounded"> Altura do Edifício:</div>
         <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura">
         <button id="updateHeight" class="btn btn-primary my-2">Atualizar Altura</button>
         <button id="drawPolygon" class="btn btn-primary">Desenhar Prédio</button>
@@ -186,7 +210,7 @@
     <div id="legenda" class="legenda">
         <h4>Legenda</h4>
 
-        <div data-tipologia="Tombados"><span style="background-color: #fb89ba;"></span>Protegidos</div>
+        <div><span style="background-color: #fb89ba;"></span>Protegidos</div>
         <div data-tipologia="RESIDENCIAL"><span style="background-color: #93c47d;"></span>Residenciais</div>
         <div data-tipologia="NÃO RESIDENCIAL"><span style="background-color: #e8e0a1;"></span>Não Residencias</div>
         <div data-tipologia="USO MISTO"><span style="background-color: #ffab22;"></span>Uso Misto</div>
@@ -360,7 +384,8 @@
 
                             selectedBuildingPredioId = e.features[0].properties.predioid; // Usando a nova propriedade predioid
                             selectedBuildingPredioAltura = e.features[0].properties.Altura; // Usando a nova propriedade predioid
-                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId + ' - Altura: ' + selectedBuildingPredioAltura + 'm';
+                            //document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId + ' - Altura: ' + selectedBuildingPredioAltura + 'm';
+                            document.getElementById('building-info').textContent = 'Altura do Edifício: ' + selectedBuildingPredioAltura + 'm';
                             document.getElementById('heightInput').style.display = 'block';
                             document.getElementById('updateHeight').style.display = 'block';
                             // Mostra as propriedades do polígono clicado no console
@@ -368,24 +393,7 @@
                         }
                     });
 
-                    /*
-                    document.getElementById('updateHeight').addEventListener('click', function () {
-                        const newHeight = parseInt(document.getElementById('heightInput').value);
 
-                        if (selectedBuildingPredioId !== null && geojsonData && !isNaN(newHeight)) {
-                            const buildingFeature = geojsonData.features.find(feature => feature.properties.predioid === selectedBuildingPredioId);
-
-                            if (buildingFeature) {
-                                buildingFeature.properties.Altura = newHeight; // Atualiza a nova altura
-                                map.getSource('edificacoes').setData(geojsonData); // Atualiza a fonte de dados
-
-                                console.log("Altura atualizada:", buildingFeature.properties.Altura);
-                            } else {
-                                console.log("Feature não encontrada com predioid:", selectedBuildingPredioId);
-                            }
-                        }
-                    });
-                    */
                     document.getElementById('updateHeight').addEventListener('click', function () {
                         const newHeight = parseInt(document.getElementById('heightInput').value);
 
@@ -454,27 +462,6 @@
                         }
                     });
 
-                    /*
-                    document.getElementById('setColor').addEventListener('click', function () {
-                        const selectedColor = document.getElementById('colorPicker').value;
-
-                        if (selectedPolygonId !== null && geojsonData) {
-                            // Encontrar o prédio na fonte de dados
-                            const buildingFeature = geojsonData.features.find(feature => feature.properties.predioid === selectedPolygonId);
-                            if (buildingFeature) {
-                                // Definir a nova cor
-                                buildingFeature.properties.cor = selectedColor; // Adicione uma propriedade 'cor' ao seu GeoJSON se ainda não existir
-
-                                // Atualizar a fonte de dados no mapa
-                                map.getSource('edificacoes').setData(geojsonData);
-
-                                // Resetar o ID selecionado
-                                selectedPolygonId = null;
-                            }
-                        }
-                    });
-                    */
-
                     let selectedPolygonId = null;
 
                     map.on('click', 'edificacoes-layer', (e) => {
@@ -483,20 +470,6 @@
                             console.log(selectedPolygonId)
                         }
                     });
-                    /*
-                                        document.getElementById('deletePolygon').addEventListener('click', function () {
-                                            if (selectedPolygonId !== null && geojsonData) {
-                                                // Filtrar a fonte de dados para remover o polígono selecionado
-                                                geojsonData.features = geojsonData.features.filter(feature => feature.properties.predioid !== selectedPolygonId);
-                    
-                                                // Atualizar a fonte de dados no mapa
-                                                map.getSource('edificacoes').setData(geojsonData);
-                    
-                                                // Resetar o ID selecionado
-                                                selectedPolygonId = null;
-                                            }
-                                        });
-                    */
 
                     document.getElementById('deletePolygon').addEventListener('click', function () {
                         if (selectedPolygonId !== null && geojsonData) {
@@ -585,7 +558,8 @@
                         "Sem Classificação": true
                     };
 
-                    document.querySelectorAll('.legenda div').forEach(item => {
+
+                    document.querySelectorAll('.legenda div[data-tipologia]').forEach(item => {
                         item.addEventListener('click', function () {
                             let tipologia = this.getAttribute('data-tipologia');
 
@@ -604,32 +578,61 @@
                     function applyFilter() {
                         let baseFilter = ["all"];
 
-                        // Filtro para excluir "Tombados" se esta opção estiver desativada
-                        if (!tipologiaStatus["Tombados"]) {
-                            baseFilter.push(["any",
-                                ["!=", ["get", "Tombados"], "Sim"],
-                                ["!", ["has", "Tombados"]] // Sempre mostra recursos que não têm a propriedade "Tombados"
-                            ]);
-                        }
+                        // Cria um filtro que inclui prédios tombados independentemente de sua tipologia
+                        let filterTombados = ["==", ["get", "Tombados"], "Sim"];
 
-                        let tipologiaFilters = [];
+                        let tipologiaFilters = ["any", filterTombados]; // Inclui prédios tombados por padrão
+
+                        // Adiciona filtros de tipologia, mantendo os prédios tombados visíveis
                         Object.keys(tipologiaStatus).forEach(tipologia => {
-                            if (tipologia !== "Tombados" && tipologiaStatus[tipologia]) {
+                            if (tipologiaStatus[tipologia]) {
+                                // Para cada tipologia ativa, adicione ao filtro
+                                // Note que prédios tombados já estão incluídos e não serão ocultados
                                 tipologiaFilters.push(["==", ["get", "Tipologia"], tipologia]);
                             }
                         });
 
-                        // Verifica se há alguma tipologia ativa. Se não, inclui um filtro que não corresponde a nada.
-                        if (tipologiaFilters.length > 0) {
-                            baseFilter.push(["any", ...tipologiaFilters, ["!", ["has", "Tipologia"]]]); // Inclui prédios sem "Tipologia"
+                        // Verifica se algum filtro de tipologia está ativo além do inicial para prédios tombados
+                        if (tipologiaFilters.length > 1) {
+                            // Se houver filtros ativos, aplica o filtro combinando com os prédios tombados
+                            map.setFilter('edificacoes-layer', ["all", baseFilter, tipologiaFilters]);
                         } else {
-                            // Se não há filtros de tipologia ativos, inclui um filtro para sempre mostrar prédios sem "Tipologia"
-                            baseFilter.push(["!", ["has", "Tipologia"]]);
+                            // Se não, aplica um filtro que mostra apenas os prédios tombados
+                            map.setFilter('edificacoes-layer', ["all", baseFilter, filterTombados]);
                         }
-
-                        map.setFilter('edificacoes-layer', baseFilter);
                     }
 
+
+                    /*
+                                        function applyFilter() {
+                                            let baseFilter = ["all"];
+                    
+                                            // Filtro para excluir "Tombados" se esta opção estiver desativada
+                                            if (!tipologiaStatus["Tombados"]) {
+                                                baseFilter.push(["any",
+                                                    ["!=", ["get", "Tombados"], "Sim"],
+                                                    ["!", ["has", "Tombados"]] // Sempre mostra recursos que não têm a propriedade "Tombados"
+                                                ]);
+                                            }
+                    
+                                            let tipologiaFilters = [];
+                                            Object.keys(tipologiaStatus).forEach(tipologia => {
+                                                if (tipologia !== "Tombados" && tipologiaStatus[tipologia]) {
+                                                    tipologiaFilters.push(["==", ["get", "Tipologia"], tipologia]);
+                                                }
+                                            });
+                    
+                                            // Verifica se há alguma tipologia ativa. Se não, inclui um filtro que não corresponde a nada.
+                                            if (tipologiaFilters.length > 0) {
+                                                baseFilter.push(["any", ...tipologiaFilters, ["!", ["has", "Tipologia"]]]); // Inclui prédios sem "Tipologia"
+                                            } else {
+                                                // Se não há filtros de tipologia ativos, inclui um filtro para sempre mostrar prédios sem "Tipologia"
+                                                baseFilter.push(["!", ["has", "Tipologia"]]);
+                                            }
+                    
+                                            map.setFilter('edificacoes-layer', baseFilter);
+                                        }
+                    */
 
 
                 });
