@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Edificações</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.css'
+        rel='stylesheet' />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.js'></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .mapboxgl-ctrl-top-right {
+            top: 375px;
+            /* Ajuste este valor conforme necessário */
+        }
+
+        .legenda {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            background: ivory;
+            padding: 10px;
+            border-radius: 3px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+            font-size: 14px;
+            line-height: 1.5;
+            z-index: 1;
+            /* Garantir que a legenda fique acima do mapa */
+        }
+
+        .legenda h4 {
+            margin: 0 0 10px;
+        }
+
+        .legenda div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legenda span {
+            height: 15px;
+            width: 30px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        /* Estilo para os botões da legenda ao passar o mouse */
+        .legenda div[data-tipologia]:hover {
+            cursor: pointer;
+            /* Muda o cursor para indicar ação */
+            background-color: #e9ecef;
+            /* Cor de fundo mais clara para o hover */
+            border-radius: 5px;
+            /* Bordas arredondadas */
+        }
+
+        /* Ajustando o espaçamento e padding para os botões da legenda */
+        .legenda div {
+            /* Adiciona um pequeno espaço entre os botões */
+            transition: background-color 0.3s ease;
+            /* Suaviza a transição da cor de fundo */
+        }
+
+        /*#exportMap {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }*/
+
+        .sidebar {
+
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 170px;
+            /* Defina a largura conforme necessário */
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            /* Alinha os elementos horizontalmente */
+        }
+
+        .sidebar input,
+        .sidebar button {
+            font-size: 14px;
+            margin-bottom: 5px;
+            width: 100%;
+            /* Faz com que os elementos ocupem toda a largura da sidebar */
+            box-sizing: border-box;
+            /* Garante que padding e borda estejam incluídos na largura */
+
+        }
+
+        #building-info {
+            background-color: white;
+            border-radius: 2%;
+            padding: 3px;
+        }
+
+        /* Ajustes adicionais para o Color Picker */
+        #colorPicker {
+            padding: 5px;
+            height: 38px;
+            /* Altura para igualar com os botões */
+            border: 1px solid #ced4da;
+            /* Borda para combinar com o estilo do Bootstrap */
+            border-radius: .25rem;
+            /* Arredondamento das bordas */
+        }
+
+        #logos-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            background-color: ivory;
+
+            /* Centraliza verticalmente os logos, se tiverem alturas diferentes */
+            z-index: 1;
+            /* Garante que os logos fiquem acima do mapa */
+        }
+
+        #logos-container img {
+            margin-right: 10px;
+            margin-left: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            /* Espaçamento entre os logos */
+            height: 75px;
+            /* Ajuste a altura conforme necessário */
+        }
+
+        #logos-container img:last-child {
+            margin-right: 0;
+            /* Remove o espaço extra à direita do último logo */
+        }
+
+        .legenda-line {
+            display: inline-block;
+            width: 30px;
+            height: 2px;
+            background-image: linear-gradient(90deg, gray 50%, transparent 50%);
+            background-size: 12px 3px;
+            background-repeat: repeat-x;
+            /* Adiciona esta linha */
+        }
+    </style>
+</head>
+
+<body>
+    <div id='logos-container'>
+        <img src="Logo PCR.png" alt="Logo da Prefeitura do Recife">
+        <img src="Recentro-Vertical-Laranja-300x212.png" alt="Logo do Recentro">
+        <img src="Logo ARIES.png" alt="Logo da ARIES">
+    </div>
+    <div id='map'></div>
+
+
+    <div class="sidebar">
+
+        <div id="building-info" class="bg-light p-1 rounded"> Altura do Edifício:</div>
+        <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura">
+        <button id="updateHeight" class="btn btn-primary my-2">Atualizar Altura</button>
+        <button id="drawPolygon" class="btn btn-primary">Desenhar Prédio</button>
+        <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Prédio">
+        <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button>
+        <button id="setColor" class="btn btn-primary">Definir Cor</button>
+        <input type="color" id="colorPicker" value="#ff0000">
+        <button id="deletePolygon" class="btn btn-primary">Deletar Prédio</button>
+        <button id="exportMap" class="btn btn-primary">Captura de Tela</button>
+
+    </div>
+
+    <!--
+    <div id="legenda" class="legenda">
+        <h4>Legenda</h4>
+        <div><span style="background-color: #fb89ba;"></span>Tombados</div>
+        <div><span style="background-color: #93c47d;"></span>Residenciais</div>
+        <div><span style="background-color: #e8e0a1;"></span>Não Residencias</div>
+        <div><span style="background-color: #ffab22;"></span>Uso Misto</div>
+        <div><span style="background-color: #F5F5F5;"></span>Sem Classificação</div>
+    </div>
+-->
+
+
+
+    <div id="legenda" class="legenda">
+        <h4>Legenda</h4>
+
+        <div><span style="background-color: #fb89ba;"></span>Protegidos</div>
+        <div data-tipologia="RESIDENCIAL"><span style="background-color: #93c47d;"></span>Residenciais</div>
+        <div data-tipologia="NÃO RESIDENCIAL"><span style="background-color: #e8e0a1;"></span>Não Residencias</div>
+        <div data-tipologia="USO MISTO"><span style="background-color: #ffab22;"></span>Uso Misto</div>
+        <div data-tipologia="TERRENO"><span style="background-color: #af5c0d;"></span>Terrenos</div>
+        <div data-tipologia="Sem Classificação"><span style="background-color: #F5F5F5;"></span>Sem Classificação</div>
+        <div id="legenda-perimetro">
+            <span class="legenda-line" aria-hidden="true"></span> Perímetro Recentro
+        </div>
+
+    </div>
+
+
+    </div>
+    <!--<button id="exportMap">Exportar Captura de Tela</button>-->
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjbHByaHZ2eGMwN2Y3MmpwOXAzdHN0NG1yIn0.Zm3JekQESJdylLdUiiMEUg'; // Substitua com o seu token de acesso
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [-34.87, -8.055], // Coordenadas de inicialização
+            zoom: 15,
+            preserveDrawingBuffer: true,
+            antialias: true
+        });
+
+        // Adiciona Mapbox GL Draw
+        const draw = new MapboxDraw({
+            displayControlsDefault: false,
+            controls: {
+                //polygon: true,
+                //trash: true
+            }
+        });
+        map.addControl(draw);
+
+        let selectedBuildingId = null;
+        let geojsonData = null; // Garanta que essa variável global seja declarada
+
+        map.on('load', function () {
+
+
+
+            // Carrega os dados GeoJSON
+            fetch('edificacoes_dados_lotes.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    geojsonData = data; // Armazena os dados GeoJSON
+                    map.addSource('edificacoes', {
+                        type: 'geojson',
+                        data: geojsonData,
+                        generateId: true,
+                    });
+
+                    map.addLayer({
+                        id: "edificacoes-layer",
+                        type: "fill-extrusion",
+                        source: "edificacoes",
+                        //layout: { visibility: "visible" },
+                        paint: {
+                            "fill-extrusion-color": [
+                                "case",
+                                ["boolean", ["feature-state", "hover"], false],
+                                "#FF8C00",
+                                ["has", "cor"], // Verifica se a propriedade 'cor' existe
+                                ["get", "cor"], // Usa a cor definida
+                                ["==", ["get", "Tombados"], "Sim"],
+                                "#fb89ba",
+                                ["==", ["get", "Tipologia"], "RESIDENCIAL"],
+                                "#93c47d",
+                                ["==", ["get", "Tipologia"], "NÃO RESIDENCIAL"],
+                                "#e8e0a1",
+                                ["==", ["get", "Tipologia"], "USO MISTO"],
+                                "#ffab22",
+                                ["==", ["get", "Tipologia"], "TERRENO"],
+                                "#af5c0d",
+                                ["==", ["get", "Tipologia"], "Sem Classificação"],
+                                "#F5F5F5",
+
+                                "#F5F5F5", //Tudo que não se encaixa nas categorias acima, os não residenciais
+                            ],
+
+                            "fill-extrusion-height": {
+                                type: "identity",
+                                property: "Altura",
+                            },
+                            "fill-extrusion-opacity": 0.9,
+                            "fill-extrusion-base": 0,
+                            "fill-extrusion-vertical-gradient": true,
+                        },
+                    });
+
+                    map.addSource('recentro', {
+                        type: 'geojson',
+                        data: 'recentro1.json',
+                    });
+
+                    map.addLayer({
+                        id: 'recentro-layer',
+                        type: 'line',
+                        source: 'recentro',
+                        'layout': {
+                            'line-cap': 'round',
+                            'line-join': 'round'
+                        },
+                        paint: {
+                            'line-color': 'gray',
+                            'line-width': 4,
+                            'line-dasharray': [2, 2],
+                        },
+                    });
+
+                    // Change the cursor to a pointer when the mouse is over the places layer.
+                    map.on("mouseenter", "edificacoes-layer", function () {
+                        map.getCanvas().style.cursor = "pointer";
+                    });
+
+                    // Change it back to a pointer when it leaves.
+                    map.on("mouseleave", "edificacoes-layer", function () {
+                        map.getCanvas().style.cursor = "";
+                    });
+
+                    //Configura o hover para o 3D
+                    // When the user moves their mouse over the state-fill layer, we'll update the
+                    // feature state for the feature under the mouse.
+
+                    let hoveredStateId = null; //▒Declara a variavel para o hover            
+                    map.on("mousemove", "edificacoes-layer", (e) => {
+                        //map.getCanvas().style.cursor = "pointer";
+                        //console.log(hoveredStateId);
+                        if (e.features.length > 0) {
+                            if (hoveredStateId !== undefined) {
+                                map.setFeatureState(
+                                    { source: "edificacoes", id: hoveredStateId },
+                                    { hover: false }
+                                );
+                            }
+                            hoveredStateId = e.features[0].id;
+                            map.setFeatureState(
+                                { source: "edificacoes", id: hoveredStateId },
+                                { hover: true }
+                            );
+                        }
+                    });
+
+                    // When the mouse leaves the state-fill layer, update the feature state of the
+                    // previously hovered feature.
+                    map.on("mouseleave", "edificacoes-layer", () => {
+                        map.getCanvas().style.cursor = "";
+                        if (hoveredStateId !== undefined) {
+                            map.setFeatureState(
+                                { source: "edificacoes", id: hoveredStateId },
+                                { hover: false }
+                            );
+                        }
+                        hoveredStateId = null;
+                    });
+
+                    document.getElementById('drawPolygon').addEventListener('click', function () {
+                        // Ativar o modo de desenho para polígonos
+                        draw.changeMode('draw_polygon');
+                    });
+                    // Adiciona evento para capturar criação de novos desenhos
+
+
+                    let selectedBuildingPredioId = null;
+                    let selectedBuildingPredioAltura = null;
+
+                    map.on('click', 'edificacoes-layer', (e) => {
+                        if (e.features.length > 0) {
+
+                            selectedBuildingPredioId = e.features[0].properties.predioid; // Usando a nova propriedade predioid
+                            selectedBuildingPredioAltura = e.features[0].properties.Altura; // Usando a nova propriedade predioid
+                            //document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingPredioId + ' - Altura: ' + selectedBuildingPredioAltura + 'm';
+                            document.getElementById('building-info').textContent = 'Altura do Edifício: ' + selectedBuildingPredioAltura + 'm';
+                            document.getElementById('heightInput').style.display = 'block';
+                            document.getElementById('updateHeight').style.display = 'block';
+                            // Mostra as propriedades do polígono clicado no console
+                            console.log("Propriedades do polígono clicado:", e.features[0].properties);
+                        }
+                    });
+
+
+                    document.getElementById('updateHeight').addEventListener('click', function () {
+                        const newHeight = parseInt(document.getElementById('heightInput').value);
+
+                        if (selectedBuildingPredioId !== null && geojsonData && !isNaN(newHeight)) {
+                            const buildingFeature = geojsonData.features.find(feature => feature.properties.predioid === selectedBuildingPredioId);
+
+                            if (buildingFeature) {
+                                // Verificar se o prédio é tombado
+                                if (buildingFeature.properties.Tombados === "Sim") {
+                                    alert("Este prédio é protegido e não pode ser alterado.");
+                                    return; // Interrompe a execução do resto do código
+                                }
+
+                                buildingFeature.properties.Altura = newHeight;
+                                map.getSource('edificacoes').setData(geojsonData);
+                            } else {
+                                console.log("Feature não encontrada com predioid:", selectedBuildingPredioId);
+                            }
+                        }
+                    });
+
+
+                    // Define um contador inicial para os prédios desenhados
+                    let predioIdCounter = 100000;
+
+
+                    document.getElementById('setPolygonHeight').addEventListener('click', function () {
+                        const height = parseInt(document.getElementById('polygonHeight').value);
+                        if (!isNaN(height)) {
+                            const drawnData = draw.getAll();
+
+                            if (drawnData.features.length > 0) {
+                                const lastFeatureIndex = drawnData.features.length - 1;
+                                const lastFeature = drawnData.features[lastFeatureIndex];
+                                lastFeature.properties.Altura = height; // Certifique-se que a propriedade corresponde ao seu GeoJSON
+
+                                // Atribuir um novo ID único ao polígono desenhado
+                                lastFeature.properties.predioid = predioIdCounter.toString();
+
+                                predioIdCounter++; // Incrementa o contador para o próximo prédio
+                                // Adiciona o polígono desenhado ao geojsonData
+                                geojsonData.features.push(lastFeature);
+
+                                // Atualiza a fonte de dados no mapa
+                                map.getSource('edificacoes').setData(geojsonData);
+                            }
+                        }
+                    });
+
+                    document.getElementById('setColor').addEventListener('click', function () {
+                        const selectedColor = document.getElementById('colorPicker').value;
+
+                        if (selectedPolygonId !== null && geojsonData) {
+                            const buildingFeature = geojsonData.features.find(feature => feature.properties.predioid === selectedPolygonId);
+
+                            if (buildingFeature) {
+                                // Verificar se o prédio é tombado
+                                if (buildingFeature.properties.Tombados === "Sim") {
+                                    alert("Este prédio é protegido e não pode ter sua cor alterada.");
+                                    return; // Interrompe a execução do resto do código
+                                }
+
+                                buildingFeature.properties.cor = selectedColor;
+                                map.getSource('edificacoes').setData(geojsonData);
+                            }
+                        }
+                    });
+
+                    let selectedPolygonId = null;
+
+                    map.on('click', 'edificacoes-layer', (e) => {
+                        if (e.features.length > 0) {
+                            selectedPolygonId = e.features[0].properties.predioid;
+                            console.log(selectedPolygonId)
+                        }
+                    });
+
+                    document.getElementById('deletePolygon').addEventListener('click', function () {
+                        if (selectedPolygonId !== null && geojsonData) {
+                            const buildingFeatureIndex = geojsonData.features.findIndex(feature => feature.properties.predioid === selectedPolygonId);
+
+                            // Verifica se o prédio foi encontrado e se é tombado
+                            if (buildingFeatureIndex !== -1 && geojsonData.features[buildingFeatureIndex].properties.Tombados === "Sim") {
+                                alert("Este prédio é protegido e não pode ser removido.");
+                            } else if (buildingFeatureIndex !== -1) {
+                                // Remove o prédio não tombado
+                                geojsonData.features.splice(buildingFeatureIndex, 1);
+                                map.getSource('edificacoes').setData(geojsonData);
+                                // Resetar o ID selecionado
+                                selectedPolygonId = null;
+                            } else {
+                                console.log("Feature não encontrada com predioid:", selectedPolygonId);
+                            }
+                        }
+                    });
+
+
+
+                    const scale = 2; // Aumentar para obter uma imagem maior
+                    document.getElementById('exportMap').addEventListener('click', function () {
+                        // Capturar a imagem do mapa
+                        const mapCanvas = document.querySelector('.mapboxgl-canvas');
+                        const mapImgURL = mapCanvas.toDataURL("image/png");
+
+                        // Capturar a imagem da legenda
+                        html2canvas(document.getElementById('legenda'), {
+                            backgroundColor: '#FFFFFF' // Força o fundo branco
+
+                        }).then(legendaCanvas => {
+                            const legendaImgURL = legendaCanvas.toDataURL("image/png");
+                            combineImages(mapImgURL, legendaImgURL);
+                        });
+                    });
+
+
+                    function combineImages(mapImgURL, legendaImgURL) {
+                        const mapImg = new Image();
+                        const legendaImg = new Image();
+
+                        mapImg.onload = () => {
+                            legendaImg.onload = () => {
+                                // Criar um canvas combinado
+                                const combinedCanvas = document.createElement('canvas');
+                                combinedCanvas.width = mapImg.width;
+                                combinedCanvas.height = mapImg.height;
+                                const ctx = combinedCanvas.getContext('2d');
+
+                                // Desenhar a imagem do mapa
+                                ctx.drawImage(mapImg, 0, 0);
+
+                                // Posição da legenda no canto inferior direito
+                                const x = mapImg.width - legendaImg.width - 10; // 10 pixels de margem
+                                const y = mapImg.height - legendaImg.height - 10;
+
+                                // Desenhar a imagem da legenda
+                                ctx.drawImage(legendaImg, x, y);
+
+                                // Exportar a imagem combinada
+                                exportCombinedImage(combinedCanvas.toDataURL("image/png"));
+                            };
+                            legendaImg.src = legendaImgURL;
+                        };
+                        mapImg.src = mapImgURL;
+                    }
+
+                    function exportCombinedImage(imgURL) {
+                        const link = document.createElement('a');
+                        link.href = imgURL;
+                        link.download = 'mapa-legenda-captura.png';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    }
+
+
+                    let tipologiaStatus = {
+                        "Tombados": true,
+                        "RESIDENCIAL": true,
+                        "NÃO RESIDENCIAL": true,
+                        "USO MISTO": true,
+                        "TERRENO": true,
+                        "Sem Classificação": true
+                    };
+
+
+                    document.querySelectorAll('.legenda div[data-tipologia]').forEach(item => {
+                        item.addEventListener('click', function () {
+                            let tipologia = this.getAttribute('data-tipologia');
+
+                            // Toggle o status da tipologia
+                            tipologiaStatus[tipologia] = !tipologiaStatus[tipologia];
+
+                            // Atualiza a legenda para refletir o status (opcional)
+                            this.style.opacity = tipologiaStatus[tipologia] ? "1" : "0.5";
+
+                            // Aplica o filtro atualizado
+                            applyFilter();
+                        });
+                    });
+
+                    function applyFilter() {
+                        let baseFilter = ["all"];
+
+                        let tipologiaFilters = ["any"];
+
+                        // Adiciona filtros de tipologia, exceto para "Tombados"
+                        Object.keys(tipologiaStatus).forEach(tipologia => {
+                            if (tipologia !== "Tombados" && tipologiaStatus[tipologia]) {
+                                tipologiaFilters.push(["==", ["get", "Tipologia"], tipologia]);
+                            }
+                        });
+
+                        // Garante a inclusão de prédios sem a propriedade "Tipologia" (prédios desenhados)
+                        tipologiaFilters.push(["!", ["has", "Tipologia"]]);
+
+                        // Se nenhuma tipologia estiver selecionada (exceto "Tombados"), o filtro "any" estaria vazio. Então, adiciona uma condição falsa para não mostrar nenhum prédio por padrão.
+                        if (tipologiaFilters.length === 1) {
+                            tipologiaFilters.push(["==", "none", "none"]);
+                        }
+
+                        // Adiciona o filtro de tipologias ao filtro base
+                        baseFilter.push(tipologiaFilters);
+
+                        // Adiciona uma condição para sempre incluir prédios tombados, independentemente de outros filtros
+                        let tombadosFilter = ["any", ["==", ["get", "Tombados"], "Sim"], baseFilter];
+
+                        map.setFilter('edificacoes-layer', tombadosFilter);
+                    }
+
+
+
+                });
+        });
+    </script>
+</body>
+
+</html>
