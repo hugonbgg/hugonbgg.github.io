@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Edificações</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .sidebar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id='map'></div>
+    <div class="sidebar">
+        <div id="building-info">Edifício: Nenhum</div>
+        <input id="heightInput" type="text" placeholder="Digite a altura" style="display: none;">
+        <button id="updateHeight" style="display: none;">Atualizar Altura</button>
+    </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoiaHVnb25iZyIsImEiOiJjbHByaHZ2eGMwN2Y3MmpwOXAzdHN0NG1yIn0.Zm3JekQESJdylLdUiiMEUg'; // Substitua com o seu token de acesso
+        const map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: [-34.87, -8.055], // Coordenadas de inicialização
+            zoom: 15,
+        });
+
+        let selectedBuildingId = null;
+        let geojsonData = null; // Garanta que essa variável global seja declarada
+
+        map.on('load', function () {
+            // Carrega os dados GeoJSON
+            fetch('edificacoes_simplify.geojson')
+                .then(response => response.json())
+                .then(data => {
+                    geojsonData = data; // Armazena os dados GeoJSON
+                    map.addSource('edificacoes', {
+                        type: 'geojson',
+                        data: geojsonData,
+                        generateId: true,
+                    });
+
+
+                    map.addLayer({
+                        'id': 'edificacoes-layer',
+                        'type': 'fill-extrusion',
+                        'source': 'edificacoes',
+                        'paint': {
+                            'fill-extrusion-color': 'lightgray',
+                            'fill-extrusion-opacity': 0.8,
+                            'fill-extrusion-height': ['get', 'Altura']
+                        }
+                    });
+
+
+
+                    map.on('click', 'edificacoes-layer', (e) => {
+                        if (e.features.length > 0) {
+                            selectedBuildingId = e.features[0].id;
+                            selectedBuildingAltura = e.features[0].properties.Altura;
+                            document.getElementById('building-info').textContent = 'Edifício: ' + selectedBuildingId;
+                            document.getElementById('heightInput').style.display = 'block';
+                            document.getElementById('updateHeight').style.display = 'block';
+                        }
+                    });
+
+                    document.getElementById('updateHeight').addEventListener('click', function () {
+                        const heightValue = document.getElementById('heightInput').value;
+                        const newHeight = parseInt(heightValue);
+
+                        console.log("Altura do edificio antes da atualização", selectedBuildingAltura);
+                        console.log("Altura inserida:", heightValue); // Verifica o valor inserido
+                        console.log("Altura convertida:", newHeight); // Verifica a conversão para número
+
+                        //const buildingFeature = geojsonData.features.find(feature => feature.id === parseInt(selectedBuildingId));
+                        // ou
+                        //const buildingFeature = geojsonData.features.find(feature => feature.id.toString() === selectedBuildingId);
+
+
+                        if (selectedBuildingId !== null && geojsonData && !isNaN(newHeight)) {
+                            console.log("Selected Building ID:", selectedBuildingId);
+
+                            // Teste: Pegar a primeira feature e imprimir
+                            const firstFeature = geojsonData.features[0];
+                            if (firstFeature) {
+                                console.log("Primeira Feature:", firstFeature);
+                            } else {
+                                console.log("Não foi possível encontrar a primeira feature.");
+                            }
+
+                            // Tentativa de encontrar a feature selecionada
+                            const buildingFeature = geojsonData.features.find(feature => {
+                                console.log("Feature ID:", feature.id);
+                                return feature.id === selectedBuildingId;
+                            });
+
+                            if (buildingFeature) {
+                                console.log("Feature encontrada:", buildingFeature);
+                                buildingFeature.properties.Altura = newHeight;
+                                map.getSource('edificacoes').setData(geojsonData);
+
+                                console.log("Altura atualizada:", buildingFeature.properties.Altura);
+                            } else {
+                                console.log("Feature não encontrada.");
+                            }
+                        }
+
+
+                    });
+
+
+
+
+                });
+        });
+    </script>
+</body>
+
+</html>

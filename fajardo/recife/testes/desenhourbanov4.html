@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mapa de Edificações</title>
+    <script src='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v3.0.0/mapbox-gl.css' rel='stylesheet' />
+    <link href='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.css'
+        rel='stylesheet' />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/latest/css/bootstrap.min.css" rel="stylesheet">
+
+    <script src='https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.3.0/mapbox-gl-draw.js'></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
+
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+        }
+
+        .mapboxgl-ctrl-top-right {
+            top: 375px;
+            /* Ajuste este valor conforme necessário */
+        }
+
+        .legenda {
+            position: absolute;
+            bottom: 30px;
+            right: 10px;
+            background: ivory;
+            padding: 10px;
+            border-radius: 3px;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+            font-size: 14px;
+            line-height: 1.5;
+            z-index: 1;
+            /* Garantir que a legenda fique acima do mapa */
+        }
+
+        .legenda h4 {
+            margin: 0 0 10px;
+        }
+
+        .legenda div {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .legenda span {
+            height: 15px;
+            width: 30px;
+            margin-right: 10px;
+            display: inline-block;
+        }
+
+        /* Estilo para os botões da legenda ao passar o mouse */
+        .legenda div[data-tipologia]:hover {
+            cursor: pointer;
+            /* Muda o cursor para indicar ação */
+            background-color: #e9ecef;
+            /* Cor de fundo mais clara para o hover */
+            border-radius: 5px;
+            /* Bordas arredondadas */
+        }
+
+        /* Ajustando o espaçamento e padding para os botões da legenda */
+        .legenda div {
+            /* Adiciona um pequeno espaço entre os botões */
+            transition: background-color 0.3s ease;
+            /* Suaviza a transição da cor de fundo */
+        }
+
+        /*#exportMap {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+        }*/
+
+        .sidebar {
+
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 170px;
+            /* Defina a largura conforme necessário */
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            /* Alinha os elementos horizontalmente */
+        }
+
+        .sidebar input,
+        .sidebar button {
+            font-size: 14px;
+            margin-bottom: 5px;
+            width: 100%;
+            /* Faz com que os elementos ocupem toda a largura da sidebar */
+            box-sizing: border-box;
+            /* Garante que padding e borda estejam incluídos na largura */
+
+        }
+
+        #building-info {
+            background-color: white;
+            border-radius: 2%;
+            padding: 3px;
+        }
+
+        /* Ajustes adicionais para o Color Picker */
+        #colorPicker {
+            padding: 5px;
+            height: 38px;
+            /* Altura para igualar com os botões */
+            border: 1px solid #ced4da;
+            /* Borda para combinar com o estilo do Bootstrap */
+            border-radius: .25rem;
+            /* Arredondamento das bordas */
+        }
+
+        #logos-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            display: flex;
+            align-items: center;
+            background-color: ivory;
+
+            /* Centraliza verticalmente os logos, se tiverem alturas diferentes */
+            z-index: 1;
+            /* Garante que os logos fiquem acima do mapa */
+        }
+
+        #logos-container img {
+            margin-right: 10px;
+            margin-left: 10px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            /* Espaçamento entre os logos */
+            height: 75px;
+            /* Ajuste a altura conforme necessário */
+        }
+
+        #logos-container img:last-child {
+            margin-right: 0;
+            /* Remove o espaço extra à direita do último logo */
+        }
+
+        .legenda-line {
+            display: inline-block;
+            width: 30px;
+            height: 2px;
+            background-image: linear-gradient(90deg, gray 50%, transparent 50%);
+            background-size: 12px 3px;
+            background-repeat: repeat-x;
+            /* Adiciona esta linha */
+        }
+    </style>
+</head>
+
+<body>
+    <div id='logos-container'>
+        <img src="Logo PCR.png" alt="Logo da Prefeitura do Recife">
+        <img src="Recentro-Vertical-Laranja-300x212.png" alt="Logo do Recentro">
+        <img src="Logo ARIES.png" alt="Logo da ARIES">
+    </div>
+    <div id='map'></div>
+
+
+    <div class="sidebar">
+
+        <div id="building-info" class="bg-light p-1 rounded"> Altura do Edifício:</div>
+        <input id="heightInput" type="number" class="form-control my-2" placeholder="Digite a Altura">
+        <button id="updateHeight" class="btn btn-primary my-2">Atualizar Altura</button>
+        <button id="drawPolygon" class="btn btn-primary">Desenhar Prédio</button>
+        <input id="polygonHeight" type="number" class="form-control my-2" placeholder="Altura do Prédio">
+        <button id="setPolygonHeight" class="btn btn-primary">Definir Altura</button>
+        <button id="setColor" class="btn btn-primary">Definir Cor</button>
+        <input type="color" id="colorPicker" value="#ff0000">
+        <button id="deletePolygon" class="btn btn-primary">Deletar Prédio</button>
+        <button id="exportMap" class="btn btn-primary">Captura de Tela</button>
+
+    </div>
+
+
+    <div id="legenda" class="legenda">
+        <h4>Legenda</h4>
+
+        <div><span style="background-color: #fb89ba;"></span>Protegidos</div>
+        <div data-tipologia="RESIDENCIAL"><span style="background-color: #93c47d;"></span>Residenciais</div>
+        <div data-tipologia="NÃO RESIDENCIAL"><span style="background-color: #e8e0a1;"></span>Não Residencias</div>
+        <div data-tipologia="USO MISTO"><span style="background-color: #ffab22;"></span>Uso Misto</div>
+        <div data-tipologia="TERRENO"><span style="background-color: #af5c0d;"></span>Terrenos</div>
+        <div data-tipologia="Sem Classificação"><span style="background-color: #F5F5F5;"></span>Sem Classificação</div>
+        <div id="legenda-perimetro">
+            <span class="legenda-line" aria-hidden="true"></span> Perímetro Recentro
+        </div>
+
+    </div>
+
+
+    </div>
+    <!--<button id="exportMap">Exportar Captura de Tela</button>-->
+
+    <script>
+const _0x56186e=_0x4220;function _0xe0a3(){const _0x31e942=['\x2e\x6c\x65\x67\x65\x6e\x64\x61\x20\x64\x69\x76\x5b\x64\x61\x74\x61\x2d\x74\x69\x70\x6f\x6c\x6f\x67\x69\x61\x5d','\x66\x69\x6c\x6c\x2d\x65\x78\x74\x72\x75\x73\x69\x6f\x6e','\x6e\x6f\x6e\x65','\x73\x65\x74\x46\x65\x61\x74\x75\x72\x65\x53\x74\x61\x74\x65','\x62\x6c\x6f\x63\x6b','\x74\x6f\x53\x74\x72\x69\x6e\x67','\x6d\x61\x70\x61\x2d\x6c\x65\x67\x65\x6e\x64\x61\x2d\x63\x61\x70\x74\x75\x72\x61\x2e\x70\x6e\x67','\x6c\x6f\x61\x64','\x73\x65\x74\x46\x69\x6c\x74\x65\x72','\x71\x75\x65\x72\x79\x53\x65\x6c\x65\x63\x74\x6f\x72\x41\x6c\x6c','\x53\x69\x6d','\x63\x6c\x69\x63\x6b','\x73\x74\x79\x6c\x65','\x68\x6f\x76\x65\x72','\x63\x75\x72\x73\x6f\x72','\x67\x65\x74\x41\x74\x74\x72\x69\x62\x75\x74\x65','\x66\x69\x6e\x64\x49\x6e\x64\x65\x78','\x45\x73\x74\x65\x20\x70\x72\u00e9\x64\x69\x6f\x20\u00e9\x20\x70\x72\x6f\x74\x65\x67\x69\x64\x6f\x20\x65\x20\x6e\u00e3\x6f\x20\x70\x6f\x64\x65\x20\x73\x65\x72\x20\x72\x65\x6d\x6f\x76\x69\x64\x6f\x2e','\x69\x64\x65\x6e\x74\x69\x74\x79','\x67\x65\x74\x43\x61\x6e\x76\x61\x73','\x31\x32\x32\x36\x33\x31\x30\x4c\x76\x70\x57\x71\x58','\x33\x37\x36\x36\x31\x31\x33\x4c\x4e\x4a\x49\x53\x57','\x30\x2e\x35','\x70\x72\x6f\x70\x65\x72\x74\x69\x65\x73','\x38\x30\x4b\x74\x46\x55\x62\x6e','\x46\x65\x61\x74\x75\x72\x65\x20\x6e\u00e3\x6f\x20\x65\x6e\x63\x6f\x6e\x74\x72\x61\x64\x61\x20\x63\x6f\x6d\x20\x70\x72\x65\x64\x69\x6f\x69\x64\x3a','\x61\x64\x64\x4c\x61\x79\x65\x72','\x62\x6f\x6f\x6c\x65\x61\x6e','\x67\x65\x74\x41\x6c\x6c','\x61\x63\x63\x65\x73\x73\x54\x6f\x6b\x65\x6e','\x75\x70\x64\x61\x74\x65\x48\x65\x69\x67\x68\x74','\x66\x69\x6e\x64','\x65\x64\x69\x66\x69\x63\x61\x63\x6f\x65\x73','\x63\x61\x73\x65','\x6c\x65\x6e\x67\x74\x68','\x62\x6f\x64\x79','\x68\x65\x69\x67\x68\x74\x49\x6e\x70\x75\x74','\x61\x64\x64\x43\x6f\x6e\x74\x72\x6f\x6c','\x6d\x6f\x75\x73\x65\x6c\x65\x61\x76\x65','\x65\x64\x69\x66\x69\x63\x61\x63\x6f\x65\x73\x2d\x6c\x61\x79\x65\x72','\x74\x6f\x44\x61\x74\x61\x55\x52\x4c','\x64\x72\x61\x77\x49\x6d\x61\x67\x65','\x6f\x6e\x6c\x6f\x61\x64','\x64\x69\x73\x70\x6c\x61\x79','\x68\x61\x73','\x23\x61\x66\x35\x63\x30\x64','\x63\x61\x6e\x76\x61\x73','\x70\x72\x65\x64\x69\x6f\x69\x64','\x77\x69\x64\x74\x68','\x68\x65\x69\x67\x68\x74','\x4e\u00c3\x4f\x20\x52\x45\x53\x49\x44\x45\x4e\x43\x49\x41\x4c','\x45\x73\x74\x65\x20\x70\x72\u00e9\x64\x69\x6f\x20\u00e9\x20\x70\x72\x6f\x74\x65\x67\x69\x64\x6f\x20\x65\x20\x6e\u00e3\x6f\x20\x70\x6f\x64\x65\x20\x73\x65\x72\x20\x61\x6c\x74\x65\x72\x61\x64\x6f\x2e','\x36\x30\x57\x76\x61\x65\x4c\x4e','\x33\x36\x35\x35\x33\x4b\x47\x70\x4c\x6d\x72','\x6c\x6f\x67','\x67\x65\x74\x43\x6f\x6e\x74\x65\x78\x74','\x67\x65\x74','\x32\x35\x30\x39\x37\x31\x4d\x69\x69\x41\x4b\x6d','\x76\x61\x6c\x75\x65','\x6c\x65\x67\x65\x6e\x64\x61','\x70\x75\x73\x68','\x72\x6f\x75\x6e\x64','\x66\x65\x61\x74\x75\x72\x65\x2d\x73\x74\x61\x74\x65','\x73\x70\x6c\x69\x63\x65','\x74\x68\x65\x6e','\x23\x65\x38\x65\x30\x61\x31','\x69\x6d\x61\x67\x65\x2f\x70\x6e\x67','\x55\x53\x4f\x20\x4d\x49\x53\x54\x4f','\x6d\x61\x70','\x31\x33\x31\x35\x37\x35\x57\x66\x45\x65\x4e\x72','\x72\x65\x6d\x6f\x76\x65\x43\x68\x69\x6c\x64','\x61\x70\x70\x65\x6e\x64\x43\x68\x69\x6c\x64','\x6c\x69\x6e\x65','\x32\x4f\x55\x59\x6e\x78\x42','\x66\x6f\x72\x45\x61\x63\x68','\x63\x68\x61\x6e\x67\x65\x4d\x6f\x64\x65','\x67\x65\x6f\x6a\x73\x6f\x6e','\x23\x46\x35\x46\x35\x46\x35','\x73\x65\x74\x50\x6f\x6c\x79\x67\x6f\x6e\x48\x65\x69\x67\x68\x74','\x34\x30\x39\x37\x39\x36\x76\x71\x59\x70\x47\x74','\x66\x65\x61\x74\x75\x72\x65\x73','\x67\x65\x74\x53\x6f\x75\x72\x63\x65','\x53\x65\x6d\x20\x43\x6c\x61\x73\x73\x69\x66\x69\x63\x61\u00e7\u00e3\x6f','\x72\x65\x63\x65\x6e\x74\x72\x6f','\x54\x6f\x6d\x62\x61\x64\x6f\x73','\x70\x6f\x6c\x79\x67\x6f\x6e\x48\x65\x69\x67\x68\x74','\x73\x65\x74\x43\x6f\x6c\x6f\x72','\x61\x64\x64\x45\x76\x65\x6e\x74\x4c\x69\x73\x74\x65\x6e\x65\x72','\x54\x69\x70\x6f\x6c\x6f\x67\x69\x61','\x64\x72\x61\x77\x5f\x70\x6f\x6c\x79\x67\x6f\x6e','\x65\x78\x70\x6f\x72\x74\x4d\x61\x70','\x73\x72\x63','\x61\x6e\x79','\x63\x72\x65\x61\x74\x65\x45\x6c\x65\x6d\x65\x6e\x74','\x72\x65\x63\x65\x6e\x74\x72\x6f\x31\x2e\x6a\x73\x6f\x6e','\x61\x64\x64\x53\x6f\x75\x72\x63\x65','\x65\x64\x69\x66\x69\x63\x61\x63\x6f\x65\x73\x5f\x64\x61\x64\x6f\x73\x5f\x6c\x6f\x74\x65\x73\x2e\x67\x65\x6f\x6a\x73\x6f\x6e','\x6f\x70\x61\x63\x69\x74\x79','\x64\x61\x74\x61\x2d\x74\x69\x70\x6f\x6c\x6f\x67\x69\x61','\x61\x6c\x6c','\x71\x75\x65\x72\x79\x53\x65\x6c\x65\x63\x74\x6f\x72','\x73\x65\x74\x44\x61\x74\x61','\x54\x45\x52\x52\x45\x4e\x4f','\x32\x36\x30\x34\x76\x4b\x58\x6f\x66\x4b','\x37\x32\x33\x32\x32\x30\x53\x47\x6c\x70\x74\x69','\x23\x66\x66\x61\x62\x32\x32','\x23\x39\x33\x63\x34\x37\x64','\x70\x6f\x69\x6e\x74\x65\x72','\x63\x6f\x72','\x50\x72\x6f\x70\x72\x69\x65\x64\x61\x64\x65\x73\x20\x64\x6f\x20\x70\x6f\x6c\u00ed\x67\x6f\x6e\x6f\x20\x63\x6c\x69\x63\x61\x64\x6f\x3a','\x41\x6c\x74\x75\x72\x61','\x70\x6b\x2e\x65\x79\x4a\x31\x49\x6a\x6f\x69\x61\x48\x56\x6e\x62\x32\x35\x69\x5a\x79\x49\x73\x49\x6d\x45\x69\x4f\x69\x4a\x6a\x62\x48\x42\x79\x61\x48\x5a\x32\x65\x47\x4d\x77\x4e\x32\x59\x33\x4d\x6d\x70\x77\x4f\x58\x41\x7a\x64\x48\x4e\x30\x4e\x47\x31\x79\x49\x6e\x30\x2e\x5a\x6d\x33\x4a\x65\x6b\x51\x45\x53\x4a\x64\x79\x6c\x4c\x64\x55\x69\x69\x4d\x45\x55\x67','\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64','\x6d\x6f\x75\x73\x65\x65\x6e\x74\x65\x72','\x2e\x6d\x61\x70\x62\x6f\x78\x67\x6c\x2d\x63\x61\x6e\x76\x61\x73','\x23\x46\x46\x46\x46\x46\x46','\x36\x48\x73\x77\x46\x6f\x6a','\x74\x65\x78\x74\x43\x6f\x6e\x74\x65\x6e\x74','\x64\x72\x61\x77\x50\x6f\x6c\x79\x67\x6f\x6e','\x63\x6f\x6c\x6f\x72\x50\x69\x63\x6b\x65\x72'];_0xe0a3=function(){return _0x31e942;};return _0xe0a3();}(function(_0x13223e,_0x44639a){const _0x1989d8=_0x4220,_0x44f7a3=_0x13223e();while(!![]){try{const _0x32aa11=parseInt(_0x1989d8(0x250))/0x1*(-parseInt(_0x1989d8(0x24a))/0x2)+-parseInt(_0x1989d8(0x1fd))/0x3*(parseInt(_0x1989d8(0x1f1))/0x4)+parseInt(_0x1989d8(0x246))/0x5*(parseInt(_0x1989d8(0x235))/0x6)+parseInt(_0x1989d8(0x23a))/0x7*(parseInt(_0x1989d8(0x219))/0x8)+-parseInt(_0x1989d8(0x216))/0x9+parseInt(_0x1989d8(0x215))/0xa+-parseInt(_0x1989d8(0x236))/0xb*(-parseInt(_0x1989d8(0x1f0))/0xc);if(_0x32aa11===_0x44639a)break;else _0x44f7a3['push'](_0x44f7a3['shift']());}catch(_0x1cd3c7){_0x44f7a3['push'](_0x44f7a3['shift']());}}}(_0xe0a3,0x43453),mapboxgl[_0x56186e(0x21e)]=_0x56186e(0x1f8));const map=new mapboxgl['\x4d\x61\x70']({'\x63\x6f\x6e\x74\x61\x69\x6e\x65\x72':_0x56186e(0x245),'\x73\x74\x79\x6c\x65':'\x6d\x61\x70\x62\x6f\x78\x3a\x2f\x2f\x73\x74\x79\x6c\x65\x73\x2f\x6d\x61\x70\x62\x6f\x78\x2f\x73\x74\x72\x65\x65\x74\x73\x2d\x76\x31\x32','\x63\x65\x6e\x74\x65\x72':[-34.87,-8.055],'\x7a\x6f\x6f\x6d':0xf,'\x70\x72\x65\x73\x65\x72\x76\x65\x44\x72\x61\x77\x69\x6e\x67\x42\x75\x66\x66\x65\x72':!![],'\x61\x6e\x74\x69\x61\x6c\x69\x61\x73':!![]}),draw=new MapboxDraw({'\x64\x69\x73\x70\x6c\x61\x79\x43\x6f\x6e\x74\x72\x6f\x6c\x73\x44\x65\x66\x61\x75\x6c\x74':![],'\x63\x6f\x6e\x74\x72\x6f\x6c\x73':{}});map[_0x56186e(0x226)](draw);function _0x4220(_0x283554,_0x17e1ea){const _0xe0a34f=_0xe0a3();return _0x4220=function(_0x422055,_0x538044){_0x422055=_0x422055-0x1de;let _0x577f5=_0xe0a34f[_0x422055];return _0x577f5;},_0x4220(_0x283554,_0x17e1ea);}let selectedBuildingId=null,geojsonData=null;map['\x6f\x6e'](_0x56186e(0x208),function(){const _0x42ac18=_0x56186e;fetch(_0x42ac18(0x1e9))[_0x42ac18(0x241)](_0x520806=>_0x520806['\x6a\x73\x6f\x6e']())[_0x42ac18(0x241)](_0x383fbf=>{const _0x1c7e96=_0x42ac18;geojsonData=_0x383fbf,map[_0x1c7e96(0x1e8)](_0x1c7e96(0x221),{'\x74\x79\x70\x65':_0x1c7e96(0x24d),'\x64\x61\x74\x61':geojsonData,'\x67\x65\x6e\x65\x72\x61\x74\x65\x49\x64':!![]}),map[_0x1c7e96(0x21b)]({'\x69\x64':_0x1c7e96(0x228),'\x74\x79\x70\x65':_0x1c7e96(0x202),'\x73\x6f\x75\x72\x63\x65':_0x1c7e96(0x221),'\x70\x61\x69\x6e\x74':{'\x66\x69\x6c\x6c\x2d\x65\x78\x74\x72\x75\x73\x69\x6f\x6e\x2d\x63\x6f\x6c\x6f\x72':[_0x1c7e96(0x222),[_0x1c7e96(0x21c),[_0x1c7e96(0x23f),_0x1c7e96(0x20e)],![]],'\x23\x46\x46\x38\x43\x30\x30',['\x68\x61\x73',_0x1c7e96(0x1f5)],[_0x1c7e96(0x239),_0x1c7e96(0x1f5)],['\x3d\x3d',['\x67\x65\x74',_0x1c7e96(0x255)],'\x53\x69\x6d'],'\x23\x66\x62\x38\x39\x62\x61',['\x3d\x3d',[_0x1c7e96(0x239),_0x1c7e96(0x1e1)],'\x52\x45\x53\x49\x44\x45\x4e\x43\x49\x41\x4c'],_0x1c7e96(0x1f3),['\x3d\x3d',[_0x1c7e96(0x239),_0x1c7e96(0x1e1)],_0x1c7e96(0x233)],_0x1c7e96(0x242),['\x3d\x3d',[_0x1c7e96(0x239),_0x1c7e96(0x1e1)],_0x1c7e96(0x244)],_0x1c7e96(0x1f2),['\x3d\x3d',[_0x1c7e96(0x239),_0x1c7e96(0x1e1)],_0x1c7e96(0x1ef)],_0x1c7e96(0x22e),['\x3d\x3d',['\x67\x65\x74',_0x1c7e96(0x1e1)],_0x1c7e96(0x253)],_0x1c7e96(0x24e),_0x1c7e96(0x24e)],'\x66\x69\x6c\x6c\x2d\x65\x78\x74\x72\x75\x73\x69\x6f\x6e\x2d\x68\x65\x69\x67\x68\x74':{'\x74\x79\x70\x65':_0x1c7e96(0x213),'\x70\x72\x6f\x70\x65\x72\x74\x79':'\x41\x6c\x74\x75\x72\x61'},'\x66\x69\x6c\x6c\x2d\x65\x78\x74\x72\x75\x73\x69\x6f\x6e\x2d\x6f\x70\x61\x63\x69\x74\x79':0.9,'\x66\x69\x6c\x6c\x2d\x65\x78\x74\x72\x75\x73\x69\x6f\x6e\x2d\x62\x61\x73\x65':0x0,'\x66\x69\x6c\x6c\x2d\x65\x78\x74\x72\x75\x73\x69\x6f\x6e\x2d\x76\x65\x72\x74\x69\x63\x61\x6c\x2d\x67\x72\x61\x64\x69\x65\x6e\x74':!![]}}),map[_0x1c7e96(0x1e8)](_0x1c7e96(0x254),{'\x74\x79\x70\x65':_0x1c7e96(0x24d),'\x64\x61\x74\x61':_0x1c7e96(0x1e7)}),map[_0x1c7e96(0x21b)]({'\x69\x64':'\x72\x65\x63\x65\x6e\x74\x72\x6f\x2d\x6c\x61\x79\x65\x72','\x74\x79\x70\x65':_0x1c7e96(0x249),'\x73\x6f\x75\x72\x63\x65':_0x1c7e96(0x254),'\x6c\x61\x79\x6f\x75\x74':{'\x6c\x69\x6e\x65\x2d\x63\x61\x70':'\x72\x6f\x75\x6e\x64','\x6c\x69\x6e\x65\x2d\x6a\x6f\x69\x6e':_0x1c7e96(0x23e)},'\x70\x61\x69\x6e\x74':{'\x6c\x69\x6e\x65\x2d\x63\x6f\x6c\x6f\x72':'\x67\x72\x61\x79','\x6c\x69\x6e\x65\x2d\x77\x69\x64\x74\x68':0x4,'\x6c\x69\x6e\x65\x2d\x64\x61\x73\x68\x61\x72\x72\x61\x79':[0x2,0x2]}}),map['\x6f\x6e'](_0x1c7e96(0x1fa),_0x1c7e96(0x228),function(){const _0x4eef17=_0x1c7e96;map[_0x4eef17(0x214)]()[_0x4eef17(0x20d)][_0x4eef17(0x20f)]=_0x4eef17(0x1f4);}),map['\x6f\x6e'](_0x1c7e96(0x227),_0x1c7e96(0x228),function(){const _0x399a8d=_0x1c7e96;map[_0x399a8d(0x214)]()[_0x399a8d(0x20d)]['\x63\x75\x72\x73\x6f\x72']='';});let _0x594eec=null;map['\x6f\x6e']('\x6d\x6f\x75\x73\x65\x6d\x6f\x76\x65',_0x1c7e96(0x228),_0x1511e0=>{const _0x2c3f8b=_0x1c7e96;_0x1511e0[_0x2c3f8b(0x251)][_0x2c3f8b(0x223)]>0x0&&(_0x594eec!==undefined&&map[_0x2c3f8b(0x204)]({'\x73\x6f\x75\x72\x63\x65':_0x2c3f8b(0x221),'\x69\x64':_0x594eec},{'\x68\x6f\x76\x65\x72':![]}),_0x594eec=_0x1511e0[_0x2c3f8b(0x251)][0x0]['\x69\x64'],map[_0x2c3f8b(0x204)]({'\x73\x6f\x75\x72\x63\x65':_0x2c3f8b(0x221),'\x69\x64':_0x594eec},{'\x68\x6f\x76\x65\x72':!![]}));}),map['\x6f\x6e'](_0x1c7e96(0x227),_0x1c7e96(0x228),()=>{const _0x354c6d=_0x1c7e96;map[_0x354c6d(0x214)]()[_0x354c6d(0x20d)]['\x63\x75\x72\x73\x6f\x72']='',_0x594eec!==undefined&&map[_0x354c6d(0x204)]({'\x73\x6f\x75\x72\x63\x65':_0x354c6d(0x221),'\x69\x64':_0x594eec},{'\x68\x6f\x76\x65\x72':![]}),_0x594eec=null;}),document[_0x1c7e96(0x1f9)](_0x1c7e96(0x1ff))['\x61\x64\x64\x45\x76\x65\x6e\x74\x4c\x69\x73\x74\x65\x6e\x65\x72'](_0x1c7e96(0x20c),function(){const _0x31b303=_0x1c7e96;draw[_0x31b303(0x24c)](_0x31b303(0x1e2));});let _0x1f9146=null,_0x5ca727=null;map['\x6f\x6e']('\x63\x6c\x69\x63\x6b',_0x1c7e96(0x228),_0x23120b=>{const _0x4b29bc=_0x1c7e96;_0x23120b[_0x4b29bc(0x251)]['\x6c\x65\x6e\x67\x74\x68']>0x0&&(_0x1f9146=_0x23120b[_0x4b29bc(0x251)][0x0][_0x4b29bc(0x218)]['\x70\x72\x65\x64\x69\x6f\x69\x64'],_0x5ca727=_0x23120b[_0x4b29bc(0x251)][0x0][_0x4b29bc(0x218)][_0x4b29bc(0x1f7)],document['\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64']('\x62\x75\x69\x6c\x64\x69\x6e\x67\x2d\x69\x6e\x66\x6f')[_0x4b29bc(0x1fe)]='\x41\x6c\x74\x75\x72\x61\x20\x64\x6f\x20\x45\x64\x69\x66\u00ed\x63\x69\x6f\x3a\x20'+_0x5ca727+'\x6d',document[_0x4b29bc(0x1f9)](_0x4b29bc(0x225))[_0x4b29bc(0x20d)]['\x64\x69\x73\x70\x6c\x61\x79']=_0x4b29bc(0x205),document[_0x4b29bc(0x1f9)]('\x75\x70\x64\x61\x74\x65\x48\x65\x69\x67\x68\x74')['\x73\x74\x79\x6c\x65'][_0x4b29bc(0x22c)]=_0x4b29bc(0x205),console[_0x4b29bc(0x237)](_0x4b29bc(0x1f6),_0x23120b[_0x4b29bc(0x251)][0x0]['\x70\x72\x6f\x70\x65\x72\x74\x69\x65\x73']));}),document[_0x1c7e96(0x1f9)](_0x1c7e96(0x21f))[_0x1c7e96(0x1e0)](_0x1c7e96(0x20c),function(){const _0x1afb69=_0x1c7e96,_0x46a3be=parseInt(document['\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64'](_0x1afb69(0x225))[_0x1afb69(0x23b)]);if(_0x1f9146!==null&&geojsonData&&!isNaN(_0x46a3be)){const _0x570948=geojsonData[_0x1afb69(0x251)][_0x1afb69(0x220)](_0x5fa256=>_0x5fa256[_0x1afb69(0x218)][_0x1afb69(0x230)]===_0x1f9146);if(_0x570948){if(_0x570948[_0x1afb69(0x218)][_0x1afb69(0x255)]===_0x1afb69(0x20b)){alert(_0x1afb69(0x234));return;}_0x570948['\x70\x72\x6f\x70\x65\x72\x74\x69\x65\x73']['\x41\x6c\x74\x75\x72\x61']=_0x46a3be,map['\x67\x65\x74\x53\x6f\x75\x72\x63\x65']('\x65\x64\x69\x66\x69\x63\x61\x63\x6f\x65\x73')[_0x1afb69(0x1ee)](geojsonData);}else console['\x6c\x6f\x67'](_0x1afb69(0x21a),_0x1f9146);}});let _0x2e5514=0x186a0;document[_0x1c7e96(0x1f9)](_0x1c7e96(0x24f))[_0x1c7e96(0x1e0)]('\x63\x6c\x69\x63\x6b',function(){const _0x2e0797=_0x1c7e96,_0x5d52a3=parseInt(document['\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64'](_0x2e0797(0x1de))[_0x2e0797(0x23b)]);if(!isNaN(_0x5d52a3)){const _0x34fa5f=draw[_0x2e0797(0x21d)]();if(_0x34fa5f['\x66\x65\x61\x74\x75\x72\x65\x73']['\x6c\x65\x6e\x67\x74\x68']>0x0){const _0x4f1693=_0x34fa5f['\x66\x65\x61\x74\x75\x72\x65\x73'][_0x2e0797(0x223)]-0x1,_0x392a0f=_0x34fa5f[_0x2e0797(0x251)][_0x4f1693];_0x392a0f[_0x2e0797(0x218)][_0x2e0797(0x1f7)]=_0x5d52a3,_0x392a0f['\x70\x72\x6f\x70\x65\x72\x74\x69\x65\x73'][_0x2e0797(0x230)]=_0x2e5514[_0x2e0797(0x206)](),_0x2e5514++,geojsonData[_0x2e0797(0x251)][_0x2e0797(0x23d)](_0x392a0f),map[_0x2e0797(0x252)](_0x2e0797(0x221))[_0x2e0797(0x1ee)](geojsonData);}}}),document[_0x1c7e96(0x1f9)](_0x1c7e96(0x1df))[_0x1c7e96(0x1e0)](_0x1c7e96(0x20c),function(){const _0x5a7091=_0x1c7e96,_0x8f4812=document['\x67\x65\x74\x45\x6c\x65\x6d\x65\x6e\x74\x42\x79\x49\x64'](_0x5a7091(0x200))[_0x5a7091(0x23b)];if(_0x36bb08!==null&&geojsonData){const _0xbf067f=geojsonData[_0x5a7091(0x251)]['\x66\x69\x6e\x64'](_0x2238be=>_0x2238be[_0x5a7091(0x218)][_0x5a7091(0x230)]===_0x36bb08);if(_0xbf067f){if(_0xbf067f[_0x5a7091(0x218)][_0x5a7091(0x255)]==='\x53\x69\x6d'){alert('\x45\x73\x74\x65\x20\x70\x72\u00e9\x64\x69\x6f\x20\u00e9\x20\x70\x72\x6f\x74\x65\x67\x69\x64\x6f\x20\x65\x20\x6e\u00e3\x6f\x20\x70\x6f\x64\x65\x20\x74\x65\x72\x20\x73\x75\x61\x20\x63\x6f\x72\x20\x61\x6c\x74\x65\x72\x61\x64\x61\x2e');return;}_0xbf067f[_0x5a7091(0x218)][_0x5a7091(0x1f5)]=_0x8f4812,map[_0x5a7091(0x252)]('\x65\x64\x69\x66\x69\x63\x61\x63\x6f\x65\x73')['\x73\x65\x74\x44\x61\x74\x61'](geojsonData);}}});let _0x36bb08=null;map['\x6f\x6e'](_0x1c7e96(0x20c),_0x1c7e96(0x228),_0x2f309a=>{const _0x2c2f55=_0x1c7e96;_0x2f309a[_0x2c2f55(0x251)][_0x2c2f55(0x223)]>0x0&&(_0x36bb08=_0x2f309a['\x66\x65\x61\x74\x75\x72\x65\x73'][0x0][_0x2c2f55(0x218)][_0x2c2f55(0x230)],console['\x6c\x6f\x67'](_0x36bb08));}),document[_0x1c7e96(0x1f9)]('\x64\x65\x6c\x65\x74\x65\x50\x6f\x6c\x79\x67\x6f\x6e')[_0x1c7e96(0x1e0)](_0x1c7e96(0x20c),function(){const _0x99776e=_0x1c7e96;if(_0x36bb08!==null&&geojsonData){const _0x2217c8=geojsonData[_0x99776e(0x251)][_0x99776e(0x211)](_0x3d17d3=>_0x3d17d3[_0x99776e(0x218)]['\x70\x72\x65\x64\x69\x6f\x69\x64']===_0x36bb08);if(_0x2217c8!==-0x1&&geojsonData[_0x99776e(0x251)][_0x2217c8][_0x99776e(0x218)][_0x99776e(0x255)]===_0x99776e(0x20b))alert(_0x99776e(0x212));else _0x2217c8!==-0x1?(geojsonData[_0x99776e(0x251)][_0x99776e(0x240)](_0x2217c8,0x1),map[_0x99776e(0x252)](_0x99776e(0x221))[_0x99776e(0x1ee)](geojsonData),_0x36bb08=null):console[_0x99776e(0x237)](_0x99776e(0x21a),_0x36bb08);}});const _0x28a5e5=0x2;document[_0x1c7e96(0x1f9)](_0x1c7e96(0x1e3))[_0x1c7e96(0x1e0)](_0x1c7e96(0x20c),function(){const _0x5ce615=_0x1c7e96,_0x1e3aa1=document[_0x5ce615(0x1ed)](_0x5ce615(0x1fb)),_0x1af634=_0x1e3aa1['\x74\x6f\x44\x61\x74\x61\x55\x52\x4c']('\x69\x6d\x61\x67\x65\x2f\x70\x6e\x67');html2canvas(document[_0x5ce615(0x1f9)](_0x5ce615(0x23c)),{'\x62\x61\x63\x6b\x67\x72\x6f\x75\x6e\x64\x43\x6f\x6c\x6f\x72':_0x5ce615(0x1fc)})['\x74\x68\x65\x6e'](_0x2f1e1b=>{const _0x5734f3=_0x5ce615,_0x52fbc2=_0x2f1e1b[_0x5734f3(0x229)](_0x5734f3(0x243));_0x2e2bd1(_0x1af634,_0x52fbc2);});});function _0x2e2bd1(_0x58922e,_0x4ff07a){const _0x4db830=_0x1c7e96,_0x2b75b3=new Image(),_0x5469b1=new Image();_0x2b75b3[_0x4db830(0x22b)]=()=>{const _0x3e1430=_0x4db830;_0x5469b1[_0x3e1430(0x22b)]=()=>{const _0x2d04d6=_0x3e1430,_0x3020aa=document['\x63\x72\x65\x61\x74\x65\x45\x6c\x65\x6d\x65\x6e\x74'](_0x2d04d6(0x22f));_0x3020aa[_0x2d04d6(0x231)]=_0x2b75b3['\x77\x69\x64\x74\x68'],_0x3020aa[_0x2d04d6(0x232)]=_0x2b75b3[_0x2d04d6(0x232)];const _0x101d2c=_0x3020aa[_0x2d04d6(0x238)]('\x32\x64');_0x101d2c[_0x2d04d6(0x22a)](_0x2b75b3,0x0,0x0);const _0x4384ca=_0x2b75b3['\x77\x69\x64\x74\x68']-_0x5469b1[_0x2d04d6(0x231)]-0xa,_0x3c4c47=_0x2b75b3[_0x2d04d6(0x232)]-_0x5469b1['\x68\x65\x69\x67\x68\x74']-0xa;_0x101d2c['\x64\x72\x61\x77\x49\x6d\x61\x67\x65'](_0x5469b1,_0x4384ca,_0x3c4c47),_0x5205f1(_0x3020aa[_0x2d04d6(0x229)]('\x69\x6d\x61\x67\x65\x2f\x70\x6e\x67'));},_0x5469b1[_0x3e1430(0x1e4)]=_0x4ff07a;},_0x2b75b3[_0x4db830(0x1e4)]=_0x58922e;}function _0x5205f1(_0x368d91){const _0x2de670=_0x1c7e96,_0x362127=document[_0x2de670(0x1e6)]('\x61');_0x362127['\x68\x72\x65\x66']=_0x368d91,_0x362127['\x64\x6f\x77\x6e\x6c\x6f\x61\x64']=_0x2de670(0x207),document[_0x2de670(0x224)][_0x2de670(0x248)](_0x362127),_0x362127[_0x2de670(0x20c)](),document[_0x2de670(0x224)][_0x2de670(0x247)](_0x362127);}let _0x1415a9={'\x54\x6f\x6d\x62\x61\x64\x6f\x73':!![],'\x52\x45\x53\x49\x44\x45\x4e\x43\x49\x41\x4c':!![],'\x4e\u00c3\x4f\x20\x52\x45\x53\x49\x44\x45\x4e\x43\x49\x41\x4c':!![],'\x55\x53\x4f\x20\x4d\x49\x53\x54\x4f':!![],'\x54\x45\x52\x52\x45\x4e\x4f':!![],'\x53\x65\x6d\x20\x43\x6c\x61\x73\x73\x69\x66\x69\x63\x61\u00e7\u00e3\x6f':!![]};document[_0x1c7e96(0x20a)](_0x1c7e96(0x201))['\x66\x6f\x72\x45\x61\x63\x68'](_0x4a7fa6=>{const _0x35ac93=_0x1c7e96;_0x4a7fa6[_0x35ac93(0x1e0)](_0x35ac93(0x20c),function(){const _0x335069=_0x35ac93;let _0x591f75=this[_0x335069(0x210)](_0x335069(0x1eb));_0x1415a9[_0x591f75]=!_0x1415a9[_0x591f75],this[_0x335069(0x20d)][_0x335069(0x1ea)]=_0x1415a9[_0x591f75]?'\x31':_0x335069(0x217),_0x4a7be9();});});function _0x4a7be9(){const _0x220578=_0x1c7e96;let _0x4ee3d1=[_0x220578(0x1ec)],_0x35fec5=[_0x220578(0x1e5)];Object['\x6b\x65\x79\x73'](_0x1415a9)[_0x220578(0x24b)](_0x87223=>{const _0x2f7158=_0x220578;_0x87223!==_0x2f7158(0x255)&&_0x1415a9[_0x87223]&&_0x35fec5[_0x2f7158(0x23d)](['\x3d\x3d',[_0x2f7158(0x239),_0x2f7158(0x1e1)],_0x87223]);}),_0x35fec5['\x70\x75\x73\x68'](['\x21',[_0x220578(0x22d),_0x220578(0x1e1)]]);_0x35fec5[_0x220578(0x223)]===0x1&&_0x35fec5[_0x220578(0x23d)](['\x3d\x3d','\x6e\x6f\x6e\x65',_0x220578(0x203)]);_0x4ee3d1[_0x220578(0x23d)](_0x35fec5);let _0x26184b=['\x61\x6e\x79',['\x3d\x3d',[_0x220578(0x239),_0x220578(0x255)],_0x220578(0x20b)],_0x4ee3d1];map[_0x220578(0x209)](_0x220578(0x228),_0x26184b);}});});
+    </script>
+</body>
+
+</html>
